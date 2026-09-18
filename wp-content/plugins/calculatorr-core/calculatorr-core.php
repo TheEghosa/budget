@@ -3,7 +3,7 @@
  * Plugin Name:       Calculatorr Core
  * Plugin URI:        https://calculatorr.org
  * Description:       Powers every calculator on calculatorr.org. Each calculator is one config file, so adding the hundred and first is a config file rather than a new template.
- * Version:           0.1.0
+ * Version:           1.0.0
  * Requires at least: 6.0
  * Requires PHP:      7.4
  * Author:            calculatorr.org
@@ -15,11 +15,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'CALCULATORR_VERSION', '0.1.0' );
+define( 'CALCULATORR_VERSION', '1.0.0' );
 define( 'CALCULATORR_FILE', __FILE__ );
 define( 'CALCULATORR_PATH', plugin_dir_path( __FILE__ ) );
 define( 'CALCULATORR_URL', plugin_dir_url( __FILE__ ) );
 
+require_once CALCULATORR_PATH . 'includes/class-settings.php';
+require_once CALCULATORR_PATH . 'includes/class-error-log.php';
 require_once CALCULATORR_PATH . 'includes/class-registry.php';
 require_once CALCULATORR_PATH . 'includes/class-renderer.php';
 require_once CALCULATORR_PATH . 'includes/class-schema.php';
@@ -34,6 +36,8 @@ require_once CALCULATORR_PATH . 'includes/class-elementor.php';
  * registers its own widget hooks late, is already present when we look for it.
  */
 function calculatorr_boot() {
+	Calculatorr_Settings::instance();
+	Calculatorr_Error_Log::instance();
 	Calculatorr_Registry::instance();
 	Calculatorr_Renderer::instance();
 	Calculatorr_Schema::instance();
@@ -70,7 +74,7 @@ function calculatorr_register_assets() {
 	 * Sites that self-host fonts or already load them can switch this off with
 	 * the calculatorr_load_fonts filter.
 	 */
-	if ( apply_filters( 'calculatorr_load_fonts', true ) ) {
+	if ( apply_filters( 'calculatorr_load_fonts', (bool) Calculatorr_Settings::instance()->get( 'load_fonts' ) ) ) {
 		wp_register_style(
 			'calculatorr-fonts',
 			'https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Source+Sans+3:wght@400;600&display=swap',

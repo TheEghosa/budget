@@ -210,6 +210,10 @@ class Calculatorr_Schema {
 	}
 
 	public function output() {
+		if ( ! Calculatorr_Settings::instance()->get( 'schema_enabled' ) ) {
+			return;
+		}
+
 		$graph = array( $this->organization(), $this->website() );
 
 		$config = Calculatorr_Pages::current();

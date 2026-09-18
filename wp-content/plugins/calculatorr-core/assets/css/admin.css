@@ -1,0 +1,159 @@
+/*
+ * Admin styling. Deliberately close to WordPress's own conventions rather
+ * than a separate design, because an admin screen that ignores the
+ * surrounding furniture makes people distrust it.
+ */
+
+.calcr-admin__title {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+}
+
+.calcr-admin__mark {
+	display: inline-block;
+	width: 30px;
+	height: 30px;
+	border-radius: 7px;
+	background:
+		linear-gradient(#fff, #fff) 7px 11px / 16px 3px no-repeat,
+		linear-gradient(#fff, #fff) 7px 17px / 10px 3px no-repeat,
+		#0E6E63;
+	flex-shrink: 0;
+}
+
+.calcr-admin__tabs {
+	margin-bottom: 20px;
+}
+
+.calcr-admin__badge {
+	display: inline-block;
+	min-width: 18px;
+	padding: 0 5px;
+	margin-left: 5px;
+	border-radius: 9px;
+	background: #b32d2e;
+	color: #fff;
+	font-size: 11px;
+	line-height: 18px;
+	text-align: center;
+}
+
+/* ---- stat tiles ---- */
+
+.calcr-stats {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+	gap: 14px;
+	margin-bottom: 22px;
+}
+
+.calcr-stat {
+	display: flex;
+	flex-direction: column;
+	gap: 3px;
+	padding: 18px 20px;
+	background: #fff;
+	border: 1px solid #dcdcde;
+	border-radius: 6px;
+}
+
+.calcr-stat__value {
+	font-size: 34px;
+	font-weight: 700;
+	line-height: 1.1;
+	color: #0E6E63;
+	font-variant-numeric: tabular-nums;
+}
+
+.calcr-stat__label {
+	font-size: 13px;
+	font-weight: 600;
+	color: #1d2327;
+}
+
+.calcr-stat__detail {
+	font-size: 12px;
+	color: #646970;
+}
+
+/* ---- panels ---- */
+
+.calcr-panel {
+	padding: 20px 22px;
+	margin-bottom: 22px;
+	background: #fff;
+	border: 1px solid #dcdcde;
+	border-radius: 6px;
+}
+
+.calcr-panel h2 {
+	margin-top: 0;
+}
+
+.calcr-panel > p {
+	max-width: 78ch;
+	color: #50575e;
+}
+
+/* ---- health checks ---- */
+
+.calcr-checks td {
+	vertical-align: top;
+	padding: 10px 12px;
+}
+
+.calcr-checks__state {
+	width: 78px;
+	font-size: 11px;
+	font-weight: 700;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+}
+
+.calcr-checks__state--ok   { color: #007017; }
+.calcr-checks__state--warn { color: #8a6100; }
+.calcr-checks__state--act  { color: #b32d2e; }
+
+/* ---- filters and tables ---- */
+
+.calcr-filter {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+	margin: 16px 0;
+}
+
+.calcr-filter a {
+	padding: 5px 11px;
+	border: 1px solid #dcdcde;
+	border-radius: 14px;
+	background: #f6f7f7;
+	font-size: 13px;
+	text-decoration: none;
+	color: #1d2327;
+}
+
+.calcr-filter a.is-active {
+	background: #0E6E63;
+	border-color: #0E6E63;
+	color: #fff;
+}
+
+.calcr-table code {
+	font-size: 12px;
+	background: #f6f7f7;
+}
+
+.calcr-empty {
+	padding: 26px;
+	background: #f6f7f7;
+	border-radius: 6px;
+	color: #50575e;
+	text-align: center;
+}
+
+@media (max-width: 782px) {
+	.calcr-stat__value { font-size: 28px; }
+	.calcr-panel { padding: 16px; }
+}

@@ -33,7 +33,7 @@ class Calculatorr_Renderer {
 	 */
 	public function shortcode( $atts ) {
 		$atts = shortcode_atts( array( 'slug' => '' ), $atts, 'calculatorr' );
-		$config = Calculatorr_Registry::instance()->get( $atts['slug'] );
+		$config = Calculatorr_Registry::instance()->get_live( $atts['slug'] );
 
 		if ( ! $config ) {
 			return '';
@@ -41,6 +41,14 @@ class Calculatorr_Renderer {
 
 		wp_enqueue_style( 'calculatorr-app' );
 		wp_enqueue_script( 'calculatorr-app' );
+
+		if ( Calculatorr_Settings::instance()->get( 'log_enabled' ) ) {
+			wp_localize_script(
+				'calculatorr-app',
+				'CalculatorrConfig',
+				array( 'logUrl' => rest_url( 'calculatorr/v1/log' ) )
+			);
+		}
 
 		return $this->render_page( $config );
 	}
@@ -63,7 +71,7 @@ class Calculatorr_Renderer {
 
 		wp_enqueue_style( 'calculatorr-app' );
 
-		$calculators = $registry->in_category( $atts['key'] );
+		$calculators = $registry->in_category( $atts['key'], false );
 
 		ob_start();
 		?>
@@ -134,6 +142,7 @@ class Calculatorr_Renderer {
 						<span data-calcr-copy-label>Copy result</span>
 					</button>
 
+					<?php if ( Calculatorr_Settings::instance()->get( 'share_enabled' ) ) : ?>
 					<div class="calcr__share">
 						<button type="button" class="calcr__btn calcr__btn--primary" data-calcr-share-toggle aria-expanded="false" aria-haspopup="true">
 							<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.6" y1="10.5" x2="15.4" y2="6.5"></line><line x1="8.6" y1="13.5" x2="15.4" y2="17.5"></line></svg>
@@ -173,6 +182,7 @@ class Calculatorr_Renderer {
 							<p class="calcr__share-note">The link reopens this calculator with your figures already filled in.</p>
 						</div>
 					</div>
+					<?php endif; ?>
 				</div>
 			</form>
 

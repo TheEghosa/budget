@@ -209,18 +209,48 @@ class Calculatorr_Registry {
 				$config['default_result'] = $defaults[ $config['slug'] ];
 			}
 
+			/* Admin overrides are applied here so nothing downstream has to
+			   know they exist. */
+			if ( class_exists( 'Calculatorr_Settings' ) ) {
+				$config = Calculatorr_Settings::instance()->apply( $config );
+			}
+
 			$this->calculators[ $config['slug'] ] = $config;
 		}
 
 		ksort( $this->calculators );
 	}
 
-	public function all() {
-		return $this->calculators;
+	/**
+	 * @param bool $include_disabled Admin screens want everything. The front
+	 *                               end wants only what is switched on.
+	 */
+	public function all( $include_disabled = true ) {
+		if ( $include_disabled || ! class_exists( 'Calculatorr_Settings' ) ) {
+			return $this->calculators;
+		}
+
+		$settings = Calculatorr_Settings::instance();
+
+		return array_filter( $this->calculators, function ( $config ) use ( $settings ) {
+			return ! $settings->is_disabled( $config['slug'] );
+		} );
 	}
 
 	public function get( $slug ) {
 		return isset( $this->calculators[ $slug ] ) ? $this->calculators[ $slug ] : null;
+	}
+
+	/**
+	 * Null for a calculator an administrator has switched off, so the renderer
+	 * shows nothing rather than a half-working tool.
+	 */
+	public function get_live( $slug ) {
+		if ( class_exists( 'Calculatorr_Settings' ) && Calculatorr_Settings::instance()->is_disabled( $slug ) ) {
+			return null;
+		}
+
+		return $this->get( $slug );
 	}
 
 	public function categories() {
@@ -234,10 +264,10 @@ class Calculatorr_Registry {
 	/**
 	 * @return array<string,array> Calculators belonging to one category.
 	 */
-	public function in_category( $category ) {
+	public function in_category( $category, $include_disabled = true ) {
 		$matches = array();
 
-		foreach ( $this->calculators as $slug => $config ) {
+		foreach ( $this->all( $include_disabled ) as $slug => $config ) {
 			if ( $config['category'] === $category ) {
 				$matches[ $slug ] = $config;
 			}

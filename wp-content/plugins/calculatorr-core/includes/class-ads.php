@@ -46,7 +46,14 @@ class Calculatorr_Ads {
 		 * leaves the reserved space blank, which is the default so that a fresh
 		 * install never renders an empty grey box to real visitors.
 		 */
-		$markup = apply_filters( 'calculatorr_ad_slot', '', $name );
+		$settings = Calculatorr_Settings::instance();
+
+		if ( ! $settings->get( 'ads_enabled' ) ) {
+			return '';
+		}
+
+		$stored = (string) $settings->get( 'ad_' . $name );
+		$markup = apply_filters( 'calculatorr_ad_slot', $stored, $name );
 
 		if ( '' === $markup && ! apply_filters( 'calculatorr_show_empty_ad_slots', false, $name ) ) {
 			return '';

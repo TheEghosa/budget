@@ -81,6 +81,19 @@ function get_transient( $k ) { return false; }
 function set_transient() {}
 function delete_transient() {}
 
+function get_option( $k, $d = false ) { return isset( $GLOBALS['calcr_options'][ $k ] ) ? $GLOBALS['calcr_options'][ $k ] : $d; }
+function update_option( $k, $v, $a = true ) { $GLOBALS['calcr_options'][ $k ] = $v; return true; }
+function sanitize_key( $k ) { return preg_replace( '/[^a-z0-9_\-]/', '', strtolower( (string) $k ) ); }
+function sanitize_text_field( $t ) { return trim( strip_tags( (string) $t ) ); }
+function register_rest_route() {}
+function rest_url( $p = '' ) { return home_url( '/wp-json/' . $p ); }
+function wp_localize_script() {}
+function mb_substr_compat( $s, $a, $b ) { return substr( $s, $a, $b ); }
+
+$GLOBALS['calcr_options'] = array();
+
+require_once CALCULATORR_PATH . 'includes/class-settings.php';
+require_once CALCULATORR_PATH . 'includes/class-error-log.php';
 require_once CALCULATORR_PATH . 'includes/class-registry.php';
 require_once CALCULATORR_PATH . 'includes/class-renderer.php';
 require_once CALCULATORR_PATH . 'includes/class-schema.php';

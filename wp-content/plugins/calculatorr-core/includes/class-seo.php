@@ -28,7 +28,8 @@ class Calculatorr_SEO {
 	}
 
 	private function __construct() {
-		$this->deferring = $this->another_seo_plugin_is_active();
+		$this->deferring = $this->another_seo_plugin_is_active()
+			|| ! Calculatorr_Settings::instance()->get( 'seo_enabled' );
 
 		if ( $this->deferring ) {
 			/* Still feed the other plugin good defaults, since it will use the

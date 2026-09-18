@@ -11,6 +11,44 @@
 	'use strict';
 
 	var FORMULAS = window.CalculatorrFormulas || {};
+	var reported = {};
+
+	/**
+	 * Sends a formula error back to the site so it appears in the admin log.
+	 *
+	 * A formula that throws on somebody's phone leaves no trace on the server
+	 * at all: they see a stale answer and leave, and nobody ever finds out.
+	 * This is the only way that failure becomes visible.
+	 */
+	function report( slug, error ) {
+		var config = window.CalculatorrConfig;
+
+		if ( ! config || ! config.logUrl || reported[ slug ] ) {
+			return;
+		}
+
+		reported[ slug ] = true;
+
+		try {
+			var body = JSON.stringify( {
+				slug: slug,
+				message: ( error && error.message ) ? error.message : String( error ),
+				context: navigator.userAgent.slice( 0, 200 )
+			} );
+
+			if ( navigator.sendBeacon ) {
+				navigator.sendBeacon( config.logUrl, new Blob( [ body ], { type: 'application/json' } ) );
+				return;
+			}
+
+			var xhr = new XMLHttpRequest();
+			xhr.open( 'POST', config.logUrl, true );
+			xhr.setRequestHeader( 'Content-Type', 'application/json' );
+			xhr.send( body );
+		} catch ( ignored ) {
+			/* Reporting must never become the thing that breaks the page. */
+		}
+	}
 
 	/**
 	 * Reads every value out of one calculator, including repeater rows, which
@@ -272,12 +310,15 @@
 		try {
 			paint( root, formula( gather( root ) ) );
 		} catch ( error ) {
-			/* A broken formula should degrade to the server-rendered default
-			   rather than take the page down with it, so the error is logged
-			   and the existing result is left on screen. */
+			/* A broken formula degrades to the server-rendered default rather
+			   than taking the page down, so the visitor still sees an answer.
+			   The error is reported once, because otherwise it fires on every
+			   keystroke and buries the log. */
 			if ( window.console && window.console.error ) {
 				window.console.error( 'calculatorr: ' + slug, error );
 			}
+
+			report( slug, error );
 		}
 	}
 
