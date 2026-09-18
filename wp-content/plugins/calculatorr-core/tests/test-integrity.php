@@ -16,6 +16,12 @@ $root = dirname( __DIR__ );
 $configs = array();
 
 foreach ( glob( $root . '/calculators/*.php' ) as $file ) {
+	/* Files beginning with an underscore are build output rather than
+	   calculators, matching what the registry skips. */
+	if ( '_' === basename( $file )[0] ) {
+		continue;
+	}
+
 	$config = include $file;
 	$configs[ $config['slug'] ] = $config;
 

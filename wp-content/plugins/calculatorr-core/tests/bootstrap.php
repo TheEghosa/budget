@@ -1,0 +1,89 @@
+<?php
+/**
+ * Minimal WordPress stubs so the plugin can be exercised without a WordPress
+ * install. Enough of the API is faked to load the registry, render every
+ * calculator and emit the head tags, which is what the QA pass needs.
+ *
+ * This is a test harness, not a WordPress emulator. Anything it does not
+ * stub is something the tests do not currently reach.
+ */
+
+define( 'ABSPATH', dirname( __DIR__ ) . '/' );
+define( 'CALCULATORR_VERSION', 'test' );
+define( 'CALCULATORR_FILE', dirname( __DIR__ ) . '/calculatorr-core.php' );
+define( 'CALCULATORR_PATH', dirname( __DIR__ ) . '/' );
+define( 'CALCULATORR_URL', 'https://calculatorr.org/wp-content/plugins/calculatorr-core/' );
+define( 'OBJECT', 'OBJECT' );
+
+$GLOBALS['calcr_test_state'] = array(
+	'current_slug'     => null,
+	'current_category' => null,
+	'enqueued'         => array(),
+);
+
+function add_action( $h, $c, $p = 10, $a = 1 ) {}
+function add_filter( $h, $c, $p = 10, $a = 1 ) {}
+function add_shortcode( $t, $c ) { $GLOBALS['calcr_shortcodes'][ $t ] = $c; }
+function apply_filters( $hook, $value ) { return $value; }
+function do_action( $hook ) {}
+function is_admin() { return false; }
+function current_user_can( $c ) { return true; }
+function add_menu_page() {}
+function register_activation_hook() {}
+
+function wp_enqueue_style( $h ) { $GLOBALS['calcr_test_state']['enqueued'][] = $h; }
+function wp_enqueue_script( $h ) { $GLOBALS['calcr_test_state']['enqueued'][] = $h; }
+function wp_register_style() {}
+function wp_register_script() {}
+
+function wp_parse_args( $args, $defaults = array() ) {
+	return array_merge( $defaults, array_filter( (array) $args, function ( $v ) { return null !== $v; } ) );
+}
+
+function shortcode_atts( $pairs, $atts, $shortcode = '' ) {
+	$out = array();
+	foreach ( $pairs as $name => $default ) {
+		$out[ $name ] = array_key_exists( $name, (array) $atts ) ? $atts[ $name ] : $default;
+	}
+	return $out;
+}
+
+function esc_html( $t )  { return htmlspecialchars( (string) $t, ENT_QUOTES, 'UTF-8' ); }
+function esc_attr( $t )  { return htmlspecialchars( (string) $t, ENT_QUOTES, 'UTF-8' ); }
+function esc_url( $t )   { return htmlspecialchars( (string) $t, ENT_QUOTES, 'UTF-8' ); }
+function wp_kses_post( $t ) { return $t; }
+function wpautop( $t )   { return '<p>' . str_replace( "\n\n", "</p><p>", (string) $t ) . '</p>'; }
+function wp_strip_all_tags( $t ) { return strip_tags( (string) $t ); }
+function selected( $a, $b, $echo = true ) { $r = ( (string) $a === (string) $b ) ? ' selected' : ''; if ( $echo ) { echo $r; } return $r; }
+function wp_json_encode( $d, $f = 0 ) { return json_encode( $d, $f ); }
+
+function home_url( $path = '/' ) { return 'https://calculatorr.org' . $path; }
+function get_bloginfo( $what = 'name' ) { return 'name' === $what ? 'calculatorr.org' : 'en-US'; }
+function get_locale() { return 'en_US'; }
+function is_front_page() { return false; }
+
+function is_page() { return null !== $GLOBALS['calcr_test_state']['current_slug'] || null !== $GLOBALS['calcr_test_state']['current_category']; }
+function get_the_ID() { return 1; }
+
+function get_post_meta( $id, $key, $single = true ) {
+	if ( '_calculatorr_slug' === $key )     { return $GLOBALS['calcr_test_state']['current_slug'] ?: ''; }
+	if ( '_calculatorr_category' === $key ) { return $GLOBALS['calcr_test_state']['current_category'] ?: ''; }
+	return '';
+}
+
+function get_page_by_path( $path, $output = OBJECT, $type = 'page' ) { return null; }
+function get_permalink( $p ) { return home_url( '/' ); }
+function update_post_meta() {}
+function wp_insert_post() { return 1; }
+function is_wp_error( $t ) { return false; }
+function flush_rewrite_rules() {}
+function get_transient( $k ) { return false; }
+function set_transient() {}
+function delete_transient() {}
+
+require_once CALCULATORR_PATH . 'includes/class-registry.php';
+require_once CALCULATORR_PATH . 'includes/class-renderer.php';
+require_once CALCULATORR_PATH . 'includes/class-schema.php';
+require_once CALCULATORR_PATH . 'includes/class-ads.php';
+require_once CALCULATORR_PATH . 'includes/class-pages.php';
+require_once CALCULATORR_PATH . 'includes/class-seo.php';

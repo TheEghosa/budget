@@ -150,7 +150,21 @@ class Calculatorr_Registry {
 			return;
 		}
 
+		/* Default results live in one generated file rather than inside each
+		   config, because they are computed from the formulas by the build
+		   step. Keeping them together is what stops the server-rendered answer
+		   drifting away from the one JavaScript produces, which happened once
+		   when a rounding bug was fixed in the formulas alone. */
+		$defaults_file = CALCULATORR_PATH . 'calculators/_defaults.php';
+		$defaults = file_exists( $defaults_file ) ? include $defaults_file : array();
+
 		foreach ( $files as $file ) {
+			/* Files beginning with an underscore are build output, not
+			   calculators. */
+			if ( '_' === basename( $file )[0] ) {
+				continue;
+			}
+
 			$config = include $file;
 
 			if ( ! is_array( $config ) || empty( $config['slug'] ) ) {
@@ -191,8 +205,14 @@ class Calculatorr_Registry {
 				$config['meta_description'] = $config['description'];
 			}
 
+			if ( isset( $defaults[ $config['slug'] ] ) ) {
+				$config['default_result'] = $defaults[ $config['slug'] ];
+			}
+
 			$this->calculators[ $config['slug'] ] = $config;
 		}
+
+		ksort( $this->calculators );
 	}
 
 	public function all() {
