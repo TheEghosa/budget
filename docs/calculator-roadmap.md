@@ -1,6 +1,6 @@
-# calculatorr.com: The 100-Calculator Roadmap
+# calculatorr.org: The 100-Calculator Roadmap
 
-This is the build inventory for calculatorr.com, sorted into the ten use-case
+This is the build inventory for calculatorr.org, sorted into the ten use-case
 categories the design was built around. Every entry comes from the supplied
 keyword set rather than from guesswork, which is the important difference from
 the first version of this document: the earlier hundred were my judgment, and
@@ -18,7 +18,7 @@ the URL itself and the topical signal reaches Google before the page is even
 crawled:
 
 ```
-calculatorr.com/<category>/<calculator-slug>/
+calculatorr.org/<category>/<calculator-slug>/
 ```
 
 Each category slug also resolves to a hub page listing everything in it, since

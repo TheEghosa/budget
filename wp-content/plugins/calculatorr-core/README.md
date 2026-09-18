@@ -1,6 +1,6 @@
 # Calculatorr Core
 
-The WordPress plugin behind calculatorr.com. Every calculator is one config
+The WordPress plugin behind calculatorr.org. Every calculator is one config
 file under `calculators/`, and a single shared runtime renders all of them,
 which means adding the hundred and first calculator is a config file rather
 than a new template.

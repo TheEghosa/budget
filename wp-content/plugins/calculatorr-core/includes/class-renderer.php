@@ -128,10 +128,45 @@ class Calculatorr_Renderer {
 						<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><path d="M3 12a9 9 0 1 0 3-6.7"></path><polyline points="3 4 3 10 9 10"></polyline></svg>
 						Reset
 					</button>
+
 					<button type="button" class="calcr__btn calcr__btn--ghost" data-calcr-copy>
 						<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="9" y="9" width="12" height="12" rx="2"></rect><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"></path></svg>
 						<span data-calcr-copy-label>Copy result</span>
 					</button>
+
+					<div class="calcr__share">
+						<button type="button" class="calcr__btn calcr__btn--primary" data-calcr-share-toggle aria-expanded="false" aria-haspopup="true">
+							<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.6" y1="10.5" x2="15.4" y2="6.5"></line><line x1="8.6" y1="13.5" x2="15.4" y2="17.5"></line></svg>
+							Share
+						</button>
+
+						<div class="calcr__share-panel" data-calcr-share-panel hidden>
+							<p class="calcr__share-title">Share this result</p>
+							<div class="calcr__share-preview" data-calcr-preview></div>
+
+							<button type="button" class="calcr__share-option" data-calcr-share-native>
+								<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7"></path><polyline points="8 8 12 4 16 8"></polyline><line x1="12" y1="4" x2="12" y2="15"></line></svg>
+								<span data-calcr-label>Share with the image</span>
+							</button>
+
+							<button type="button" class="calcr__share-option" data-calcr-share-tweet>
+								<svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false"><path d="M17.53 3h3.05l-6.66 7.61L21.75 21h-6.13l-4.8-6.28L5.32 21H2.27l7.12-8.14L2.25 3h6.29l4.34 5.74zm-1.07 16.17h1.69L7.62 4.73H5.81z"></path></svg>
+								<span data-calcr-label>Post on X</span>
+							</button>
+
+							<button type="button" class="calcr__share-option" data-calcr-share-link>
+								<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><path d="M10 13a5 5 0 0 0 7.07 0l2.12-2.12a5 5 0 0 0-7.07-7.07L10.7 5.2"></path><path d="M14 11a5 5 0 0 0-7.07 0L4.8 13.12a5 5 0 0 0 7.07 7.07l1.4-1.4"></path></svg>
+								<span data-calcr-label>Copy link</span>
+							</button>
+
+							<button type="button" class="calcr__share-option" data-calcr-share-download>
+								<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="3" y="4" width="18" height="16" rx="2"></rect><circle cx="9" cy="10" r="2"></circle><path d="m3 17 5-4 4 3 3-2 6 5"></path></svg>
+								<span data-calcr-label>Download image</span>
+							</button>
+
+							<p class="calcr__share-note">The link reopens this calculator with your figures already filled in.</p>
+						</div>
+					</div>
 				</div>
 			</form>
 

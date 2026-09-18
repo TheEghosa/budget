@@ -691,3 +691,111 @@
 	color: var(--calcr-accent-ink);
 	border-color: var(--calcr-ink);
 }
+
+/* ---------- Share ---------- */
+
+.calcr__share {
+	position: relative;
+}
+
+.calcr__share-panel {
+	position: absolute;
+	z-index: 50;
+	bottom: calc(100% + 10px);
+	left: 0;
+	width: 320px;
+	max-width: calc(100vw - 32px);
+	padding: 16px;
+	background: var(--calcr-surface);
+	border: 1px solid var(--calcr-line);
+	border-radius: var(--calcr-radius-lg);
+	box-shadow: 0 12px 32px rgba(20, 24, 29, 0.16);
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+}
+
+.calcr__share-panel[hidden] {
+	display: none;
+}
+
+.calcr__share-title {
+	margin: 0 0 6px;
+	font-family: var(--calcr-font-display);
+	font-size: 15px;
+	font-weight: 600;
+	color: var(--calcr-ink);
+}
+
+.calcr__share-preview {
+	margin-bottom: 8px;
+	border: 1px solid var(--calcr-line);
+	border-radius: var(--calcr-radius-sm);
+	overflow: hidden;
+	background: var(--calcr-sunken);
+	/* Holds the 1200x630 card's shape so the panel does not jump when the
+	   image finishes drawing. */
+	aspect-ratio: 1200 / 630;
+}
+
+.calcr__share-preview canvas {
+	display: block;
+	width: 100%;
+	height: auto;
+}
+
+.calcr__share-option {
+	display: flex;
+	align-items: center;
+	gap: 11px;
+	width: 100%;
+	min-height: var(--calcr-touch);
+	padding: 0 12px;
+	background: transparent;
+	border: none;
+	border-radius: var(--calcr-radius-sm);
+	font-family: var(--calcr-font-body);
+	font-size: 15px;
+	font-weight: 600;
+	color: var(--calcr-ink);
+	text-align: left;
+	cursor: pointer;
+}
+
+.calcr__share-option:hover,
+.calcr__share-option:focus-visible {
+	background: var(--calcr-sunken);
+	color: var(--calcr-accent);
+}
+
+.calcr__share-option svg {
+	flex-shrink: 0;
+	color: var(--calcr-accent);
+}
+
+.calcr__share-note {
+	margin: 8px 0 0;
+	font-size: 13px;
+	line-height: 1.5;
+	color: var(--calcr-muted);
+}
+
+/* On a phone the popover becomes a bottom sheet, because a 320px panel
+   floating over a 360px screen is neither one thing nor the other. */
+@media (max-width: 600px) {
+	.calcr__share-panel {
+		position: fixed;
+		bottom: 0;
+		left: 0;
+		right: 0;
+		width: auto;
+		max-width: none;
+		border-radius: var(--calcr-radius-xl) var(--calcr-radius-xl) 0 0;
+		padding: 20px 16px calc(20px + env(safe-area-inset-bottom));
+		z-index: 60;
+	}
+
+	.calcr__share {
+		position: static;
+	}
+}

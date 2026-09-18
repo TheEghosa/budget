@@ -1,12 +1,12 @@
 <?php
 /**
  * Plugin Name:       Calculatorr Core
- * Plugin URI:        https://calculatorr.com
- * Description:       Powers every calculator on calculatorr.com. Each calculator is one config file, so adding the hundred and first is a config file rather than a new template.
+ * Plugin URI:        https://calculatorr.org
+ * Description:       Powers every calculator on calculatorr.org. Each calculator is one config file, so adding the hundred and first is a config file rather than a new template.
  * Version:           0.1.0
  * Requires at least: 6.0
  * Requires PHP:      7.4
- * Author:            calculatorr.com
+ * Author:            calculatorr.org
  * License:           GPL-2.0-or-later
  * Text Domain:       calculatorr
  */
@@ -61,8 +61,30 @@ function calculatorr_register_assets() {
 	wp_register_style(
 		'calculatorr-app',
 		CALCULATORR_URL . 'assets/css/calculator.css',
-		array( 'calculatorr-tokens' ),
+		array( 'calculatorr-tokens', 'calculatorr-fonts' ),
 		CALCULATORR_VERSION
+	);
+	/**
+	 * The design depends on these two faces, and the shareable snapshot is
+	 * drawn in them too, so a missing font is visible rather than cosmetic.
+	 * Sites that self-host fonts or already load them can switch this off with
+	 * the calculatorr_load_fonts filter.
+	 */
+	if ( apply_filters( 'calculatorr_load_fonts', true ) ) {
+		wp_register_style(
+			'calculatorr-fonts',
+			'https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Source+Sans+3:wght@400;600&display=swap',
+			array(),
+			null
+		);
+	}
+
+	wp_register_script(
+		'calculatorr-share',
+		CALCULATORR_URL . 'assets/js/share.js',
+		array(),
+		CALCULATORR_VERSION,
+		true
 	);
 	wp_register_script(
 		'calculatorr-formulas',
@@ -74,7 +96,7 @@ function calculatorr_register_assets() {
 	wp_register_script(
 		'calculatorr-app',
 		CALCULATORR_URL . 'assets/js/calculator.js',
-		array( 'calculatorr-formulas' ),
+		array( 'calculatorr-formulas', 'calculatorr-share' ),
 		CALCULATORR_VERSION,
 		true
 	);

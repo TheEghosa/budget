@@ -356,6 +356,86 @@
 		} );
 	}
 
+	/**
+	 * Restores the figures a shared link carries. The state lives in the URL
+	 * fragment, so it never reaches the server and never turns one page into
+	 * thousands of crawlable near-duplicates.
+	 */
+	function restoreFromHash( root ) {
+		var hash = window.location.hash.replace( /^#/, '' );
+
+		if ( ! hash || hash.indexOf( '=' ) === -1 ) {
+			return false;
+		}
+
+		var restored = false;
+
+		hash.split( '&' ).forEach( function ( pair ) {
+			var parts = pair.split( '=' );
+
+			if ( parts.length !== 2 ) {
+				return;
+			}
+
+			var key = decodeURIComponent( parts[ 0 ] );
+			var value = decodeURIComponent( parts[ 1 ] );
+			var field = root.querySelector( '[data-calcr-input="' + key.replace( /"/g, '' ) + '"]' );
+
+			if ( field ) {
+				field.value = value;
+				restored = true;
+			}
+		} );
+
+		return restored;
+	}
+
+	function syncSegmented( root ) {
+		root.querySelectorAll( '[data-calcr-seg]' ).forEach( function ( group ) {
+			var current = root.querySelector( '[data-calcr-input="' + group.getAttribute( 'data-calcr-seg' ) + '"]' );
+
+			group.querySelectorAll( '.calcr-seg__btn' ).forEach( function ( button ) {
+				var active = current && button.getAttribute( 'data-value' ) === current.value;
+				button.classList.toggle( 'is-active', active );
+				button.setAttribute( 'aria-pressed', active ? 'true' : 'false' );
+			} );
+		} );
+	}
+
+	/**
+	 * Keeps the address bar in step with the form, debounced so a person
+	 * typing a number does not generate one history entry per keystroke.
+	 * replaceState is used rather than pushState for the same reason: the back
+	 * button should leave the page, not walk back through every digit.
+	 */
+	function bindUrlState( root ) {
+		if ( ! window.history || ! window.history.replaceState || ! window.CalculatorrShare ) {
+			return;
+		}
+
+		var timer = null;
+
+		var update = function () {
+			window.clearTimeout( timer );
+			timer = window.setTimeout( function () {
+				try {
+					window.history.replaceState( null, '', window.CalculatorrShare.url( root ) );
+				} catch ( error ) {
+					/* Some embedded contexts forbid history writes. The
+					   calculator still works; only the address bar is stale. */
+				}
+			}, 600 );
+		};
+
+		root.addEventListener( 'input', update );
+		root.addEventListener( 'change', update );
+		root.addEventListener( 'click', function ( event ) {
+			if ( event.target.closest( '.calcr-seg__btn, [data-calcr-reset]' ) ) {
+				update();
+			}
+		} );
+	}
+
 	function init( root ) {
 		if ( root.hasAttribute( 'data-calcr-ready' ) ) {
 			return;
@@ -382,10 +462,19 @@
 			}
 		} );
 
+		if ( restoreFromHash( root ) ) {
+			syncSegmented( root );
+		}
+
 		bindSegmented( root );
 		bindRepeaters( root );
 		bindCopy( root );
 		bindSticky( root );
+		bindUrlState( root );
+
+		if ( window.CalculatorrShare && window.CalculatorrShare.bind ) {
+			window.CalculatorrShare.bind( root );
+		}
 
 		var reset = root.querySelector( '[data-calcr-reset]' );
 
@@ -397,17 +486,7 @@
 					}
 				} );
 
-				root.querySelectorAll( '[data-calcr-seg]' ).forEach( function ( group ) {
-					var name = group.getAttribute( 'data-calcr-seg' );
-					var current = root.querySelector( '[data-calcr-input="' + name + '"]' );
-
-					group.querySelectorAll( '.calcr-seg__btn' ).forEach( function ( button ) {
-						var active = current && button.getAttribute( 'data-value' ) === current.value;
-						button.classList.toggle( 'is-active', active );
-						button.setAttribute( 'aria-pressed', active ? 'true' : 'false' );
-					} );
-				} );
-
+				syncSegmented( root );
 				recalculate( root );
 			} );
 		}
