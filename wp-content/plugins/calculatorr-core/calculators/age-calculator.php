@@ -15,6 +15,10 @@ return array(
 	'title'       => 'Age Calculator',
 	'category'    => 'time',
 	'description' => 'Work out an exact age in years, months and days from a date of birth, plus the total in days, weeks and months.',
+	'keyword'     => 'Age Calculator',
+	'h1'          => 'Age Calculator',
+	'meta_title'  => 'Age Calculator - Exact Age in Years, Months & Days',
+	'meta_description' => 'Free age calculator: enter a date of birth for an exact age in years, months and days, plus totals in days, weeks and months. Works for any past or future date.',
 	'fields'      => array(
 		array( 'id' => 'dob', 'label' => 'Date of birth', 'type' => 'date', 'default' => '1990-01-01' ),
 		array( 'id' => 'upto', 'label' => 'Age at this date', 'type' => 'date', 'default' => '', 'hint' => 'Leave empty to use today.' ),

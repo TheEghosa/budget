@@ -15,6 +15,10 @@ return array(
 	'title'       => 'Compound Interest Calculator',
 	'category'    => 'finance',
 	'description' => 'See what a starting balance plus regular monthly contributions grows into, and how much of the total is interest rather than your own money.',
+	'keyword'     => 'Compound Interest Calculator',
+	'h1'          => 'Compound Interest Calculator',
+	'meta_title'  => 'Compound Interest Calculator - Growth With Contributions',
+	'meta_description' => 'Free compound interest calculator with monthly contributions. See what savings grow into, and how much of the balance is interest rather than your own money.',
 	'fields'      => array(
 		array( 'id' => 'principal', 'label' => 'Starting amount', 'type' => 'number', 'prefix' => '$', 'default' => 10000, 'min' => 0 ),
 		array( 'id' => 'monthly', 'label' => 'Monthly contribution', 'type' => 'number', 'prefix' => '$', 'default' => 250, 'min' => 0 ),

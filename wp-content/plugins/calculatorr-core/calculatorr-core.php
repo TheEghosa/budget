@@ -23,6 +23,7 @@ define( 'CALCULATORR_URL', plugin_dir_url( __FILE__ ) );
 require_once CALCULATORR_PATH . 'includes/class-registry.php';
 require_once CALCULATORR_PATH . 'includes/class-renderer.php';
 require_once CALCULATORR_PATH . 'includes/class-schema.php';
+require_once CALCULATORR_PATH . 'includes/class-seo.php';
 require_once CALCULATORR_PATH . 'includes/class-ads.php';
 require_once CALCULATORR_PATH . 'includes/class-pages.php';
 require_once CALCULATORR_PATH . 'includes/class-admin.php';
@@ -36,6 +37,7 @@ function calculatorr_boot() {
 	Calculatorr_Registry::instance();
 	Calculatorr_Renderer::instance();
 	Calculatorr_Schema::instance();
+	Calculatorr_SEO::instance();
 	Calculatorr_Ads::instance();
 	Calculatorr_Elementor::instance();
 

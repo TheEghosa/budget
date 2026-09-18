@@ -25,6 +25,7 @@ class Calculatorr_Renderer {
 
 	private function __construct() {
 		add_shortcode( 'calculatorr', array( $this, 'shortcode' ) );
+		add_shortcode( 'calculatorr_category', array( $this, 'category_shortcode' ) );
 	}
 
 	/**
@@ -42,6 +43,46 @@ class Calculatorr_Renderer {
 		wp_enqueue_script( 'calculatorr-app' );
 
 		return $this->render_page( $config );
+	}
+
+	/**
+	 * [calculatorr_category key="home-diy"]
+	 *
+	 * The hub page for one use case. It exists to pass authority down to the
+	 * calculators beneath it, so every entry is a real link with descriptive
+	 * text rather than a card whose only anchor is the word "calculate".
+	 */
+	public function category_shortcode( $atts ) {
+		$atts     = shortcode_atts( array( 'key' => '' ), $atts, 'calculatorr_category' );
+		$registry = Calculatorr_Registry::instance();
+		$category = $registry->category( $atts['key'] );
+
+		if ( ! $category ) {
+			return '';
+		}
+
+		wp_enqueue_style( 'calculatorr-app' );
+
+		$calculators = $registry->in_category( $atts['key'] );
+
+		ob_start();
+		?>
+		<div class="calcr-hub">
+			<p class="calcr-hub__intro"><?php echo esc_html( $category['meta_description'] ); ?></p>
+
+			<div class="calcr-hub__grid">
+				<?php foreach ( $calculators as $config ) : ?>
+					<a class="calcr-hub__card" href="<?php echo esc_url( Calculatorr_Pages::url_for( $config ) ); ?>">
+						<span class="calcr-hub__name"><?php echo esc_html( $config['h1'] ); ?></span>
+						<span class="calcr-hub__blurb"><?php echo esc_html( $config['description'] ); ?></span>
+					</a>
+				<?php endforeach; ?>
+			</div>
+
+			<?php echo Calculatorr_Ads::instance()->slot( 'after_calculator' ); ?>
+		</div>
+		<?php
+		return ob_get_clean();
 	}
 
 	/**

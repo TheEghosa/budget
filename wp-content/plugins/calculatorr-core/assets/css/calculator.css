@@ -454,3 +454,171 @@
 		font-size: 24px;
 	}
 }
+
+/* ---------- Category hub ---------- */
+
+.calcr-hub__intro {
+	margin: 0 0 var(--calcr-gap-lg);
+	font-size: 18px;
+	line-height: 1.6;
+	color: var(--calcr-muted);
+	max-width: 68ch;
+}
+
+.calcr-hub__grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+	gap: 16px;
+}
+
+.calcr-hub__card {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	padding: 20px 22px;
+	min-height: 92px;
+	box-sizing: border-box;
+	background: var(--calcr-surface);
+	border: 1px solid var(--calcr-line);
+	border-radius: var(--calcr-radius-lg);
+	text-decoration: none;
+}
+
+.calcr-hub__card:hover,
+.calcr-hub__card:focus-visible {
+	border-color: var(--calcr-accent);
+}
+
+.calcr-hub__name {
+	font-family: var(--calcr-font-display);
+	font-size: 17px;
+	font-weight: 600;
+	color: var(--calcr-ink);
+}
+
+.calcr-hub__blurb {
+	font-size: 14px;
+	line-height: 1.5;
+	color: var(--calcr-muted);
+}
+
+/* ---------- Responsive, from large desktop down to small phones ---------- */
+
+/* Wide desktop: the calculator can afford a roomier result panel. */
+@media (min-width: 1280px) {
+	.calcr {
+		grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+	}
+}
+
+/* Tablet landscape: keep the two columns but tighten the gutter before the
+   result panel starts squeezing the inputs. */
+@media (max-width: 1100px) and (min-width: 861px) {
+	.calcr {
+		gap: var(--calcr-gap);
+		padding: 24px;
+	}
+
+	.calcr__primary-value {
+		font-size: 42px;
+	}
+}
+
+/* Tablet portrait and below is handled by the single-column rule above. This
+   block covers the ordinary phone, where the form needs more room per field. */
+@media (max-width: 600px) {
+	.calcr {
+		padding: 16px;
+		border-radius: var(--calcr-radius-lg);
+	}
+
+	.calcr__result {
+		padding: 18px;
+	}
+
+	.calcr__primary-value {
+		font-size: 38px;
+	}
+
+	.calcr-prose {
+		font-size: 16px;
+	}
+
+	.calcr-prose h2,
+	.calcr-faq h2,
+	.calcr-related h2 {
+		font-size: 22px;
+	}
+
+	.calcr-formula {
+		font-size: 17px;
+		padding: 16px 18px;
+	}
+
+	.calcr-hub__grid,
+	.calcr-related__grid {
+		grid-template-columns: minmax(0, 1fr);
+	}
+
+	/* Repeater rows stack rather than squeeze, because three controls and a
+	   remove button across a 360px screen leaves nothing usable. */
+	.calcr-rep__row {
+		flex-wrap: wrap;
+	}
+
+	.calcr-rep__row > *:not(.calcr-rep__remove) {
+		flex: 1 1 140px;
+	}
+}
+
+/* Small phones, 360px and under, where every horizontal pixel is contested. */
+@media (max-width: 380px) {
+	.calcr__primary-value {
+		font-size: 33px;
+	}
+
+	.calcr__actions {
+		flex-direction: column;
+	}
+
+	.calcr__actions .calcr__btn {
+		width: 100%;
+	}
+
+	.calcr-seg {
+		flex-wrap: wrap;
+	}
+
+	.calcr-seg__btn {
+		flex: 1 1 calc(50% - 4px);
+	}
+}
+
+/* Print: the answer and the working, without the furniture. */
+@media print {
+	.calcr-ad,
+	.calcr__actions {
+		display: none;
+	}
+
+	.calcr {
+		grid-template-columns: minmax(0, 1fr);
+		border: none;
+		padding: 0;
+	}
+
+	.calcr-faq__a {
+		display: block;
+	}
+}
+
+/* Respect a reduced-motion preference: the only transition here is the FAQ
+   chevron, but honouring the setting costs nothing and the alternative is
+   ignoring somebody's accessibility choice. */
+@media (prefers-reduced-motion: reduce) {
+	.calcr *,
+	.calcr-faq * {
+		transition: none !important;
+		animation: none !important;
+	}
+}

@@ -29,6 +29,10 @@ return array(
 	'title'       => 'GPA Calculator',
 	'category'    => 'education',
 	'description' => 'Work out your grade point average on the four point scale from your course grades and credit hours.',
+	'keyword'     => 'GPA Calculator',
+	'h1'          => 'GPA Calculator',
+	'meta_title'  => 'GPA Calculator - 4.0 Scale, Weighted by Credit Hours',
+	'meta_description' => 'Free GPA calculator on the 4.0 scale. Enter each course grade and its credit hours for an accurate weighted average, with quality points shown alongside.',
 	'fields'      => array(
 		array(
 			'id'    => 'courses',

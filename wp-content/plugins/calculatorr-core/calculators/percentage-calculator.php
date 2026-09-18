@@ -16,6 +16,10 @@ return array(
 	'title'       => 'Percentage Calculator',
 	'category'    => 'math',
 	'description' => 'Work out a percentage of a number, what one number is as a percentage of another, or the percentage change between two figures.',
+	'keyword'     => 'Percentage Calculator',
+	'h1'          => 'Percentage Calculator',
+	'meta_title'  => 'Percentage Calculator - Work Out Any Percent Fast',
+	'meta_description' => 'Free percentage calculator: find a percent of a number, what X is as a percent of Y, or the percentage change between two figures. Shows the working every time.',
 	'fields'      => array(
 		array(
 			'id'      => 'mode',

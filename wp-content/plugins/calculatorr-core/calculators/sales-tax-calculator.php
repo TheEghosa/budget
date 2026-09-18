@@ -15,6 +15,10 @@ return array(
 	'title'       => 'Sales Tax Calculator',
 	'category'    => 'business',
 	'description' => 'Add sales tax to a price or strip it back out of a total, and see the tax amount on its own.',
+	'keyword'     => 'Sales Tax Calculator',
+	'h1'          => 'Sales Tax Calculator',
+	'meta_title'  => 'Sales Tax Calculator - Add or Remove Tax From a Price',
+	'meta_description' => 'Free sales tax calculator. Add tax to a price or strip it back out of a total. Removing tax is not the same as subtracting it, and this does it correctly.',
 	'fields'      => array(
 		array(
 			'id'      => 'mode',

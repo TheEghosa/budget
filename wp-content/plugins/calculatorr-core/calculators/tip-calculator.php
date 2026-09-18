@@ -15,6 +15,10 @@ return array(
 	'title'       => 'Tip Calculator',
 	'category'    => 'business',
 	'description' => 'Work out the tip on a bill, the total to pay, and what each person owes when the bill is split.',
+	'keyword'     => 'Tip Calculator',
+	'h1'          => 'Tip Calculator',
+	'meta_title'  => 'Tip Calculator - Tip, Total & Split the Bill',
+	'meta_description' => 'Free tip calculator: work out the tip on any bill, the total to pay, and what each person owes when the bill is split. Choose from 10% to 25% in one tap.',
 	'fields'      => array(
 		array( 'id' => 'bill', 'label' => 'Bill amount', 'type' => 'number', 'prefix' => '$', 'default' => 85, 'min' => 0 ),
 		array(

@@ -15,6 +15,10 @@ return array(
 	'title'       => 'Calorie (TDEE) Calculator',
 	'category'    => 'health',
 	'description' => 'Estimate how many calories you burn in a normal day from your height, weight, age and activity level.',
+	'keyword'     => 'TDEE Calculator',
+	'h1'          => 'TDEE Calculator',
+	'meta_title'  => 'TDEE Calculator - Daily Calorie Needs, Mifflin-St Jeor',
+	'meta_description' => 'Free TDEE calculator using the Mifflin-St Jeor equation. Estimate daily calories from height, weight, age and activity, with targets to lose or gain weight.',
 	'fields'      => array(
 		array(
 			'id'      => 'units',

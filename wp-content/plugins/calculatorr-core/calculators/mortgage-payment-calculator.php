@@ -16,6 +16,10 @@ return array(
 	'title'       => 'Mortgage Payment Calculator',
 	'category'    => 'loans',
 	'description' => 'Work out the monthly payment on a home loan including property tax and insurance, and see how much of it goes to interest.',
+	'keyword'     => 'Mortgage Payment Calculator',
+	'h1'          => 'Mortgage Payment Calculator',
+	'meta_title'  => 'Mortgage Payment Calculator - Monthly Cost & Interest',
+	'meta_description' => 'Free mortgage payment calculator including property tax and insurance. See your monthly payment, total interest, and how much a shorter term would save.',
 	'fields'      => array(
 		array( 'id' => 'price', 'label' => 'Home price', 'type' => 'number', 'prefix' => '$', 'default' => 450000, 'min' => 0, 'step' => 1000 ),
 		array( 'id' => 'downPct', 'label' => 'Down payment', 'type' => 'number', 'suffix' => '%', 'default' => 20, 'min' => 0, 'max' => 100 ),

@@ -16,6 +16,10 @@ return array(
 	'title'       => 'BMI Calculator',
 	'category'    => 'health',
 	'description' => 'Calculate body mass index from your height and weight in metric or imperial units, and see which range the result falls in.',
+	'keyword'     => 'BMI Calculator',
+	'h1'          => 'BMI Calculator',
+	'meta_title'  => 'BMI Calculator - Body Mass Index, Metric & Imperial',
+	'meta_description' => 'Free BMI calculator for metric and imperial units. Enter height and weight to get your body mass index, the healthy range, and what the number cannot tell you.',
 	'fields'      => array(
 		array(
 			'id'      => 'units',

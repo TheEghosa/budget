@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 64" width="260" height="64" role="img" aria-label="calculatorr">
+  <title>calculatorr</title>
+  <rect width="64" height="64" rx="15" fill="#4FB8A8"/>
+  <rect x="15" y="23.5" width="34" height="6.5" rx="3.25" fill="#0B1F1C"/>
+  <rect x="15" y="35.5" width="21" height="6.5" rx="3.25" fill="#0B1F1C"/>
+  <circle cx="44.5" cy="38.75" r="4.75" fill="#14181D"/>
+  <text x="80" y="43" font-family="'Space Grotesk', 'Helvetica Neue', Helvetica, sans-serif" font-size="34" font-weight="700" letter-spacing="-0.8" fill="#F2F4F5">calculato<tspan fill="#4FB8A8">rr</tspan></text>
+</svg>

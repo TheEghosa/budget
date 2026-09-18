@@ -15,6 +15,10 @@ return array(
 	'title'       => 'Discount Calculator',
 	'category'    => 'business',
 	'description' => 'Work out the sale price after a discount, how much you save, and what stacked discounts really come to.',
+	'keyword'     => 'Discount Calculator',
+	'h1'          => 'Discount Calculator',
+	'meta_title'  => 'Discount Calculator - Sale Price & What You Save',
+	'meta_description' => 'Free discount calculator: find the sale price, what you save, and what stacked discounts really come to. Two coupons are never the sum of their percentages.',
 	'fields'      => array(
 		array( 'id' => 'price', 'label' => 'Original price', 'type' => 'number', 'prefix' => '$', 'default' => 120, 'min' => 0 ),
 		array( 'id' => 'discount', 'label' => 'Discount', 'type' => 'number', 'suffix' => '%', 'default' => 25, 'min' => 0, 'max' => 100 ),

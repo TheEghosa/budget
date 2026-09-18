@@ -1,12 +1,12 @@
 <?php
 /**
- * Maps calculators onto real WordPress pages.
+ * Maps calculators onto real WordPress pages at keyword-led URLs.
  *
- * Each category is a top level page and each calculator is a child of it, so
- * /health/bmi-calculator/ falls out of ordinary page hierarchy instead of
- * needing custom rewrite rules that fight the rest of the site. The pages hold
- * nothing but the shortcode, which keeps the content in config where it can be
- * edited once and applied everywhere.
+ * Each category is a top level page whose slug is the phrase people actually
+ * search for, such as construction-calculators-online, and each calculator is a
+ * child of it at its own exact-match slug. The nesting means the hierarchy does
+ * the URL work, so no custom rewrite rules are needed and nothing fights the
+ * rest of the site.
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -24,9 +24,9 @@ class Calculatorr_Pages {
 	}
 
 	/**
-	 * Creates any missing category or calculator page and leaves existing ones
-	 * alone, because overwriting a page someone has edited by hand would punish
-	 * exactly the person who took the trouble.
+	 * Creates any missing category or calculator page and never edits one that
+	 * already exists, because overwriting a page somebody has tuned by hand
+	 * would punish exactly the person who took the trouble.
 	 *
 	 * @return array{created_categories:int,created_calculators:int,skipped:int}
 	 */
@@ -40,11 +40,12 @@ class Calculatorr_Pages {
 
 		$parents = array();
 
-		foreach ( $registry->categories() as $slug => $category ) {
-			$existing = get_page_by_path( $slug, OBJECT, 'page' );
+		foreach ( $registry->categories() as $key => $category ) {
+			$existing = get_page_by_path( $category['slug'], OBJECT, 'page' );
 
 			if ( $existing ) {
-				$parents[ $slug ] = $existing->ID;
+				$parents[ $key ] = $existing->ID;
+				update_post_meta( $existing->ID, '_calculatorr_category', $key );
 				continue;
 			}
 
@@ -52,14 +53,15 @@ class Calculatorr_Pages {
 				array(
 					'post_type'    => 'page',
 					'post_status'  => 'publish',
-					'post_title'   => $category['name'] . ' Calculators',
-					'post_name'    => $slug,
-					'post_content' => '',
+					'post_title'   => $category['h1'],
+					'post_name'    => $category['slug'],
+					'post_content' => '[calculatorr_category key="' . $key . '"]',
 				)
 			);
 
 			if ( ! is_wp_error( $parent_id ) ) {
-				$parents[ $slug ]  = $parent_id;
+				$parents[ $key ] = $parent_id;
+				update_post_meta( $parent_id, '_calculatorr_category', $key );
 				$report['created_categories']++;
 			}
 		}
@@ -72,7 +74,7 @@ class Calculatorr_Pages {
 				continue;
 			}
 
-			if ( get_page_by_path( $category . '/' . $slug, OBJECT, 'page' ) ) {
+			if ( get_page_by_path( self::path_for( $config ), OBJECT, 'page' ) ) {
 				$report['skipped']++;
 				continue;
 			}
@@ -82,7 +84,7 @@ class Calculatorr_Pages {
 					'post_type'    => 'page',
 					'post_status'  => 'publish',
 					'post_parent'  => $parents[ $category ],
-					'post_title'   => $config['title'],
+					'post_title'   => $config['h1'],
 					'post_name'    => $slug,
 					'post_content' => '[calculatorr slug="' . $slug . '"]',
 				)
@@ -98,9 +100,20 @@ class Calculatorr_Pages {
 	}
 
 	/**
+	 * The path a calculator lives at, relative to the site root and without
+	 * surrounding slashes: <category-slug>/<calculator-slug>.
+	 */
+	public static function path_for( $config ) {
+		$category = Calculatorr_Registry::instance()->category( $config['category'] );
+		$prefix   = $category ? $category['slug'] : $config['category'];
+
+		return $prefix . '/' . $config['slug'];
+	}
+
+	/**
 	 * The permalink for one calculator, falling back to the constructed path
-	 * when the page has not been created yet so that related links never render
-	 * as dead anchors during a partial build.
+	 * when its page has not been created yet, so related links never render as
+	 * dead anchors during a partial build.
 	 */
 	public static function url_for( $config ) {
 		$slug = $config['slug'];
@@ -109,13 +122,17 @@ class Calculatorr_Pages {
 			return self::$url_cache[ $slug ];
 		}
 
-		$path = $config['category'] . '/' . $slug;
+		$path = self::path_for( $config );
 		$page = get_page_by_path( $path, OBJECT, 'page' );
 		$url  = $page ? get_permalink( $page ) : home_url( '/' . $path . '/' );
 
 		self::$url_cache[ $slug ] = $url;
 
 		return $url;
+	}
+
+	public static function url_for_category( $category ) {
+		return home_url( '/' . $category['slug'] . '/' );
 	}
 
 	/**
@@ -128,10 +145,26 @@ class Calculatorr_Pages {
 
 		$slug = get_post_meta( get_the_ID(), '_calculatorr_slug', true );
 
-		if ( ! $slug ) {
+		return $slug ? Calculatorr_Registry::instance()->get( $slug ) : null;
+	}
+
+	/**
+	 * The category hub the current page represents, with its key folded in so
+	 * callers can look up its calculators without a second query.
+	 */
+	public static function current_category() {
+		if ( ! is_page() ) {
 			return null;
 		}
 
-		return Calculatorr_Registry::instance()->get( $slug );
+		$key = get_post_meta( get_the_ID(), '_calculatorr_category', true );
+
+		if ( ! $key ) {
+			return null;
+		}
+
+		$category = Calculatorr_Registry::instance()->category( $key );
+
+		return $category ? array( 'key' => $key ) + $category : null;
 	}
 }
