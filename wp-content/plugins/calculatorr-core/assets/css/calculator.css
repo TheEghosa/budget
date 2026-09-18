@@ -733,9 +733,47 @@
 	border-radius: var(--calcr-radius-sm);
 	overflow: hidden;
 	background: var(--calcr-sunken);
-	/* Holds the 1200x630 card's shape so the panel does not jump when the
-	   image finishes drawing. */
+	/* Holds the card's shape so the panel does not jump when the image
+	   finishes drawing, and follows the chosen format. */
 	aspect-ratio: 1200 / 630;
+	min-height: 60px;
+}
+
+.calcr__share-preview:has(canvas[width="2160"]) {
+	aspect-ratio: 1 / 1;
+}
+
+.calcr__share-formats {
+	display: flex;
+	gap: 4px;
+	padding: 4px;
+	margin-bottom: 10px;
+	background: var(--calcr-sunken);
+	border-radius: var(--calcr-radius);
+}
+
+.calcr__share-format {
+	flex-grow: 1;
+	min-height: 38px;
+	border: none;
+	border-radius: var(--calcr-radius-sm);
+	background: transparent;
+	color: var(--calcr-muted);
+	font-family: var(--calcr-font-display);
+	font-size: 14px;
+	font-weight: 600;
+	cursor: pointer;
+}
+
+.calcr__share-format.is-active {
+	background: var(--calcr-surface);
+	color: var(--calcr-ink);
+	box-shadow: 0 1px 2px rgba(20, 24, 29, 0.08);
+}
+
+.calcr__share-format:focus-visible {
+	outline: 3px solid var(--calcr-accent);
+	outline-offset: 2px;
 }
 
 .calcr__share-preview canvas {

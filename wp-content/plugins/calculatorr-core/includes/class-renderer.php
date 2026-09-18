@@ -142,6 +142,12 @@ class Calculatorr_Renderer {
 
 						<div class="calcr__share-panel" data-calcr-share-panel hidden>
 							<p class="calcr__share-title">Share this result</p>
+
+							<div class="calcr__share-formats" role="group" aria-label="Image shape">
+								<button type="button" class="calcr__share-format is-active" data-calcr-format="landscape" aria-pressed="true">Wide</button>
+								<button type="button" class="calcr__share-format" data-calcr-format="square" aria-pressed="false">Square</button>
+							</div>
+
 							<div class="calcr__share-preview" data-calcr-preview></div>
 
 							<button type="button" class="calcr__share-option" data-calcr-share-native>
