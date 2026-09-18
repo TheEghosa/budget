@@ -103,4 +103,5 @@ return array(
 			'ratio-calculator',
 		),
 		'disclaimer' => '',
+		'sources' => array(),
 	);

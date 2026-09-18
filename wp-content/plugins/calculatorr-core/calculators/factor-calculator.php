@@ -77,4 +77,5 @@ return array(
 			'square-root-calculator',
 		),
 		'disclaimer' => '',
+		'sources' => array(),
 	);

@@ -78,4 +78,5 @@ return array(
 			'mm-to-inches-calculator',
 		),
 		'disclaimer' => '',
+		'sources' => array(),
 	);

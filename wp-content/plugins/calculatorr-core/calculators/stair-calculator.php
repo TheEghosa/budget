@@ -110,4 +110,5 @@ return array(
 			'board-foot-calculator',
 		),
 		'disclaimer' => 'Check every dimension against your local building code before cutting. Code takes precedence over any rule of thumb shown here.',
+		'sources' => array(),
 	);

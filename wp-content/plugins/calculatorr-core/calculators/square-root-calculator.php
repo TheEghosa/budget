@@ -78,4 +78,5 @@ return array(
 			'pythagorean-theorem-calculator',
 		),
 		'disclaimer' => '',
+		'sources' => array(),
 	);

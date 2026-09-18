@@ -113,4 +113,5 @@ return array(
 			'topsoil-calculator',
 		),
 		'disclaimer' => '',
+		'sources' => array(),
 	);

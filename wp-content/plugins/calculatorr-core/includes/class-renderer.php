@@ -99,16 +99,178 @@ class Calculatorr_Renderer {
 	 * without scrolling past an advert tends to leave before they use either.
 	 */
 	public function render_page( $config ) {
+		$settings = Calculatorr_Settings::instance();
+		$ads = Calculatorr_Ads::instance();
+
 		ob_start();
 		?>
 		<div class="calcr-page">
-			<?php echo $this->render_widget( $config ); ?>
-			<?php echo Calculatorr_Ads::instance()->slot( 'after_calculator' ); ?>
-			<?php echo $this->render_explainer( $config ); ?>
-			<?php echo Calculatorr_Ads::instance()->slot( 'in_content' ); ?>
-			<?php echo $this->render_faqs( $config ); ?>
-			<?php echo $this->render_related( $config ); ?>
+			<?php echo $this->render_breadcrumbs( $config ); ?>
+
+			<?php if ( $settings->get( 'render_heading' ) ) : ?>
+				<h1 class="calcr-page__title"><?php echo esc_html( $config['h1'] ); ?></h1>
+				<p class="calcr-page__intro"><?php echo esc_html( $config['description'] ); ?></p>
+			<?php endif; ?>
+
+			<div class="calcr-layout">
+				<div class="calcr-layout__main">
+					<?php echo $this->render_widget( $config ); ?>
+					<?php echo $ads->slot( 'after_calculator' ); ?>
+					<?php echo $this->render_contents( $config ); ?>
+					<?php echo $this->render_explainer( $config ); ?>
+					<?php echo $ads->slot( 'in_content' ); ?>
+					<?php echo $this->render_faqs( $config ); ?>
+					<?php echo $this->render_sources( $config ); ?>
+					<?php echo $this->render_related( $config ); ?>
+				</div>
+
+				<aside class="calcr-layout__side calcr-sidebar">
+					<?php echo $ads->slot( 'sidebar' ); ?>
+					<?php echo $this->render_popular( $config ); ?>
+				</aside>
+			</div>
 		</div>
+		<?php
+		return ob_get_clean();
+	}
+
+	/**
+	 * The visible breadcrumb trail.
+	 *
+	 * The BreadcrumbList markup was already being emitted, but structured data
+	 * describes a trail rather than creating one: without the links on the page
+	 * there is nothing for a visitor to climb back up, and Google has said it
+	 * uses the visible trail as well as the markup.
+	 */
+	public function render_breadcrumbs( $config ) {
+		$category = Calculatorr_Registry::instance()->category( $config['category'] );
+
+		ob_start();
+		?>
+		<nav class="calcr-breadcrumb" aria-label="Breadcrumb">
+			<ol>
+				<li><a href="<?php echo esc_url( home_url( '/' ) ); ?>">Home</a></li>
+				<?php if ( $category ) : ?>
+					<li><a href="<?php echo esc_url( Calculatorr_Pages::url_for_category( $category ) ); ?>"><?php echo esc_html( $category['h1'] ); ?></a></li>
+				<?php endif; ?>
+				<li><span aria-current="page"><?php echo esc_html( $config['h1'] ); ?></span></li>
+			</ol>
+		</nav>
+		<?php
+		return ob_get_clean();
+	}
+
+	/**
+	 * Jump links to the sections below.
+	 *
+	 * Worth having for its own sake on a long page, and it is also what gives
+	 * Google the anchors it uses to build the sub-links that sometimes appear
+	 * under a result.
+	 */
+	private function render_contents( $config ) {
+		$items = array();
+
+		foreach ( $config['explainer'] as $i => $section ) {
+			if ( ! empty( $section['heading'] ) ) {
+				$items[ 'section-' . $i ] = $section['heading'];
+			}
+		}
+
+		if ( ! empty( $config['faqs'] ) ) {
+			$items['faq'] = 'Common questions';
+		}
+
+		/* Two entries is a list, not a table of contents. */
+		if ( count( $items ) < 3 ) {
+			return '';
+		}
+
+		ob_start();
+		?>
+		<nav class="calcr-toc" aria-label="On this page">
+			<span class="calcr-toc__label">On this page</span>
+			<ol>
+				<?php foreach ( $items as $anchor => $label ) : ?>
+					<li><a href="#<?php echo esc_attr( $anchor ); ?>"><?php echo esc_html( $label ); ?></a></li>
+				<?php endforeach; ?>
+			</ol>
+		</nav>
+		<?php
+		return ob_get_clean();
+	}
+
+	/**
+	 * The other calculators in the same category.
+	 *
+	 * This is the internal link that actually does work: a hub page passes
+	 * authority down, and these pass it sideways between pages that are
+	 * topically adjacent, which is what makes a category read as a cluster
+	 * rather than as a pile of unrelated tools.
+	 */
+	private function render_popular( $config ) {
+		$registry = Calculatorr_Registry::instance();
+		$category = $registry->category( $config['category'] );
+		$siblings = $registry->in_category( $config['category'], false );
+
+		unset( $siblings[ $config['slug'] ] );
+
+		if ( ! $siblings ) {
+			return '';
+		}
+
+		$siblings = array_slice( $siblings, 0, 8, true );
+
+		ob_start();
+		?>
+		<div class="calcr-popular">
+			<h2 class="calcr-popular__title">More in <?php echo esc_html( $category ? $category['name'] : 'this category' ); ?></h2>
+			<ul>
+				<?php foreach ( $siblings as $sibling ) : ?>
+					<li><a href="<?php echo esc_url( Calculatorr_Pages::url_for( $sibling ) ); ?>"><?php echo esc_html( $sibling['h1'] ); ?></a></li>
+				<?php endforeach; ?>
+			</ul>
+			<?php if ( $category ) : ?>
+				<a class="calcr-popular__all" href="<?php echo esc_url( Calculatorr_Pages::url_for_category( $category ) ); ?>">
+					All <?php echo esc_html( strtolower( $category['name'] ) ); ?> calculators
+				</a>
+			<?php endif; ?>
+		</div>
+		<?php
+		return ob_get_clean();
+	}
+
+	/**
+	 * Where the figures came from.
+	 *
+	 * Constants like the weight of a cubic yard of gravel or the coefficients
+	 * in a body fat formula are somebody else's published work, and saying
+	 * whose is both honest and the clearest trust signal a page of this kind
+	 * can carry.
+	 */
+	private function render_sources( $config ) {
+		if ( empty( $config['sources'] ) ) {
+			return '';
+		}
+
+		ob_start();
+		?>
+		<section class="calcr-sources">
+			<h2>Where these figures come from</h2>
+			<ul>
+				<?php foreach ( $config['sources'] as $source ) : ?>
+					<li>
+						<?php if ( ! empty( $source['url'] ) ) : ?>
+							<a href="<?php echo esc_url( $source['url'] ); ?>" rel="nofollow noopener" target="_blank"><?php echo esc_html( $source['name'] ); ?></a>
+						<?php else : ?>
+							<?php echo esc_html( $source['name'] ); ?>
+						<?php endif; ?>
+						<?php if ( ! empty( $source['detail'] ) ) : ?>
+							<span class="calcr-sources__detail"><?php echo esc_html( $source['detail'] ); ?></span>
+						<?php endif; ?>
+					</li>
+				<?php endforeach; ?>
+			</ul>
+		</section>
 		<?php
 		return ob_get_clean();
 	}
@@ -364,15 +526,64 @@ class Calculatorr_Renderer {
 		ob_start();
 		echo '<div class="calcr-prose">';
 
-		foreach ( $config['explainer'] as $section ) {
+		foreach ( $config['explainer'] as $i => $section ) {
 			if ( ! empty( $section['heading'] ) ) {
-				echo '<h2>' . esc_html( $section['heading'] ) . '</h2>';
+				printf(
+					'<h2 id="section-%d">%s</h2>',
+					(int) $i,
+					esc_html( $section['heading'] )
+				);
 			}
+
 			if ( ! empty( $section['body'] ) ) {
 				echo wp_kses_post( wpautop( $section['body'] ) );
 			}
+
 			if ( ! empty( $section['formula'] ) ) {
 				echo '<div class="calcr-formula">' . wp_kses_post( $section['formula'] ) . '</div>';
+			}
+
+			/* Numbered steps, because "how to calculate" is how people phrase
+			   the query and an ordered list is what answers it. */
+			if ( ! empty( $section['steps'] ) ) {
+				echo '<ol class="calcr-steps">';
+				foreach ( $section['steps'] as $step ) {
+					echo '<li>' . wp_kses_post( $step ) . '</li>';
+				}
+				echo '</ol>';
+			}
+
+			/* A worked example with real numbers, which is the part people
+			   scroll to and the part most calculator pages leave out. */
+			if ( ! empty( $section['example'] ) ) {
+				echo '<div class="calcr-example">';
+				echo '<span class="calcr-example__label">Worked example</span>';
+				echo wp_kses_post( wpautop( $section['example'] ) );
+				echo '</div>';
+			}
+
+			/* A reference table of common values. These earn featured
+			   snippets and they are genuinely the thing a tradesperson or a
+			   student wants to glance at without entering anything. */
+			if ( ! empty( $section['table'] ) ) {
+				$table = $section['table'];
+				echo '<div class="calcr-reftable">';
+				if ( ! empty( $table['caption'] ) ) {
+					echo '<p class="calcr-reftable__caption">' . esc_html( $table['caption'] ) . '</p>';
+				}
+				echo '<table><thead><tr>';
+				foreach ( $table['head'] as $cell ) {
+					echo '<th>' . esc_html( $cell ) . '</th>';
+				}
+				echo '</tr></thead><tbody>';
+				foreach ( $table['rows'] as $row ) {
+					echo '<tr>';
+					foreach ( $row as $cell ) {
+						echo '<td>' . esc_html( $cell ) . '</td>';
+					}
+					echo '</tr>';
+				}
+				echo '</tbody></table></div>';
 			}
 		}
 
@@ -387,7 +598,7 @@ class Calculatorr_Renderer {
 
 		ob_start();
 		?>
-		<section class="calcr-faq">
+		<section class="calcr-faq" id="faq">
 			<h2>Common questions</h2>
 			<div class="calcr-faq__list">
 				<?php foreach ( $config['faqs'] as $faq ) : ?>

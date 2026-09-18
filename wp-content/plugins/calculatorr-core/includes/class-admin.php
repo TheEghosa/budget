@@ -422,6 +422,7 @@ class Calculatorr_Admin {
 			'schema_enabled' => array( 'Output structured data', 'Organization, WebSite, breadcrumbs, the tool itself and the FAQs, as one connected JSON-LD graph.' ),
 			'share_enabled'  => array( 'Show the share button', 'The share panel with the rendered snapshot, the X post and the copyable link.' ),
 			'load_fonts'     => array( 'Load Space Grotesk and Source Sans 3', 'Turn off if your theme already loads them or if you self-host, which is faster and better for privacy.' ),
+			'render_heading' => array( 'Print the heading and intro', 'Most themes already output the page title as the H1, so this is off by default to avoid two of them. Turn it on if your theme does not, or if the theme heading does not match the calculator title.' ),
 			'log_enabled'    => array( 'Collect errors', 'Records JavaScript errors reported by visitors and PHP problems inside the plugin. Worth leaving on: a formula that breaks on a phone leaves no trace on the server otherwise.' ),
 		);
 		?>
@@ -551,7 +552,7 @@ class Calculatorr_Admin {
 			$this->finish( 'Advertising saved.', 'ads' );
 		}
 
-		foreach ( array( 'seo_enabled', 'schema_enabled', 'share_enabled', 'load_fonts', 'log_enabled' ) as $flag ) {
+		foreach ( array( 'seo_enabled', 'schema_enabled', 'share_enabled', 'load_fonts', 'log_enabled', 'render_heading' ) as $flag ) {
 			$values[ $flag ] = isset( $_POST[ $flag ] ) ? 1 : 0;
 		}
 		$values['log_limit'] = isset( $_POST['log_limit'] ) ? (int) $_POST['log_limit'] : 200;

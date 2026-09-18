@@ -96,4 +96,5 @@ return array(
 			'ap-score-calculator',
 		),
 		'disclaimer' => '',
+		'sources' => array(),
 	);

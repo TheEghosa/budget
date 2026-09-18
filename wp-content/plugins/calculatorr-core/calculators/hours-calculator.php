@@ -99,4 +99,5 @@ return array(
 			'overtime-calculator',
 		),
 		'disclaimer' => '',
+		'sources' => array(),
 	);

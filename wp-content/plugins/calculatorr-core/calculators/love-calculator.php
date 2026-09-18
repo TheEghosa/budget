@@ -74,4 +74,5 @@ return array(
 			'age-calculator',
 		),
 		'disclaimer' => 'Entertainment only. This has no predictive value of any kind and should not inform any decision.',
+		'sources' => array(),
 	);

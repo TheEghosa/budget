@@ -151,4 +151,5 @@ return array(
 			'tile-calculator',
 		),
 		'disclaimer' => '',
+		'sources' => array(),
 	);

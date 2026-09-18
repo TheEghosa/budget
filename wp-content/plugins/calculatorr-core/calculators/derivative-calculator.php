@@ -81,4 +81,5 @@ return array(
 			'quadratic-formula-calculator',
 		),
 		'disclaimer' => '',
+		'sources' => array(),
 	);

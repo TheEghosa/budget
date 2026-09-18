@@ -144,4 +144,5 @@ return array(
 			'board-foot-calculator',
 		),
 		'disclaimer' => 'For planning only. Electrical work must be designed and installed to the National Electrical Code and any local amendments, and inspected where required.',
+		'sources' => array(),
 	);

@@ -99,4 +99,5 @@ return array(
 			'derivative-calculator',
 		),
 		'disclaimer' => '',
+		'sources' => array(),
 	);

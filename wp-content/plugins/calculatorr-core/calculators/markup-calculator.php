@@ -86,4 +86,5 @@ return array(
 			'sales-tax-calculator',
 		),
 		'disclaimer' => '',
+		'sources' => array(),
 	);

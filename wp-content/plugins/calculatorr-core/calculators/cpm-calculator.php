@@ -122,4 +122,5 @@ return array(
 			'ebay-fee-calculator',
 		),
 		'disclaimer' => '',
+		'sources' => array(),
 	);

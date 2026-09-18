@@ -97,4 +97,5 @@ return array(
 			'markup-calculator',
 		),
 		'disclaimer' => '',
+		'sources' => array(),
 	);

@@ -96,4 +96,5 @@ return array(
 			'military-time-converter',
 		),
 		'disclaimer' => '',
+		'sources' => array(),
 	);

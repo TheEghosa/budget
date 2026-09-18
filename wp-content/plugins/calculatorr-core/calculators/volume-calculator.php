@@ -135,4 +135,5 @@ return array(
 			'cubic-yard-calculator',
 		),
 		'disclaimer' => '',
+		'sources' => array(),
 	);

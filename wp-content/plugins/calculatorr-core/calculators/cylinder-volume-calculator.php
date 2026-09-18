@@ -109,4 +109,5 @@ return array(
 			'circumference-calculator',
 		),
 		'disclaimer' => '',
+		'sources' => array(),
 	);

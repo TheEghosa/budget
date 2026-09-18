@@ -88,4 +88,5 @@ return array(
 			'pregnancy-calculator',
 		),
 		'disclaimer' => 'General population estimate, not medical advice. It cannot account for your history, medication or physiology, so treat it as a starting point for a conversation with a clinician.',
+		'sources' => array(),
 	);

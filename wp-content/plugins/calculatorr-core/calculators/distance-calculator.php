@@ -161,4 +161,5 @@ return array(
 			'tire-size-calculator',
 		),
 		'disclaimer' => '',
+		'sources' => array(),
 	);

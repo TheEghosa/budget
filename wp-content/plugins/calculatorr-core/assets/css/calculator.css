@@ -44,6 +44,17 @@
 	gap: var(--calcr-gap-xs);
 }
 
+/*
+ * Any author rule that sets display beats the browser's own [hidden] rule, so
+ * a field the script has hidden stays on screen unless this is stated
+ * explicitly. It is why every calculator with a unit switch was showing both
+ * sets of inputs at once.
+ */
+.calcr [hidden],
+.calcr-field[hidden] {
+	display: none;
+}
+
 .calcr-field__label {
 	font-size: 14px;
 	font-weight: 600;
@@ -835,5 +846,251 @@
 
 	.calcr__share {
 		position: static;
+	}
+}
+
+/* ---------- Page scaffold ---------- */
+
+.calcr-breadcrumb {
+	margin-bottom: 16px;
+	font-size: 14px;
+	color: var(--calcr-muted);
+}
+
+.calcr-breadcrumb ol {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 8px;
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.calcr-breadcrumb li + li::before {
+	content: "/";
+	margin-right: 8px;
+	color: var(--calcr-line-strong);
+}
+
+.calcr-breadcrumb a {
+	text-decoration: none;
+}
+
+.calcr-breadcrumb [aria-current] {
+	color: var(--calcr-ink);
+}
+
+.calcr-page__title {
+	margin: 0 0 8px;
+	font-family: var(--calcr-font-display);
+	font-size: clamp(28px, 5vw, 40px);
+	font-weight: 700;
+	line-height: 1.15;
+	letter-spacing: -0.02em;
+}
+
+.calcr-page__intro {
+	margin: 0 0 24px;
+	font-size: 18px;
+	line-height: 1.6;
+	color: var(--calcr-muted);
+	max-width: 68ch;
+}
+
+.calcr-layout {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) 300px;
+	gap: 40px;
+	align-items: start;
+}
+
+.calcr-layout__side {
+	position: sticky;
+	top: 24px;
+	display: flex;
+	flex-direction: column;
+	gap: 22px;
+}
+
+/* ---------- Table of contents ---------- */
+
+.calcr-toc {
+	margin-top: var(--calcr-gap-lg);
+	padding: 18px 22px;
+	background: var(--calcr-surface);
+	border: 1px solid var(--calcr-line);
+	border-radius: var(--calcr-radius-lg);
+}
+
+.calcr-toc__label {
+	display: block;
+	margin-bottom: 8px;
+	font-family: var(--calcr-font-display);
+	font-size: 13px;
+	font-weight: 600;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+	color: var(--calcr-muted);
+}
+
+.calcr-toc ol {
+	margin: 0;
+	padding-left: 20px;
+	display: flex;
+	flex-direction: column;
+	gap: 5px;
+	font-size: 15px;
+}
+
+/* ---------- Steps, examples and reference tables ---------- */
+
+.calcr-steps {
+	margin: 16px 0;
+	padding-left: 22px;
+	display: flex;
+	flex-direction: column;
+	gap: 9px;
+	font-size: 17px;
+	line-height: 1.6;
+}
+
+.calcr-example {
+	margin: 20px 0;
+	padding: 20px 24px;
+	background: var(--calcr-accent-soft);
+	border: 1px solid var(--calcr-accent-line);
+	border-radius: var(--calcr-radius-lg);
+}
+
+.calcr-example__label {
+	display: block;
+	margin-bottom: 6px;
+	font-family: var(--calcr-font-display);
+	font-size: 13px;
+	font-weight: 600;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+	color: var(--calcr-accent);
+}
+
+.calcr-example p {
+	margin: 0 0 10px;
+}
+
+.calcr-example p:last-child {
+	margin-bottom: 0;
+}
+
+.calcr-reftable {
+	margin: 22px 0;
+	overflow-x: auto;
+}
+
+.calcr-reftable__caption {
+	margin: 0 0 8px;
+	font-size: 14px;
+	color: var(--calcr-muted);
+}
+
+.calcr-reftable table {
+	width: 100%;
+	border-collapse: collapse;
+	background: var(--calcr-surface);
+	border: 1px solid var(--calcr-line);
+	border-radius: var(--calcr-radius-lg);
+	overflow: hidden;
+	font-size: 15px;
+}
+
+.calcr-reftable th {
+	padding: 12px 16px;
+	background: var(--calcr-sunken);
+	text-align: left;
+	font-family: var(--calcr-font-display);
+	font-size: 13px;
+	font-weight: 600;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+	color: var(--calcr-muted);
+	white-space: nowrap;
+}
+
+.calcr-reftable td {
+	padding: 11px 16px;
+	border-top: 1px solid var(--calcr-line);
+	font-variant-numeric: tabular-nums;
+}
+
+/* ---------- Sidebar blocks ---------- */
+
+.calcr-popular {
+	padding: 20px 22px;
+	background: var(--calcr-surface);
+	border: 1px solid var(--calcr-line);
+	border-radius: var(--calcr-radius-lg);
+}
+
+.calcr-popular__title {
+	margin: 0 0 12px;
+	font-family: var(--calcr-font-display);
+	font-size: 17px;
+	font-weight: 600;
+}
+
+.calcr-popular ul {
+	list-style: none;
+	margin: 0 0 14px;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	font-size: 15px;
+}
+
+.calcr-popular__all {
+	font-size: 14px;
+	font-weight: 600;
+}
+
+/* ---------- Sources ---------- */
+
+.calcr-sources {
+	margin-top: var(--calcr-gap-lg);
+	padding: 20px 24px;
+	background: var(--calcr-sunken);
+	border-radius: var(--calcr-radius-lg);
+}
+
+.calcr-sources h2 {
+	margin: 0 0 10px;
+	font-family: var(--calcr-font-display);
+	font-size: 18px;
+	font-weight: 600;
+}
+
+.calcr-sources ul {
+	margin: 0;
+	padding-left: 20px;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	font-size: 15px;
+	line-height: 1.55;
+}
+
+.calcr-sources__detail {
+	color: var(--calcr-muted);
+}
+
+/* The sidebar is dropped rather than stacked below 1024px, because a column
+   of adverts under the content is worse than no column at all. */
+@media (max-width: 1024px) {
+	.calcr-layout {
+		grid-template-columns: minmax(0, 1fr);
+	}
+
+	.calcr-layout__side {
+		display: none;
 	}
 }

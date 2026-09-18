@@ -118,4 +118,5 @@ return array(
 			'weight-converter',
 		),
 		'disclaimer' => '',
+		'sources' => array(),
 	);

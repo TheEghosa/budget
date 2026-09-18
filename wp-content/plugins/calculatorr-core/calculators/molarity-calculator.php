@@ -116,4 +116,5 @@ return array(
 			'unit-converter',
 		),
 		'disclaimer' => '',
+		'sources' => array(),
 	);

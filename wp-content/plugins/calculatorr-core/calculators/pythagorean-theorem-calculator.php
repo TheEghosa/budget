@@ -118,4 +118,5 @@ return array(
 			'distance-calculator',
 		),
 		'disclaimer' => '',
+		'sources' => array(),
 	);

@@ -118,4 +118,5 @@ return array(
 			'bmi-calculator',
 		),
 		'disclaimer' => '',
+		'sources' => array(),
 	);

@@ -26,6 +26,7 @@ $seo      = Calculatorr_SEO::instance();
 $errors = array();
 $warnings = array();
 $checked = 0;
+$GLOBALS['calcr_depth'] = array();
 
 foreach ( $registry->all() as $slug => $config ) {
 	$GLOBALS['calcr_test_state']['current_slug'] = $slug;
@@ -48,6 +49,29 @@ foreach ( $registry->all() as $slug => $config ) {
 
 	foreach ( $GLOBALS['calcr_php_problems'] as $problem ) {
 		$p( 'PHP: ' . $problem );
+	}
+
+	/* --- the page scaffold, as drawn in the design ----------------------- */
+	foreach ( array(
+		'calcr-breadcrumb'  => 'breadcrumb trail',
+		'calcr-layout'      => 'two column layout',
+		'calcr-sidebar'     => 'sidebar',
+		'calcr-popular'     => 'more in category block',
+		'calcr-related'     => 'related calculators',
+		'calcr-prose'       => 'explainer',
+	) as $needle => $label ) {
+		if ( false === strpos( $html, $needle ) ) {
+			$p( 'missing ' . $label );
+		}
+	}
+
+	/* The breadcrumb has to be a real trail rather than a single crumb, and
+	   the visible one must agree with the BreadcrumbList markup. */
+	if ( substr_count( $html, '<li>' ) < 3 ) {
+		$p( 'breadcrumb has fewer than three levels' );
+	}
+	if ( false === strpos( $html, 'aria-current="page"' ) ) {
+		$p( 'breadcrumb does not mark the current page' );
 	}
 
 	/* --- the calculator itself ------------------------------------------ */
@@ -112,6 +136,21 @@ foreach ( $registry->all() as $slug => $config ) {
 			$p( 'JSON-LD is not valid JSON: ' . json_last_error_msg() );
 		} else {
 			$types = array_column( $decoded['@graph'], '@type' );
+
+			/* The visible trail and the marked-up one describing different
+			   things is worse than having neither. */
+			foreach ( $decoded['@graph'] as $node ) {
+				if ( 'BreadcrumbList' !== $node['@type'] ) {
+					continue;
+				}
+				if ( count( $node['itemListElement'] ) !== 3 ) {
+					$p( 'BreadcrumbList has ' . count( $node['itemListElement'] ) . ' levels, not 3' );
+				}
+				$last = end( $node['itemListElement'] );
+				if ( $last['name'] !== $config['h1'] ) {
+					$p( 'breadcrumb markup names "' . $last['name'] . '" but the page is "' . $config['h1'] . '"' );
+				}
+			}
 			foreach ( array( 'Organization', 'WebSite', 'BreadcrumbList', 'WebPage', 'SoftwareApplication' ) as $need ) {
 				if ( ! in_array( $need, $types, true ) ) { $p( "JSON-LD missing $need" ); }
 			}
@@ -122,6 +161,20 @@ foreach ( $registry->all() as $slug => $config ) {
 	}
 
 	/* --- content ---------------------------------------------------------- */
+	$words = str_word_count( wp_strip_all_tags( $config['description'] . ' ' . $config['meta_description'] . ' ' . $config['disclaimer'] ) );
+	foreach ( $config['explainer'] as $section ) {
+		$words += str_word_count( wp_strip_all_tags(
+			$section['heading'] . ' ' . $section['body'] . ' ' . ( isset( $section['formula'] ) ? $section['formula'] : '' )
+			. ' ' . ( isset( $section['example'] ) ? $section['example'] : '' )
+			. ' ' . ( isset( $section['steps'] ) ? implode( ' ', $section['steps'] ) : '' )
+		) );
+	}
+	foreach ( $config['faqs'] as $faq ) {
+		$words += str_word_count( wp_strip_all_tags( $faq['q'] . ' ' . $faq['a'] ) );
+	}
+
+	$GLOBALS['calcr_depth'][ $slug ] = $words;
+
 	if ( count( $config['faqs'] ) < 2 )      { $w( 'fewer than two FAQs' ); }
 	if ( count( $config['explainer'] ) < 2 ) { $w( 'fewer than two explainer sections' ); }
 	foreach ( $config['related'] as $rel ) {
@@ -149,9 +202,37 @@ foreach ( $registry->categories() as $key => $category ) {
 	foreach ( $GLOBALS['calcr_php_problems'] as $problem ) { $errors[] = "$key hub PHP: $problem"; }
 }
 
+/* --- stylesheet guards ----------------------------------------------------
+ *
+ * Conditional fields are hidden by setting the hidden attribute, and any
+ * author rule that sets display beats the browser's own [hidden] rule. Without
+ * an explicit override every calculator with a unit switch shows both sets of
+ * inputs at once, which is invisible to a PHP test and obvious to a visitor.
+ */
+$css = file_get_contents( CALCULATORR_PATH . 'assets/css/calculator.css' );
+
+if ( ! preg_match( '/\[hidden\][^{]*\{[^}]*display:\s*none/', $css ) ) {
+	$errors[] = 'stylesheet: nothing overrides display for [hidden], so conditional fields will stay visible';
+}
+
+foreach ( array( '.calcr-field', '.calcr__share-panel', '.calcr__sticky' ) as $selector ) {
+	if ( false === strpos( $css, $selector ) ) {
+		$errors[] = 'stylesheet: ' . $selector . ' has no rule at all';
+	}
+}
+
 restore_error_handler();
 
-printf( "checked %d pages\n\n", $checked );
+$depth = $GLOBALS['calcr_depth'];
+sort( $depth );
+$median = $depth[ intdiv( count( $depth ), 2 ) ];
+
+printf( "checked %d pages\n", $checked );
+printf( "content depth: median %d words, %d pages under 400, %d under 700\n\n",
+	$median,
+	count( array_filter( $depth, function ( $n ) { return $n < 400; } ) ),
+	count( array_filter( $depth, function ( $n ) { return $n < 700; } ) )
+);
 
 foreach ( array_slice( $warnings, 0, 40 ) as $warning ) { echo "  WARN  $warning\n"; }
 if ( count( $warnings ) > 40 ) { printf( "  ... and %d more warnings\n", count( $warnings ) - 40 ); }

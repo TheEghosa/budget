@@ -108,4 +108,5 @@ return array(
 			'take-home-pay-calculator',
 		),
 		'disclaimer' => '',
+		'sources' => array(),
 	);

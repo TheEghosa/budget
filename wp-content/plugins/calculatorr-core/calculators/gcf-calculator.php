@@ -78,4 +78,5 @@ return array(
 			'fraction-calculator',
 		),
 		'disclaimer' => '',
+		'sources' => array(),
 	);

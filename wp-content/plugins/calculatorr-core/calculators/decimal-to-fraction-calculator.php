@@ -74,4 +74,5 @@ return array(
 			'gcf-calculator',
 		),
 		'disclaimer' => '',
+		'sources' => array(),
 	);

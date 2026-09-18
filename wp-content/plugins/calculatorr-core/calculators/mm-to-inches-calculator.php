@@ -78,4 +78,5 @@ return array(
 			'feet-to-meters-calculator',
 		),
 		'disclaimer' => '',
+		'sources' => array(),
 	);

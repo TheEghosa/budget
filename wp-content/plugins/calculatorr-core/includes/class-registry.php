@@ -186,6 +186,7 @@ class Calculatorr_Registry {
 					'meta_description' => '',
 					'h1'               => '',
 					'keyword'          => '',
+					'sources'          => array(),
 				)
 			);
 

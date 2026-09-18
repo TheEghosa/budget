@@ -127,4 +127,5 @@ return array(
 			'tdee-calculator',
 		),
 		'disclaimer' => 'An estimate from a population average, never a measurement. Do not use it to decide whether to drive. If you have been drinking, do not drive.',
+		'sources' => array(),
 	);

@@ -86,4 +86,5 @@ return array(
 			'cpm-calculator',
 		),
 		'disclaimer' => '',
+		'sources' => array(),
 	);

@@ -147,4 +147,5 @@ return array(
 			'area-calculator',
 		),
 		'disclaimer' => '',
+		'sources' => array(),
 	);

@@ -75,4 +75,5 @@ return array(
 			'factor-calculator',
 		),
 		'disclaimer' => '',
+		'sources' => array(),
 	);

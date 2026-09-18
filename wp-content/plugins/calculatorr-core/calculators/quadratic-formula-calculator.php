@@ -88,4 +88,5 @@ return array(
 			'slope-calculator',
 		),
 		'disclaimer' => '',
+		'sources' => array(),
 	);

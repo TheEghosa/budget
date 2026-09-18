@@ -125,4 +125,5 @@ return array(
 			'paint-calculator',
 		),
 		'disclaimer' => '',
+		'sources' => array(),
 	);

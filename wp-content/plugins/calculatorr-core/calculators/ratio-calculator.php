@@ -89,4 +89,5 @@ return array(
 			'percentage-calculator',
 		),
 		'disclaimer' => '',
+		'sources' => array(),
 	);

@@ -90,4 +90,5 @@ return array(
 			'average-calculator',
 		),
 		'disclaimer' => '',
+		'sources' => array(),
 	);

@@ -92,4 +92,5 @@ return array(
 			'time-duration-calculator',
 		),
 		'disclaimer' => '',
+		'sources' => array(),
 	);

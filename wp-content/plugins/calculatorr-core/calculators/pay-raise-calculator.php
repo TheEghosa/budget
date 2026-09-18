@@ -119,4 +119,5 @@ return array(
 			'percent-change-calculator',
 		),
 		'disclaimer' => 'For planning only, not tax or financial advice. Rates and thresholds change, so confirm current figures before acting on a projection.',
+		'sources' => array(),
 	);

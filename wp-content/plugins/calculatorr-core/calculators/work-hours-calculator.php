@@ -109,4 +109,5 @@ return array(
 			'time-card-calculator',
 		),
 		'disclaimer' => '',
+		'sources' => array(),
 	);

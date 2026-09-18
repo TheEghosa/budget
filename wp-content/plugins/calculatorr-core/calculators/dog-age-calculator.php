@@ -94,4 +94,5 @@ return array(
 			'age-calculator',
 		),
 		'disclaimer' => '',
+		'sources' => array(),
 	);

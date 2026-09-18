@@ -84,4 +84,5 @@ return array(
 			'dog-age-calculator',
 		),
 		'disclaimer' => '',
+		'sources' => array(),
 	);

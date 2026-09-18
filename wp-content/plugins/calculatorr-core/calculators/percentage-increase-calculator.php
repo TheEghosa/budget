@@ -80,4 +80,5 @@ return array(
 			'percentage-decrease-calculator',
 		),
 		'disclaimer' => '',
+		'sources' => array(),
 	);

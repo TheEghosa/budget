@@ -109,4 +109,5 @@ return array(
 			'proportion-calculator',
 		),
 		'disclaimer' => '',
+		'sources' => array(),
 	);

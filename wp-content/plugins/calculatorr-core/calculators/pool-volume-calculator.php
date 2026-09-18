@@ -138,4 +138,5 @@ return array(
 			'square-footage-calculator',
 		),
 		'disclaimer' => '',
+		'sources' => array(),
 	);

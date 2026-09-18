@@ -113,4 +113,5 @@ return array(
 			'stair-calculator',
 		),
 		'disclaimer' => '',
+		'sources' => array(),
 	);

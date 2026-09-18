@@ -152,4 +152,5 @@ return array(
 			'volume-calculator',
 		),
 		'disclaimer' => '',
+		'sources' => array(),
 	);

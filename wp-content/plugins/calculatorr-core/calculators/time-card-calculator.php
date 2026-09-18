@@ -104,4 +104,5 @@ return array(
 			'work-hours-calculator',
 		),
 		'disclaimer' => '',
+		'sources' => array(),
 	);

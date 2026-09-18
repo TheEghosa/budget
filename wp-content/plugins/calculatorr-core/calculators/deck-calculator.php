@@ -133,4 +133,5 @@ return array(
 			'square-footage-calculator',
 		),
 		'disclaimer' => 'Covers decking and field joists only. Beams, posts, footings, blocking and fasteners must be sized to local code.',
+		'sources' => array(),
 	);

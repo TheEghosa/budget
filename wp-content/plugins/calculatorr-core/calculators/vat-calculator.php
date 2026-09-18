@@ -97,4 +97,5 @@ return array(
 			'margin-calculator',
 		),
 		'disclaimer' => '',
+		'sources' => array(),
 	);

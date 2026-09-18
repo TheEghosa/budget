@@ -80,4 +80,5 @@ return array(
 			'percent-change-calculator',
 		),
 		'disclaimer' => '',
+		'sources' => array(),
 	);
