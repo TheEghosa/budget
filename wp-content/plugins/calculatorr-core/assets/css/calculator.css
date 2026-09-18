@@ -1094,3 +1094,144 @@
 		display: none;
 	}
 }
+
+/* ---------- House promos ----------
+ *
+ * These fill an ad slot that has no ad code in it. They are styled as part of
+ * the site rather than as a fake advert, because dressing internal links up to
+ * look like advertising is the sort of thing that trains people to ignore
+ * them.
+ */
+
+.calcr-ad--house {
+	padding: 0;
+}
+
+.calcr-house {
+	width: 100%;
+	height: 100%;
+	box-sizing: border-box;
+	padding: 18px 20px;
+	background: var(--calcr-accent-soft);
+	border: 1px solid var(--calcr-accent-line);
+	border-radius: var(--calcr-radius-lg);
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+}
+
+.calcr-house__head {
+	display: flex;
+	align-items: center;
+	gap: 9px;
+}
+
+.calcr-house__mark {
+	flex-shrink: 0;
+	width: 22px;
+	height: 22px;
+	border-radius: 6px;
+	background:
+		linear-gradient(#fff, #fff) 5px 8px / 12px 2.5px no-repeat,
+		linear-gradient(#fff, #fff) 5px 13px / 7px 2.5px no-repeat,
+		var(--calcr-accent);
+}
+
+.calcr-house__title {
+	font-family: var(--calcr-font-display);
+	font-size: 14px;
+	font-weight: 600;
+	letter-spacing: 0.02em;
+	color: var(--calcr-accent);
+}
+
+.calcr-house__list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	flex-grow: 1;
+	display: grid;
+	gap: 8px;
+}
+
+.calcr-house__list a {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	padding: 9px 12px;
+	background: var(--calcr-surface);
+	border: 1px solid var(--calcr-accent-line);
+	border-radius: var(--calcr-radius-sm);
+	text-decoration: none;
+	min-height: 44px;
+	box-sizing: border-box;
+	justify-content: center;
+}
+
+.calcr-house__list a:hover,
+.calcr-house__list a:focus-visible {
+	border-color: var(--calcr-accent);
+}
+
+.calcr-house__name {
+	font-family: var(--calcr-font-display);
+	font-size: 14px;
+	font-weight: 600;
+	color: var(--calcr-ink);
+	line-height: 1.25;
+}
+
+.calcr-house__blurb {
+	font-size: 12px;
+	line-height: 1.4;
+	color: var(--calcr-muted);
+	display: -webkit-box;
+	-webkit-line-clamp: 2;
+	-webkit-box-orient: vertical;
+	overflow: hidden;
+}
+
+.calcr-house__all {
+	align-self: flex-start;
+	font-size: 13px;
+	font-weight: 600;
+}
+
+/* The leaderboard is wide and short, so its links run across rather than down
+   and the blurbs come off entirely. */
+.calcr-ad--after_calculator .calcr-house {
+	padding: 12px 16px;
+	gap: 9px;
+}
+
+.calcr-ad--after_calculator .calcr-house__list {
+	grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+}
+
+.calcr-ad--after_calculator .calcr-house__blurb,
+.calcr-ad--after_calculator .calcr-house__all {
+	display: none;
+}
+
+/* The in-content rectangle is close to square. */
+.calcr-ad--in_content .calcr-house__list {
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+/* The sidebar tower is tall and narrow, so everything stacks. */
+.calcr-ad--sidebar .calcr-house__list {
+	grid-template-columns: minmax(0, 1fr);
+}
+
+@media (max-width: 600px) {
+	.calcr-ad--after_calculator .calcr-house__list,
+	.calcr-ad--in_content .calcr-house__list {
+		grid-template-columns: minmax(0, 1fr);
+	}
+
+	/* A leaderboard's reserved 90px is a desktop shape; on a phone the slot
+	   becomes a rectangle and the promo needs the room. */
+	.calcr-ad--after_calculator.calcr-ad--house {
+		min-height: 0 !important;
+	}
+}

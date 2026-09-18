@@ -22,10 +22,13 @@ $GLOBALS['calcr_preview'] = true;
 $settings = Calculatorr_Settings::instance();
 $values = $settings->all();
 $values['render_heading'] = 1;
-$values['ads_enabled'] = 1;
-$values['ad_after_calculator'] = '<div class="calcr-demo-ad">Ad slot A &middot; leaderboard 728 x 90</div>';
-$values['ad_in_content'] = '<div class="calcr-demo-ad">Ad slot B &middot; in-content 336 x 280</div>';
-$values['ad_sidebar'] = '<div class="calcr-demo-ad calcr-demo-ad--tall">Ad slot C &middot; sidebar 300 x 600</div>';
+/* Paid ads off and house promos on, which is how the plugin ships and what
+   the site will actually look like until AdSense approves it. */
+$values['ads_enabled'] = 0;
+$values['house_ads_enabled'] = 1;
+$values['ad_after_calculator'] = '';
+$values['ad_in_content'] = '';
+$values['ad_sidebar'] = '';
 $settings->save( $values );
 
 $registry = Calculatorr_Registry::instance();

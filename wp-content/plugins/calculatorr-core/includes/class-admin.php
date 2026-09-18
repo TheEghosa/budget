@@ -19,6 +19,7 @@ class Calculatorr_Admin {
 		'dashboard'   => 'Dashboard',
 		'calculators' => 'Calculators',
 		'ads'         => 'Advertising',
+		'code'        => 'Header &amp; footer',
 		'settings'    => 'Settings',
 		'log'         => 'Error log',
 	);
@@ -399,8 +400,21 @@ class Calculatorr_Admin {
 				<p>
 					<label>
 						<input type="checkbox" name="ads_enabled" value="1" <?php checked( $settings->get( 'ads_enabled' ) ); ?>>
-						Show advertising slots
+						<strong>Run the ad code below</strong>
 					</label>
+					<span class="description">Leave this off until AdSense has approved the site. Nothing breaks either way.</span>
+				</p>
+
+				<p>
+					<label>
+						<input type="checkbox" name="house_ads_enabled" value="1" <?php checked( $settings->get( 'house_ads_enabled' ) ); ?>>
+						<strong>Fill empty slots with your own calculators</strong>
+					</label>
+					<span class="description">
+						A slot with no ad code in it promotes related tools instead of sitting empty. They are
+						real links rather than a banner image, so they pass anchor text and help the pages rank,
+						which a picture would not. Paid ad code always takes precedence where you have pasted it.
+					</span>
 				</p>
 
 				<?php foreach ( $slots as $key => $slot ) : ?>
@@ -411,6 +425,62 @@ class Calculatorr_Admin {
 
 				<?php submit_button( 'Save advertising' ); ?>
 			</form>
+		</div>
+		<?php
+	}
+
+	private function render_code() {
+		$settings = Calculatorr_Settings::instance();
+		$fields = array(
+			'code_head'   => array( 'Head', 'Goes just before &lt;/head&gt; on every page. This is where the AdSense loader script belongs, along with Search Console and Bing verification tags and most analytics snippets.' ),
+			'code_body'   => array( 'After the opening body tag', 'For anything that has to run before the content, such as Google Tag Manager&rsquo;s noscript fallback. Needs a theme that calls wp_body_open, which almost all have since WordPress 5.2.' ),
+			'code_footer' => array( 'Footer', 'Goes just before &lt;/body&gt;. Anything that does not need to block rendering is better here than in the head, because a script in the head delays the page for every visitor.' ),
+		);
+		?>
+		<div class="calcr-panel">
+			<h2>Header and footer code</h2>
+			<p>
+				Site-wide script and meta tags, without needing a separate plugin for four text boxes. This is
+				where the AdSense loader goes; the individual ad units go in the Advertising tab.
+			</p>
+			<p>
+				The code is printed exactly as you paste it, because an ad tag or an analytics snippet is script
+				by nature and sanitising it would break every one of them. Only administrators can edit this, which
+				is the same trust model WordPress applies to the theme editor. Paste from the source, not from a
+				forum post.
+			</p>
+
+			<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
+				<input type="hidden" name="action" value="calculatorr_save_settings">
+				<input type="hidden" name="section" value="code">
+				<?php wp_nonce_field( 'calculatorr_save_settings' ); ?>
+
+				<p>
+					<label>
+						<input type="checkbox" name="head_footer_enabled" value="1" <?php checked( $settings->get( 'head_footer_enabled' ) ); ?>>
+						<strong>Output this code on the front end</strong>
+					</label>
+					<span class="description">Never runs in the admin or on feeds, where an ad loader has nothing to attach to.</span>
+				</p>
+
+				<?php foreach ( $fields as $key => $field ) : ?>
+					<h3><?php echo esc_html( $field[0] ); ?></h3>
+					<p class="description"><?php echo wp_kses_post( $field[1] ); ?></p>
+					<textarea name="<?php echo esc_attr( $key ); ?>" rows="6" class="large-text code" spellcheck="false"><?php echo esc_textarea( $settings->get( $key ) ); ?></textarea>
+				<?php endforeach; ?>
+
+				<?php submit_button( 'Save code' ); ?>
+			</form>
+		</div>
+
+		<div class="calcr-panel">
+			<h2>One thing AdSense needs that is not code</h2>
+			<p>
+				An <code>ads.txt</code> file at the root of the domain, listing your publisher ID. It is not a
+				script, so it cannot go in the boxes above: it has to be a real file at
+				<code>calculatorr.org/ads.txt</code>. AdSense shows you the exact line to put in it once your
+				account is set up, and it will warn you repeatedly until the file exists.
+			</p>
 		</div>
 		<?php
 	}
@@ -540,8 +610,19 @@ class Calculatorr_Admin {
 		$settings = Calculatorr_Settings::instance();
 		$values = $settings->all();
 
+		if ( 'code' === $section ) {
+			$values['head_footer_enabled'] = isset( $_POST['head_footer_enabled'] ) ? 1 : 0;
+			foreach ( array( 'code_head', 'code_body', 'code_footer' ) as $key ) {
+				/* Stored verbatim, as the screen explains. */
+				$values[ $key ] = isset( $_POST[ $key ] ) ? trim( wp_unslash( $_POST[ $key ] ) ) : '';
+			}
+			$settings->save( $values );
+			$this->finish( 'Header and footer code saved.', 'code' );
+		}
+
 		if ( 'ads' === $section ) {
 			$values['ads_enabled'] = isset( $_POST['ads_enabled'] ) ? 1 : 0;
+			$values['house_ads_enabled'] = isset( $_POST['house_ads_enabled'] ) ? 1 : 0;
 			foreach ( array( 'ad_after_calculator', 'ad_in_content', 'ad_sidebar' ) as $key ) {
 				/* Ad code is markup and script by nature, so it is stored as
 				   given. Only an administrator can reach this screen, and

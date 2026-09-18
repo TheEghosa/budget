@@ -115,18 +115,29 @@ class Calculatorr_Renderer {
 			<div class="calcr-layout">
 				<div class="calcr-layout__main">
 					<?php echo $this->render_widget( $config ); ?>
-					<?php echo $ads->slot( 'after_calculator' ); ?>
+					<?php echo $ads->slot( 'after_calculator', $config ); ?>
 					<?php echo $this->render_contents( $config ); ?>
 					<?php echo $this->render_explainer( $config ); ?>
-					<?php echo $ads->slot( 'in_content' ); ?>
+					<?php echo $ads->slot( 'in_content', $config ); ?>
 					<?php echo $this->render_faqs( $config ); ?>
 					<?php echo $this->render_sources( $config ); ?>
 					<?php echo $this->render_related( $config ); ?>
 				</div>
 
 				<aside class="calcr-layout__side calcr-sidebar">
-					<?php echo $ads->slot( 'sidebar' ); ?>
-					<?php echo $this->render_popular( $config ); ?>
+					<?php
+					$sidebar = $ads->slot( 'sidebar', $config );
+					echo $sidebar;
+
+					/* The sidebar slot falls back to a house promo listing the
+					   same category, so printing the more-in-category block
+					   underneath it would name those calculators twice in one
+					   column. The promo wins, because it carries the
+					   descriptions as well as the links. */
+					if ( false === strpos( $sidebar, 'calcr-ad--house' ) ) {
+						echo $this->render_popular( $config );
+					}
+					?>
 				</aside>
 			</div>
 		</div>

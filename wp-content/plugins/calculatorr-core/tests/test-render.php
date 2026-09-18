@@ -56,13 +56,25 @@ foreach ( $registry->all() as $slug => $config ) {
 		'calcr-breadcrumb'  => 'breadcrumb trail',
 		'calcr-layout'      => 'two column layout',
 		'calcr-sidebar'     => 'sidebar',
-		'calcr-popular'     => 'more in category block',
 		'calcr-related'     => 'related calculators',
 		'calcr-prose'       => 'explainer',
 	) as $needle => $label ) {
 		if ( false === strpos( $html, $needle ) ) {
 			$p( 'missing ' . $label );
 		}
+	}
+
+	/* The sidebar must always offer the neighbouring calculators, but it does
+	   so either as a house promo or as the more-in-category block depending on
+	   what is filling the ad slot, and never as both. */
+	$hasPromo = false !== strpos( $html, 'calcr-ad--house' );
+	$hasPopular = false !== strpos( $html, 'calcr-popular' );
+
+	if ( ! $hasPromo && ! $hasPopular ) {
+		$p( 'sidebar offers no links to neighbouring calculators' );
+	}
+	if ( $hasPromo && $hasPopular ) {
+		$p( 'sidebar lists the same calculators twice' );
 	}
 
 	/* The breadcrumb has to be a real trail rather than a single crumb, and

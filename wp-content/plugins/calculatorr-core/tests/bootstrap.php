@@ -61,6 +61,7 @@ function home_url( $path = '/' ) { return 'https://calculatorr.org' . $path; }
 function get_bloginfo( $what = 'name' ) { return 'name' === $what ? 'calculatorr.org' : 'en-US'; }
 function get_locale() { return 'en_US'; }
 function is_front_page() { return false; }
+function is_feed() { return false; }
 
 function is_page() { return null !== $GLOBALS['calcr_test_state']['current_slug'] || null !== $GLOBALS['calcr_test_state']['current_category']; }
 function get_the_ID() { return 1; }
@@ -100,3 +101,4 @@ require_once CALCULATORR_PATH . 'includes/class-schema.php';
 require_once CALCULATORR_PATH . 'includes/class-ads.php';
 require_once CALCULATORR_PATH . 'includes/class-pages.php';
 require_once CALCULATORR_PATH . 'includes/class-seo.php';
+require_once CALCULATORR_PATH . 'includes/class-head-footer.php';

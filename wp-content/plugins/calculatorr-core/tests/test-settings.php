@@ -62,9 +62,12 @@ $settings->save( $values );
 $html = $renderer->render_widget( $registry->get( 'gpa-calculator' ) );
 check( 'share button back', false !== strpos( $html, 'data-calcr-share-toggle' ), true );
 
+/* With paid ads off but house promos on, a slot is not empty: it promotes
+   other calculators. Switching both off is what empties it. */
 $values['ads_enabled'] = 0;
+$values['house_ads_enabled'] = 0;
 $settings->save( $values );
-check( 'no ad slot when ads are off', Calculatorr_Ads::instance()->slot( 'in_content' ), '' );
+check( 'no slot at all when both are off', Calculatorr_Ads::instance()->slot( 'in_content' ), '' );
 
 $values['ads_enabled'] = 1;
 $values['ad_in_content'] = '<!-- ad code -->';
@@ -93,6 +96,99 @@ check( 'other fields untouched', $reloaded->get( 'gpa-calculator' )['category'],
 
 $settings->save_override( 'gpa-calculator', array() );
 check( 'override cleared', $settings->overrides( 'gpa-calculator' ), array() );
+
+/* --- ad slots and house promos ------------------------------------------- */
+$ads = Calculatorr_Ads::instance();
+$concrete = $registry->get( 'concrete-calculator' );
+
+$values = $settings->all();
+$values['ads_enabled'] = 0;
+$values['house_ads_enabled'] = 1;
+$values['ad_in_content'] = '';
+$settings->save( $values );
+
+check( 'empty slot falls back to a house promo', false !== strpos( $ads->slot( 'in_content', $concrete ), 'calcr-ad--house' ), true );
+check( 'the promo carries real links', substr_count( $ads->slot( 'sidebar', $concrete ), '<a href' ) >= 7, true );
+check( 'the sidebar promo is taller than the leaderboard one',
+	substr_count( $ads->slot( 'sidebar', $concrete ), '<li>' ) > substr_count( $ads->slot( 'after_calculator', $concrete ), '<li>' ), true );
+
+preg_match_all( '/calcr-house__name">([^<]+)</', $ads->slot( 'sidebar', $concrete ), $names );
+check( 'a page never promotes itself', in_array( 'Concrete Calculator', $names[1], true ), false );
+check( 'it leads with the page\'s own related tools', $names[1][0], 'Gravel Calculator' );
+
+$values['ads_enabled'] = 1;
+$values['ad_in_content'] = '<!-- paid unit -->';
+$settings->save( $values );
+check( 'paid code beats the house promo', false !== strpos( $ads->slot( 'in_content', $concrete ), 'paid unit' ), true );
+check( 'a slot with no paid code still falls back', false !== strpos( $ads->slot( 'sidebar', $concrete ), 'calcr-ad--house' ), true );
+
+$values['house_ads_enabled'] = 0;
+$values['ad_sidebar'] = '';
+$settings->save( $values );
+check( 'both off renders nothing', $ads->slot( 'sidebar', $concrete ), '' );
+
+/* A disabled calculator must not be promoted anywhere. */
+$values['house_ads_enabled'] = 1;
+$values['disabled'] = array( 'gravel-calculator' );
+$settings->save( $values );
+preg_match_all( '/calcr-house__name">([^<]+)</', $ads->slot( 'sidebar', $concrete ), $names );
+check( 'a switched-off calculator is never promoted', in_array( 'Gravel Calculator', $names[1], true ), false );
+$values['disabled'] = array();
+$settings->save( $values );
+
+/* The sidebar must never list the same calculators twice. */
+$values = $settings->all();
+$values['ads_enabled'] = 0;
+$values['house_ads_enabled'] = 1;
+$values['ad_sidebar'] = '';
+$settings->save( $values );
+$page = $renderer->render_page( $concrete );
+check( 'house promo suppresses the duplicate block', false !== strpos( $page, 'calcr-ad--house' ) && false === strpos( $page, 'calcr-popular' ), true );
+
+$values['ads_enabled'] = 1;
+$values['ad_sidebar'] = '<!-- paid tower -->';
+$settings->save( $values );
+$page = $renderer->render_page( $concrete );
+check( 'a paid tower keeps the internal links', false !== strpos( $page, 'calcr-popular' ), true );
+
+$values['ads_enabled'] = 0;
+$values['house_ads_enabled'] = 0;
+$values['ad_sidebar'] = '';
+$settings->save( $values );
+$page = $renderer->render_page( $concrete );
+check( 'with no slot at all the links remain', false !== strpos( $page, 'calcr-popular' ), true );
+
+$values['house_ads_enabled'] = 1;
+$settings->save( $values );
+
+/* --- header and footer code ---------------------------------------------- */
+$hf = Calculatorr_Head_Footer::instance();
+
+$values = $settings->all();
+$values['head_footer_enabled'] = 1;
+$values['code_head'] = '<script src="https://pagead2.googlesyndication.com/x.js"></script>';
+$values['code_footer'] = '<!-- footer tag -->';
+$values['code_body'] = '';
+$settings->save( $values );
+
+ob_start(); $hf->head(); $head = ob_get_clean();
+ob_start(); $hf->footer(); $foot = ob_get_clean();
+ob_start(); $hf->body(); $body = ob_get_clean();
+
+check( 'head code is printed verbatim', false !== strpos( $head, 'pagead2.googlesyndication.com' ), true );
+check( 'and is not escaped', false === strpos( $head, '&lt;script' ), true );
+check( 'footer code is printed', false !== strpos( $foot, 'footer tag' ), true );
+check( 'an empty field prints nothing', trim( $body ), '' );
+
+$values['head_footer_enabled'] = 0;
+$settings->save( $values );
+ob_start(); $hf->head(); $off = ob_get_clean();
+check( 'the switch turns it off entirely', trim( $off ), '' );
+
+$values['head_footer_enabled'] = 1;
+$values['code_head'] = '';
+$values['code_footer'] = '';
+$settings->save( $values );
 
 /* --- error log ----------------------------------------------------------- */
 $log->clear();

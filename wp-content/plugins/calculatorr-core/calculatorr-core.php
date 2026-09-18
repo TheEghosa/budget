@@ -27,6 +27,7 @@ require_once CALCULATORR_PATH . 'includes/class-renderer.php';
 require_once CALCULATORR_PATH . 'includes/class-schema.php';
 require_once CALCULATORR_PATH . 'includes/class-seo.php';
 require_once CALCULATORR_PATH . 'includes/class-ads.php';
+require_once CALCULATORR_PATH . 'includes/class-head-footer.php';
 require_once CALCULATORR_PATH . 'includes/class-pages.php';
 require_once CALCULATORR_PATH . 'includes/class-admin.php';
 require_once CALCULATORR_PATH . 'includes/class-elementor.php';
@@ -43,6 +44,7 @@ function calculatorr_boot() {
 	Calculatorr_Schema::instance();
 	Calculatorr_SEO::instance();
 	Calculatorr_Ads::instance();
+	Calculatorr_Head_Footer::instance();
 	Calculatorr_Elementor::instance();
 
 	if ( is_admin() ) {
