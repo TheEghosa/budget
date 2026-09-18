@@ -1,0 +1,456 @@
+/*
+ * Component styles for the calculator.
+ *
+ * Everything is scoped under .calcr or .calcr-page so the plugin cannot
+ * restyle the theme around it, and every value comes from tokens.css so a
+ * design change stays in one file.
+ */
+
+.calcr-page {
+	font-family: var(--calcr-font-body);
+	color: var(--calcr-ink);
+}
+
+/* ---------- The calculator itself ---------- */
+
+.calcr {
+	display: grid;
+	grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+	gap: var(--calcr-gap-lg);
+	padding: var(--calcr-gap-lg);
+	background: var(--calcr-surface);
+	border: 1px solid var(--calcr-line);
+	border-radius: var(--calcr-radius-xl);
+}
+
+.calcr__form {
+	display: flex;
+	flex-direction: column;
+	gap: 17px;
+	margin: 0;
+}
+
+.calcr__actions {
+	display: flex;
+	gap: var(--calcr-gap-sm);
+	padding-top: 2px;
+}
+
+/* ---------- Fields ---------- */
+
+.calcr-field {
+	display: flex;
+	flex-direction: column;
+	gap: var(--calcr-gap-xs);
+}
+
+.calcr-field__label {
+	font-size: 14px;
+	font-weight: 600;
+	color: var(--calcr-ink);
+}
+
+.calcr-field__hint {
+	font-size: 13px;
+	color: var(--calcr-muted);
+}
+
+.calcr-input {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	min-height: 48px;
+	padding: 0 14px;
+	background: var(--calcr-surface);
+	border: 1px solid var(--calcr-line-strong);
+	border-radius: var(--calcr-radius);
+}
+
+.calcr-input:focus-within {
+	border-color: var(--calcr-accent);
+	box-shadow: 0 0 0 3px var(--calcr-accent-soft);
+}
+
+.calcr-input__affix {
+	flex-shrink: 0;
+	font-size: 16px;
+	color: var(--calcr-muted);
+}
+
+.calcr-input__control {
+	flex-grow: 1;
+	width: 100%;
+	min-width: 0;
+	border: none;
+	outline: none;
+	background: transparent;
+	font-family: var(--calcr-font-display);
+	font-size: 17px;
+	font-weight: 500;
+	color: var(--calcr-ink);
+	font-variant-numeric: tabular-nums;
+	padding: 0;
+}
+
+.calcr-field__select {
+	min-height: 48px;
+	padding: 0 12px;
+	background: var(--calcr-surface);
+	border: 1px solid var(--calcr-line-strong);
+	border-radius: var(--calcr-radius);
+	font-family: var(--calcr-font-body);
+	font-size: 16px;
+	color: var(--calcr-ink);
+}
+
+/* ---------- Segmented control ---------- */
+
+.calcr-seg {
+	display: flex;
+	gap: 4px;
+	padding: 4px;
+	background: var(--calcr-sunken);
+	border-radius: var(--calcr-radius);
+}
+
+.calcr-seg__btn {
+	flex-grow: 1;
+	min-height: 42px;
+	border: none;
+	border-radius: var(--calcr-radius-sm);
+	background: transparent;
+	color: var(--calcr-muted);
+	font-family: var(--calcr-font-display);
+	font-size: 14px;
+	font-weight: 600;
+	cursor: pointer;
+}
+
+.calcr-seg__btn.is-active {
+	background: var(--calcr-surface);
+	color: var(--calcr-ink);
+	box-shadow: 0 1px 2px rgba(20, 24, 29, 0.08);
+}
+
+/* ---------- Repeater rows ---------- */
+
+.calcr-rep__list {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+}
+
+.calcr-rep__row {
+	display: flex;
+	gap: 10px;
+	align-items: center;
+}
+
+.calcr-rep__row > * {
+	flex: 1 1 0;
+	min-width: 0;
+}
+
+.calcr-rep__remove {
+	flex: 0 0 auto;
+	width: var(--calcr-touch);
+	height: var(--calcr-touch);
+	border: 1px solid var(--calcr-line-strong);
+	border-radius: var(--calcr-radius);
+	background: var(--calcr-surface);
+	color: var(--calcr-muted);
+	font-size: 20px;
+	line-height: 1;
+	cursor: pointer;
+}
+
+.calcr-rep__add {
+	align-self: flex-start;
+	margin-top: 10px;
+}
+
+/* ---------- Buttons ---------- */
+
+.calcr__btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	min-height: var(--calcr-touch);
+	padding: 0 20px;
+	border-radius: var(--calcr-radius);
+	font-family: var(--calcr-font-display);
+	font-size: 15px;
+	font-weight: 600;
+	cursor: pointer;
+	border: 1px solid transparent;
+}
+
+.calcr__btn--primary {
+	background: var(--calcr-accent);
+	color: var(--calcr-accent-ink);
+}
+
+.calcr__btn--ghost {
+	background: var(--calcr-surface);
+	color: var(--calcr-ink);
+	border-color: var(--calcr-line-strong);
+}
+
+/* ---------- Result panel ---------- */
+
+.calcr__result {
+	display: flex;
+	flex-direction: column;
+	gap: var(--calcr-gap);
+	padding: 24px;
+	background: var(--calcr-accent-soft);
+	border: 1px solid var(--calcr-accent-line);
+	border-radius: var(--calcr-radius-lg);
+	align-self: start;
+}
+
+.calcr__primary {
+	display: flex;
+	flex-direction: column;
+	gap: 3px;
+}
+
+.calcr__primary-label {
+	font-size: 14px;
+	font-weight: 600;
+	color: var(--calcr-accent);
+}
+
+.calcr__primary-value {
+	font-family: var(--calcr-font-display);
+	font-size: 50px;
+	font-weight: 700;
+	line-height: 1.05;
+	letter-spacing: -0.03em;
+	font-variant-numeric: tabular-nums;
+	color: var(--calcr-ink);
+	word-break: break-word;
+}
+
+.calcr__bar {
+	display: flex;
+	height: 10px;
+	border-radius: 5px;
+	overflow: hidden;
+	background: var(--calcr-surface);
+}
+
+.calcr__rows {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 11px;
+}
+
+.calcr__row {
+	display: flex;
+	align-items: center;
+	gap: 9px;
+	font-size: 15px;
+}
+
+.calcr__row--divide {
+	border-top: 1px solid var(--calcr-accent-line);
+	padding-top: 11px;
+}
+
+.calcr__row-swatch {
+	flex-shrink: 0;
+	width: 10px;
+	height: 10px;
+	border-radius: 3px;
+}
+
+.calcr__row-label {
+	flex-grow: 1;
+	color: var(--calcr-ink-soft);
+}
+
+.calcr__row-value {
+	font-family: var(--calcr-font-display);
+	font-weight: 600;
+	font-variant-numeric: tabular-nums;
+}
+
+.calcr__note {
+	margin: 0;
+	font-size: 14px;
+	line-height: 1.6;
+	color: var(--calcr-muted);
+}
+
+.calcr__disclaimer {
+	grid-column: 1 / -1;
+	margin: 0;
+	padding: 16px 18px;
+	background: var(--calcr-warn-soft);
+	border: 1px solid var(--calcr-warn-line);
+	border-radius: var(--calcr-radius-lg);
+	font-size: 14px;
+	line-height: 1.6;
+	color: var(--calcr-warn-ink);
+}
+
+/* ---------- Prose, FAQ, related ---------- */
+
+.calcr-prose {
+	margin-top: var(--calcr-gap-lg);
+	font-size: 17px;
+	line-height: 1.65;
+	color: var(--calcr-ink-soft);
+}
+
+.calcr-prose h2 {
+	font-family: var(--calcr-font-display);
+	font-size: 28px;
+	font-weight: 600;
+	letter-spacing: -0.01em;
+	color: var(--calcr-ink);
+	margin: 30px 0 12px;
+}
+
+.calcr-formula {
+	padding: 22px 26px;
+	background: var(--calcr-surface);
+	border: 1px solid var(--calcr-line);
+	border-radius: var(--calcr-radius-lg);
+	font-family: var(--calcr-font-display);
+	font-size: 20px;
+	font-weight: 600;
+	font-variant-numeric: tabular-nums;
+	color: var(--calcr-ink);
+	overflow-x: auto;
+}
+
+.calcr-faq {
+	margin-top: var(--calcr-gap-lg);
+}
+
+.calcr-faq h2,
+.calcr-related h2 {
+	font-family: var(--calcr-font-display);
+	font-size: 28px;
+	font-weight: 600;
+	letter-spacing: -0.01em;
+	margin: 0 0 14px;
+}
+
+.calcr-faq__list {
+	background: var(--calcr-surface);
+	border: 1px solid var(--calcr-line);
+	border-radius: var(--calcr-radius-lg);
+	overflow: hidden;
+}
+
+.calcr-faq__item + .calcr-faq__item {
+	border-top: 1px solid var(--calcr-line);
+}
+
+.calcr-faq__q {
+	padding: 18px 22px;
+	font-size: 17px;
+	font-weight: 600;
+	cursor: pointer;
+	list-style: none;
+	min-height: var(--calcr-touch);
+	box-sizing: border-box;
+}
+
+.calcr-faq__q::-webkit-details-marker {
+	display: none;
+}
+
+.calcr-faq__q::after {
+	content: "+";
+	float: right;
+	color: var(--calcr-accent);
+	font-family: var(--calcr-font-display);
+}
+
+.calcr-faq__item[open] .calcr-faq__q::after {
+	content: "\2212";
+}
+
+.calcr-faq__a {
+	padding: 0 22px 20px;
+	font-size: 16px;
+	line-height: 1.65;
+	color: var(--calcr-ink-soft);
+}
+
+.calcr-related {
+	margin-top: var(--calcr-gap-lg);
+}
+
+.calcr-related__grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+	gap: 16px;
+}
+
+.calcr-related__card {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	padding: 18px;
+	background: var(--calcr-surface);
+	border: 1px solid var(--calcr-line);
+	border-radius: var(--calcr-radius-lg);
+	text-decoration: none;
+}
+
+.calcr-related__name {
+	font-family: var(--calcr-font-display);
+	font-size: 16px;
+	font-weight: 600;
+	color: var(--calcr-ink);
+}
+
+.calcr-related__blurb {
+	font-size: 14px;
+	line-height: 1.5;
+	color: var(--calcr-muted);
+}
+
+/* ---------- Ad slots ---------- */
+
+.calcr-ad {
+	margin: var(--calcr-gap-lg) 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+/* ---------- Narrow screens ---------- */
+
+@media (max-width: 860px) {
+	.calcr {
+		grid-template-columns: minmax(0, 1fr);
+		padding: 20px;
+		gap: var(--calcr-gap);
+	}
+
+	/* The answer comes first on a phone, because scrolling past a form to find
+	   out whether the tool even works is what makes people leave. */
+	.calcr__result {
+		order: -1;
+	}
+
+	.calcr__primary-value {
+		font-size: 42px;
+	}
+
+	.calcr-prose h2,
+	.calcr-faq h2,
+	.calcr-related h2 {
+		font-size: 24px;
+	}
+}

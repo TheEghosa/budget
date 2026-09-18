@@ -1,0 +1,98 @@
+/*
+ * Design tokens for calculatorr.com.
+ *
+ * Every colour, size and radius the calculator uses is declared once here, so
+ * changing the look later is a change to this file rather than a hunt through
+ * the component styles. The names are prefixed because this stylesheet loads
+ * inside somebody else's theme and a bare --ink would eventually collide.
+ */
+
+:root {
+	--calcr-paper: #FBFAF8;
+	--calcr-surface: #FFFFFF;
+	--calcr-ink: #14181D;
+	--calcr-ink-soft: #2D3742;
+	--calcr-muted: #5A6472;
+	--calcr-line: #E4E2DC;
+	--calcr-line-strong: #C9CDCB;
+	--calcr-sunken: #F1EFEA;
+
+	--calcr-accent: #0E6E63;
+	--calcr-accent-ink: #FFFFFF;
+	--calcr-accent-soft: #E8F2F0;
+	--calcr-accent-line: #D3E6E2;
+
+	--calcr-warn: #B45E0C;
+	--calcr-warn-soft: #FDF3E6;
+	--calcr-warn-line: #F0DFC5;
+	--calcr-warn-ink: #6B4413;
+
+	--calcr-neutral-mark: #7C8A99;
+
+	--calcr-font-display: 'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
+	--calcr-font-body: 'Source Sans 3', ui-sans-serif, system-ui, sans-serif;
+
+	--calcr-radius-sm: 6px;
+	--calcr-radius: 9px;
+	--calcr-radius-lg: 12px;
+	--calcr-radius-xl: 16px;
+
+	--calcr-gap-xs: 6px;
+	--calcr-gap-sm: 12px;
+	--calcr-gap: 18px;
+	--calcr-gap-lg: 30px;
+
+	/* Touch targets never drop below this, because a control that is hard to
+	   hit on a phone is the single most common complaint about calculator
+	   sites and the easiest one to design out. */
+	--calcr-touch: 46px;
+}
+
+/*
+ * A dark override so the calculator does not glare white inside a dark theme.
+ * It reads the visitor's system preference, and a theme can opt out entirely by
+ * setting data-calcr-theme="light" on any ancestor.
+ */
+@media (prefers-color-scheme: dark) {
+	:root:not([data-calcr-theme="light"]) {
+		--calcr-paper: #14181D;
+		--calcr-surface: #1C2128;
+		--calcr-ink: #F2F4F5;
+		--calcr-ink-soft: #D3D8DD;
+		--calcr-muted: #9BA5B0;
+		--calcr-line: #2C333B;
+		--calcr-line-strong: #3C444E;
+		--calcr-sunken: #232A32;
+
+		--calcr-accent: #4FB8A8;
+		--calcr-accent-ink: #0B1F1C;
+		--calcr-accent-soft: #16302C;
+		--calcr-accent-line: #234B44;
+
+		--calcr-warn: #E29A4E;
+		--calcr-warn-soft: #2E2418;
+		--calcr-warn-line: #4A3A22;
+		--calcr-warn-ink: #EBCFA6;
+	}
+}
+
+:root[data-calcr-theme="dark"] {
+	--calcr-paper: #14181D;
+	--calcr-surface: #1C2128;
+	--calcr-ink: #F2F4F5;
+	--calcr-ink-soft: #D3D8DD;
+	--calcr-muted: #9BA5B0;
+	--calcr-line: #2C333B;
+	--calcr-line-strong: #3C444E;
+	--calcr-sunken: #232A32;
+
+	--calcr-accent: #4FB8A8;
+	--calcr-accent-ink: #0B1F1C;
+	--calcr-accent-soft: #16302C;
+	--calcr-accent-line: #234B44;
+
+	--calcr-warn: #E29A4E;
+	--calcr-warn-soft: #2E2418;
+	--calcr-warn-line: #4A3A22;
+	--calcr-warn-ink: #EBCFA6;
+}
