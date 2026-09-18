@@ -124,7 +124,14 @@ class Calculatorr_Renderer {
 				}
 				?>
 				<div class="calcr__actions">
-					<button type="button" class="calcr__btn calcr__btn--ghost" data-calcr-reset>Reset</button>
+					<button type="button" class="calcr__btn calcr__btn--ghost" data-calcr-reset>
+						<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><path d="M3 12a9 9 0 1 0 3-6.7"></path><polyline points="3 4 3 10 9 10"></polyline></svg>
+						Reset
+					</button>
+					<button type="button" class="calcr__btn calcr__btn--ghost" data-calcr-copy>
+						<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="9" y="9" width="12" height="12" rx="2"></rect><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"></path></svg>
+						<span data-calcr-copy-label>Copy result</span>
+					</button>
 				</div>
 			</form>
 
@@ -153,6 +160,15 @@ class Calculatorr_Renderer {
 			<?php if ( ! empty( $config['disclaimer'] ) ) : ?>
 				<p class="calcr__disclaimer"><?php echo esc_html( $config['disclaimer'] ); ?></p>
 			<?php endif; ?>
+
+			<?php /* Shown on phones once the result panel scrolls out of view, so
+			         the answer never leaves the screen while the inputs are being
+			         changed. Hidden from assistive tech because it duplicates the
+			         result panel, which is already announced. */ ?>
+			<div class="calcr__sticky" data-calcr-sticky hidden aria-hidden="true">
+				<span class="calcr__sticky-label" data-calcr-sticky-label><?php echo esc_html( isset( $result['label'] ) ? $result['label'] : 'Result' ); ?></span>
+				<span class="calcr__sticky-value" data-calcr-sticky-value><?php echo esc_html( isset( $result['value'] ) ? $result['value'] : '' ); ?></span>
+			</div>
 		</div>
 		<?php
 		return ob_get_clean();

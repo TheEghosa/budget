@@ -419,5 +419,338 @@
 		};
 	};
 
+	/* ---------- Construction & DIY ----------
+	 *
+	 * Constants used across this group, all standard US trade figures:
+	 *   1 cubic yard        = 27 cubic feet
+	 *   80 / 60 / 40 lb bag = 0.60 / 0.45 / 0.30 cubic feet of mixed concrete
+	 *   crushed stone       = about 1.4 US tons per cubic yard
+	 *   screened topsoil    = about 1.1 US tons per cubic yard
+	 *   1 cubic foot        = 7.48052 US gallons
+	 * The material weights are averages. Wet or unusually dense material runs
+	 * heavier, which is why the pages say to confirm with the supplier before
+	 * ordering by weight rather than by volume.
+	 */
+
+	var CUFT_PER_YARD = 27;
+	var GAL_PER_CUFT = 7.48052;
+
+	function withWaste( value, wastePct ) {
+		return value * ( 1 + ( num( wastePct ) / 100 ) );
+	}
+
+	function metricVolume( cuft ) {
+		return decimals( cuft * 0.0283168, 2 ) + ' m3';
+	}
+
+	formulas[ 'concrete-calculator' ] = function ( v ) {
+		var shape = v.shape || 'slab';
+		var qty = Math.max( num( v.quantity ) || 1, 1 );
+		var cuft;
+
+		if ( 'column' === shape ) {
+			var radiusFt = ( num( v.diameter ) / 12 ) / 2;
+			cuft = Math.PI * radiusFt * radiusFt * num( v.height );
+		} else if ( 'footing' === shape ) {
+			cuft = num( v.length ) * ( num( v.footWidth ) / 12 ) * ( num( v.footDepth ) / 12 );
+		} else {
+			cuft = num( v.length ) * num( v.width ) * ( num( v.thickness ) / 12 );
+		}
+
+		cuft = withWaste( cuft * qty, v.waste );
+
+		var yards = cuft / CUFT_PER_YARD;
+
+		return {
+			label: 'Concrete to order',
+			value: decimals( yards, 2 ) + ' cubic yards',
+			rows: [
+				{ label: 'Volume', value: decimals( cuft, 1 ) + ' cu ft' },
+				{ label: 'Metric', value: metricVolume( cuft ) },
+				{ label: '80 lb bags', value: Math.ceil( cuft / 0.6 ).toLocaleString( 'en-US' ), divide: true },
+				{ label: '60 lb bags', value: Math.ceil( cuft / 0.45 ).toLocaleString( 'en-US' ) },
+				{ label: '40 lb bags', value: Math.ceil( cuft / 0.3 ).toLocaleString( 'en-US' ) }
+			],
+			note: yards >= 1
+				? 'Above roughly one cubic yard, ready-mix delivered by truck is usually cheaper and far less work than bags.'
+				: 'Under a cubic yard, bags are normally the practical choice. Most suppliers will not deliver ready-mix below a one yard minimum.'
+		};
+	};
+
+	formulas[ 'square-footage-calculator' ] = function ( v ) {
+		var shape = v.shape || 'rectangle';
+		var sqft;
+
+		if ( 'circle' === shape ) {
+			var r = num( v.diameter ) / 2;
+			sqft = Math.PI * r * r;
+		} else if ( 'triangle' === shape ) {
+			sqft = 0.5 * num( v.base ) * num( v.heightFt );
+		} else {
+			sqft = num( v.length ) * num( v.width );
+		}
+
+		var rooms = Math.max( num( v.rooms ) || 1, 1 );
+		sqft = sqft * rooms;
+
+		return {
+			label: 'Total area',
+			value: decimals( sqft, 1 ) + ' sq ft',
+			rows: [
+				{ label: 'Square metres', value: decimals( sqft * 0.092903, 2 ) + ' m2' },
+				{ label: 'Square yards', value: decimals( sqft / 9, 2 ) + ' sq yd' },
+				{ label: 'Acres', value: decimals( sqft / 43560, 4 ) + ' ac', divide: true }
+			],
+			note: 'Measure at the widest points and treat alcoves as separate rectangles, because rounding a room to one rectangle is the usual reason an order comes up short.'
+		};
+	};
+
+	function aggregate( v, tonsPerYard, material, bagCuft, bagLabel ) {
+		var cuft = withWaste(
+			num( v.length ) * num( v.width ) * ( num( v.depth ) / 12 ),
+			v.waste
+		);
+		var yards = cuft / CUFT_PER_YARD;
+		var rows = [
+			{ label: 'Volume', value: decimals( cuft, 1 ) + ' cu ft' },
+			{ label: 'Metric', value: metricVolume( cuft ) },
+			{ label: 'Approx. weight', value: decimals( yards * tonsPerYard, 2 ) + ' US tons', divide: true }
+		];
+
+		if ( bagCuft ) {
+			rows.push( { label: bagLabel, value: Math.ceil( cuft / bagCuft ).toLocaleString( 'en-US' ) } );
+		}
+
+		return {
+			label: material + ' to order',
+			value: decimals( yards, 2 ) + ' cubic yards',
+			rows: rows,
+			note: 'Weight is an average and varies with moisture and grade, so confirm the supplier’s own figure before ordering by the ton rather than by volume.'
+		};
+	}
+
+	formulas[ 'gravel-calculator' ] = function ( v ) {
+		return aggregate( v, 1.4, 'Gravel', 0, '' );
+	};
+
+	formulas[ 'topsoil-calculator' ] = function ( v ) {
+		return aggregate( v, 1.1, 'Topsoil', 0, '' );
+	};
+
+	formulas[ 'mulch-calculator' ] = function ( v ) {
+		return aggregate( v, 0.5, 'Mulch', 2, '2 cu ft bags' );
+	};
+
+	formulas[ 'cubic-yard-calculator' ] = function ( v ) {
+		var depthFt = 'feet' === ( v.depthUnit || 'inches' ) ? num( v.depth ) : num( v.depth ) / 12;
+		var cuft = withWaste( num( v.length ) * num( v.width ) * depthFt, v.waste );
+		var yards = cuft / CUFT_PER_YARD;
+
+		return {
+			label: 'Volume',
+			value: decimals( yards, 2 ) + ' cubic yards',
+			rows: [
+				{ label: 'Cubic feet', value: decimals( cuft, 1 ) },
+				{ label: 'Cubic metres', value: decimals( cuft * 0.0283168, 2 ) },
+				{ label: 'Cubic inches', value: decimals( cuft * 1728, 0 ), divide: true }
+			],
+			note: 'One cubic yard is 27 cubic feet, which is the conversion most order mistakes come down to.'
+		};
+	};
+
+	formulas[ 'pool-volume-calculator' ] = function ( v ) {
+		var shape = v.shape || 'rectangle';
+		var depth = ( num( v.shallow ) + num( v.deep ) ) / 2;
+		var cuft;
+
+		if ( 'round' === shape ) {
+			var r = num( v.diameter ) / 2;
+			cuft = Math.PI * r * r * depth;
+		} else if ( 'oval' === shape ) {
+			cuft = Math.PI * ( num( v.length ) / 2 ) * ( num( v.width ) / 2 ) * depth;
+		} else {
+			cuft = num( v.length ) * num( v.width ) * depth;
+		}
+
+		var gallons = cuft * GAL_PER_CUFT;
+
+		return {
+			label: 'Pool volume',
+			value: decimals( gallons, 0 ) + ' gallons',
+			rows: [
+				{ label: 'Litres', value: decimals( gallons * 3.78541, 0 ) },
+				{ label: 'Cubic feet', value: decimals( cuft, 1 ) },
+				{ label: 'Average depth', value: decimals( depth, 2 ) + ' ft', divide: true }
+			],
+			note: 'Averaging the shallow and deep ends is accurate for a pool with a steady slope. A pool with a sharp drop-off or a spa step holds less than this suggests.'
+		};
+	};
+
+	formulas[ 'stair-calculator' ] = function ( v ) {
+		var totalRise = num( v.totalRise );
+		var target = num( v.targetRiser ) || 7;
+		var tread = num( v.tread ) || 10;
+
+		var steps = Math.max( Math.round( totalRise / target ), 1 );
+		var riser = totalRise / steps;
+		/* The top tread is the landing, so there is always one fewer tread
+		   than there are risers. */
+		var totalRun = ( steps - 1 ) * tread;
+		var stringer = Math.sqrt( ( totalRise * totalRise ) + ( totalRun * totalRun ) );
+		var rule = ( 2 * riser ) + tread;
+
+		var issues = [];
+		if ( riser > 7.75 ) { issues.push( 'riser over 7.75in' ); }
+		if ( riser < 4 ) { issues.push( 'riser under 4in' ); }
+		if ( tread < 10 ) { issues.push( 'tread under 10in' ); }
+
+		return {
+			label: 'Steps needed',
+			value: steps + ' risers',
+			rows: [
+				{ label: 'Riser height', value: decimals( riser, 3 ) + ' in' },
+				{ label: 'Tread depth', value: decimals( tread, 2 ) + ' in' },
+				{ label: 'Total run', value: decimals( totalRun, 2 ) + ' in' },
+				{ label: 'Stringer length', value: decimals( stringer, 2 ) + ' in', divide: true },
+				{ label: 'Rule of 25 check', value: decimals( rule, 2 ) + ' in', emphasis: rule < 24 || rule > 25 }
+			],
+			note: issues.length
+				? 'Outside typical residential code: ' + issues.join( ', ' ) + '. Adjust the number of steps or the tread and check your local code before cutting.'
+				: 'Within typical residential limits, though local code always wins over any rule of thumb. Two risers plus one tread should land between 24 and 25 inches.'
+		};
+	};
+
+	formulas[ 'board-foot-calculator' ] = function ( v ) {
+		var qty = Math.max( num( v.quantity ) || 1, 1 );
+		/* A board foot is 144 cubic inches, so length in feet needs the 12. */
+		var perPiece = ( num( v.thickness ) * num( v.width ) * num( v.length ) ) / 12;
+		var total = perPiece * qty;
+		var price = num( v.price );
+
+		return {
+			label: 'Board feet',
+			value: decimals( total, 2 ) + ' bd ft',
+			rows: [
+				{ label: 'Per piece', value: decimals( perPiece, 2 ) + ' bd ft' },
+				{ label: 'Pieces', value: String( qty ) },
+				{ label: 'Total cost', value: money2( total * price ), divide: true, emphasis: price > 0 }
+			],
+			note: 'Board feet are measured on nominal rough thickness, so a board sold as one inch is counted as one inch even after it is planed down to three quarters.'
+		};
+	};
+
+	formulas[ 'deck-calculator' ] = function ( v ) {
+		var lengthFt = num( v.length );
+		var widthFt = num( v.width );
+		var area = lengthFt * widthFt;
+		var boardWidth = num( v.boardWidth ) || 5.5;
+		var gap = num( v.gap );
+		var spacing = num( v.joistSpacing ) || 16;
+
+		var rows = Math.ceil( ( widthFt * 12 ) / ( boardWidth + gap ) );
+		var linearFt = withWaste( rows * lengthFt, v.waste );
+		var joists = Math.floor( ( lengthFt * 12 ) / spacing ) + 1;
+
+		return {
+			label: 'Decking to buy',
+			value: decimals( linearFt, 0 ) + ' linear ft',
+			rows: [
+				{ label: 'Deck area', value: decimals( area, 1 ) + ' sq ft' },
+				{ label: 'Board rows', value: String( rows ) },
+				{ label: 'Joists at ' + decimals( spacing, 0 ) + 'in centres', value: String( joists ), divide: true },
+				{ label: 'If buying 16ft boards', value: Math.ceil( linearFt / 16 ) + ' boards' }
+			],
+			note: 'Joist count assumes a simple rectangular frame and excludes rim joists, blocking and stairs, which are worth adding before you order.'
+		};
+	};
+
+	formulas[ 'tile-calculator' ] = function ( v ) {
+		var area = num( v.length ) * num( v.width );
+		var tileSqft = ( num( v.tileWidth ) * num( v.tileHeight ) ) / 144;
+		var perBox = Math.max( num( v.perBox ) || 1, 1 );
+
+		if ( tileSqft <= 0 || area <= 0 ) {
+			return { label: 'Tiles needed', value: '—', rows: [], note: 'Enter the room size and the tile size to see how many tiles to buy.' };
+		}
+
+		var needed = Math.ceil( withWaste( area, v.waste ) / tileSqft );
+
+		return {
+			label: 'Tiles to buy',
+			value: needed.toLocaleString( 'en-US' ) + ' tiles',
+			rows: [
+				{ label: 'Area to cover', value: decimals( area, 1 ) + ' sq ft' },
+				{ label: 'Each tile covers', value: decimals( tileSqft, 3 ) + ' sq ft' },
+				{ label: 'Boxes to buy', value: Math.ceil( needed / perBox ).toLocaleString( 'en-US' ), divide: true, emphasis: true },
+				{ label: 'Spare tiles in the last box', value: String( ( Math.ceil( needed / perBox ) * perBox ) - needed ) }
+			],
+			note: 'Ten per cent waste covers ordinary cuts. Go to fifteen for a diagonal or herringbone layout, and buy the whole job in one batch because dye lots shift between production runs.'
+		};
+	};
+
+	formulas[ 'paint-calculator' ] = function ( v ) {
+		var perimeter = 2 * ( num( v.length ) + num( v.width ) );
+		var wallArea = perimeter * num( v.height );
+		/* Standard openings: a door is about 21 sq ft, a window about 15. */
+		var openings = ( num( v.doors ) * 21 ) + ( num( v.windows ) * 15 );
+		var paintable = Math.max( wallArea - openings, 0 );
+
+		if ( 'yes' === v.ceiling ) {
+			paintable += num( v.length ) * num( v.width );
+		}
+
+		var coats = Math.max( num( v.coats ) || 1, 1 );
+		var coverage = num( v.coverage ) || 350;
+		var gallons = ( paintable * coats ) / coverage;
+
+		return {
+			label: 'Paint to buy',
+			value: Math.ceil( gallons ) + ( 1 === Math.ceil( gallons ) ? ' gallon' : ' gallons' ),
+			rows: [
+				{ label: 'Exact requirement', value: decimals( gallons, 2 ) + ' gal' },
+				{ label: 'Paintable area', value: decimals( paintable, 0 ) + ' sq ft' },
+				{ label: 'Wall area before openings', value: decimals( wallArea, 0 ) + ' sq ft' },
+				{ label: 'Openings deducted', value: decimals( openings, 0 ) + ' sq ft', divide: true },
+				{ label: 'Litres', value: decimals( gallons * 3.78541, 1 ) }
+			],
+			note: 'Coverage is rounded up to whole cans because paint is not sold by the fraction. A bare, porous or sharply darker wall drinks more, so budget an extra coat on a colour change.'
+		};
+	};
+
+	formulas[ 'voltage-drop-calculator' ] = function ( v ) {
+		/* Circular mils by AWG, from the standard conductor tables. */
+		var CM = {
+			'14': 4107, '12': 6530, '10': 10380, '8': 16510, '6': 26240,
+			'4': 41740, '3': 52620, '2': 66360, '1': 83690, '1/0': 105600,
+			'2/0': 133100, '3/0': 167800, '4/0': 211600
+		};
+
+		var mils = CM[ v.gauge ] || CM['12'];
+		/* K is the resistivity constant in ohm-circular-mils per foot. */
+		var K = 'aluminum' === v.material ? 21.2 : 12.9;
+		var amps = num( v.amps );
+		var feet = num( v.distance );
+		var volts = num( v.volts ) || 120;
+		var phase = v.phase || 'single';
+
+		var multiplier = 'three' === phase ? 1.732 : 2;
+		var drop = ( multiplier * K * amps * feet ) / mils;
+		var pct = volts > 0 ? ( drop / volts ) * 100 : 0;
+
+		return {
+			label: 'Voltage drop',
+			value: decimals( drop, 2 ) + ' V',
+			rows: [
+				{ label: 'Percentage drop', value: decimals( pct, 2 ) + '%', emphasis: pct > 3 },
+				{ label: 'Voltage at the load', value: decimals( volts - drop, 1 ) + ' V' },
+				{ label: 'Conductor', value: 'AWG ' + ( v.gauge || '12' ) + ', ' + ( 'aluminum' === v.material ? 'aluminium' : 'copper' ) },
+				{ label: '3% branch circuit limit', value: pct <= 3 ? 'Within limit' : 'Exceeded', divide: true, emphasis: pct > 3 }
+			],
+			note: pct > 3
+				? 'Over the three per cent the NEC recommends for a branch circuit. Go up a wire size, shorten the run, or raise the supply voltage.'
+				: 'Within the three per cent the NEC recommends for a branch circuit, and within the five per cent recommended for feeder and branch combined.'
+		};
+	};
+
 	window.CalculatorrFormulas = formulas;
 }() );

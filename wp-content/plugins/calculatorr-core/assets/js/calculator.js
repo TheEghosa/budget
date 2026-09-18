@@ -109,6 +109,123 @@
 			note.textContent = result.note || '';
 			note.hidden = ! result.note;
 		}
+
+		var stickyLabel = root.querySelector( '[data-calcr-sticky-label]' );
+		var stickyValue = root.querySelector( '[data-calcr-sticky-value]' );
+
+		if ( stickyLabel && result.label ) {
+			stickyLabel.textContent = result.label;
+		}
+
+		if ( stickyValue ) {
+			stickyValue.textContent = ( result.value === undefined || result.value === null ) ? '' : result.value;
+		}
+
+		root.__calcrResult = result;
+	}
+
+	/**
+	 * Builds the plain-text version of the current answer for the clipboard.
+	 * People paste these into messages and spreadsheets, so it is written as
+	 * readable lines rather than as the JSON the runtime works in.
+	 */
+	function resultAsText( root ) {
+		var result = root.__calcrResult;
+
+		if ( ! result ) {
+			return '';
+		}
+
+		var lines = [ ( result.label || 'Result' ) + ': ' + ( result.value || '' ) ];
+
+		( result.rows || [] ).forEach( function ( row ) {
+			lines.push( row.label + ': ' + row.value );
+		} );
+
+		lines.push( '' );
+		lines.push( document.title );
+		lines.push( window.location.href );
+
+		return lines.join( '\n' );
+	}
+
+	function bindCopy( root ) {
+		var button = root.querySelector( '[data-calcr-copy]' );
+
+		if ( ! button ) {
+			return;
+		}
+
+		var label = button.querySelector( '[data-calcr-copy-label]' );
+		var original = label ? label.textContent : '';
+		var timer = null;
+
+		button.addEventListener( 'click', function () {
+			var text = resultAsText( root );
+
+			if ( ! text ) {
+				return;
+			}
+
+			var done = function ( message ) {
+				if ( ! label ) {
+					return;
+				}
+				label.textContent = message;
+				window.clearTimeout( timer );
+				timer = window.setTimeout( function () {
+					label.textContent = original;
+				}, 2000 );
+			};
+
+			if ( navigator.clipboard && navigator.clipboard.writeText ) {
+				navigator.clipboard.writeText( text ).then(
+					function () { done( 'Copied' ); },
+					function () { done( 'Press Ctrl+C' ); }
+				);
+				return;
+			}
+
+			/* Older browsers and insecure origins have no clipboard API, so
+			   fall back to selecting the text and letting the person copy it
+			   rather than failing silently with no explanation. */
+			var scratch = document.createElement( 'textarea' );
+			scratch.value = text;
+			scratch.setAttribute( 'readonly', '' );
+			scratch.style.cssText = 'position:absolute;left:-9999px';
+			document.body.appendChild( scratch );
+			scratch.select();
+
+			try {
+				done( document.execCommand( 'copy' ) ? 'Copied' : 'Press Ctrl+C' );
+			} catch ( error ) {
+				done( 'Press Ctrl+C' );
+			}
+
+			document.body.removeChild( scratch );
+		} );
+	}
+
+	/**
+	 * The sticky answer bar appears only once the result panel has scrolled off
+	 * screen, because showing it while the real panel is visible would cover
+	 * content to repeat something already in view.
+	 */
+	function bindSticky( root ) {
+		var bar = root.querySelector( '[data-calcr-sticky]' );
+		var panel = root.querySelector( '[data-calcr-result]' );
+
+		if ( ! bar || ! panel || ! ( 'IntersectionObserver' in window ) ) {
+			return;
+		}
+
+		var observer = new IntersectionObserver( function ( entries ) {
+			entries.forEach( function ( entry ) {
+				bar.hidden = entry.isIntersecting;
+			} );
+		}, { threshold: 0 } );
+
+		observer.observe( panel );
 	}
 
 	/**
@@ -267,6 +384,8 @@
 
 		bindSegmented( root );
 		bindRepeaters( root );
+		bindCopy( root );
+		bindSticky( root );
 
 		var reset = root.querySelector( '[data-calcr-reset]' );
 
