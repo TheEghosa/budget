@@ -279,6 +279,7 @@ body:has(.ch) .page-content{max-width:none;width:100%;margin-inline:0;padding-in
  .ch-tools{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
 @media (max-width:767px){
+ .ch{--ch-gutter:var(--calcr-gutter,clamp(18px,6vw,28px))}
  .ch-cats{grid-template-columns:repeat(2,minmax(0,1fr))}
  .ch-cat{min-height:148px;padding:16px;border-radius:18px;gap:10px}
  .ch-cat__blurb{display:none}
