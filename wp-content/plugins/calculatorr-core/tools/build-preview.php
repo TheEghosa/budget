@@ -36,7 +36,7 @@ $renderer = Calculatorr_Renderer::instance();
 $schema   = Calculatorr_Schema::instance();
 $seo      = Calculatorr_SEO::instance();
 
-foreach ( array( 'css/tokens.css', 'css/calculator.css', 'css/site.css', 'js/formulas.js', 'js/share.js', 'js/calculator.js', 'js/site.js' ) as $asset ) {
+foreach ( array( 'css/tokens.css', 'css/calculator.css', 'css/site.css', 'js/formula-kit.js', 'js/formula-runner.js', 'js/formulas.js', 'js/sandbox.js', 'js/share.js', 'js/calculator.js', 'js/site.js' ) as $asset ) {
 	@mkdir( dirname( $out . '/assets/' . $asset ), 0777, true );
 	copy( CALCULATORR_PATH . 'assets/' . $asset, $out . '/assets/' . $asset );
 }
@@ -86,7 +86,12 @@ function preview_shell( $title, $description, $body, $head, $json, $nav ) {
 		. '</head><body>' . $nav
 		. '<main id="content" class="site-main page"><div class="page-content">' . $body . '</div></main>'
 		. preview_footer()
+		/* The kit before the formulas, because they are written against it,
+		   and the sandbox address before the runtime, because a JSON
+		   calculator has no formula in the bundle to fall back on. */
+		. '<script src="assets/js/formula-kit.js"></script>'
 		. '<script src="assets/js/formulas.js"></script>'
+		. '<script>window.CalculatorrConfig = { sandboxUrl: "assets/js/sandbox.js" };</script>'
 		. '<script src="assets/js/share.js"></script>'
 		. '<script src="assets/js/calculator.js"></script>'
 		. '<script src="assets/js/site.js"></script>'

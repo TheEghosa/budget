@@ -1,0 +1,289 @@
+{
+  "slug": "bmr-calculator",
+  "title": "BMR Calculator",
+  "category": "health",
+  "description": "Work out your basal metabolic rate, the energy your body burns doing nothing at all, using the Mifflin-St Jeor equation in metric or imperial units.",
+  "keyword": "BMR Calculator",
+  "h1": "BMR Calculator",
+  "meta_title": "BMR Calculator - Basal Metabolic Rate, Mifflin-St Jeor",
+  "meta_description": "Free BMR calculator using the Mifflin-St Jeor equation. Enter height, weight, age and sex in metric or imperial units to see the energy your body burns at rest.",
+  "fields": [
+    {
+      "id": "units",
+      "label": "Units",
+      "type": "segmented",
+      "options": {
+        "metric": "Metric",
+        "imperial": "Imperial"
+      },
+      "default": "metric"
+    },
+    {
+      "id": "height",
+      "label": "Height",
+      "type": "number",
+      "suffix": "cm",
+      "default": "175",
+      "min": "0",
+      "show_when": {
+        "units": "metric"
+      }
+    },
+    {
+      "id": "weight",
+      "label": "Weight",
+      "type": "number",
+      "suffix": "kg",
+      "default": "70",
+      "min": "0",
+      "show_when": {
+        "units": "metric"
+      }
+    },
+    {
+      "id": "feet",
+      "label": "Height (feet)",
+      "type": "number",
+      "suffix": "ft",
+      "default": "5",
+      "min": "0",
+      "show_when": {
+        "units": "imperial"
+      }
+    },
+    {
+      "id": "inches",
+      "label": "Height (inches)",
+      "type": "number",
+      "suffix": "in",
+      "default": "9",
+      "min": "0",
+      "show_when": {
+        "units": "imperial"
+      }
+    },
+    {
+      "id": "pounds",
+      "label": "Weight",
+      "type": "number",
+      "suffix": "lb",
+      "default": "154",
+      "min": "0",
+      "show_when": {
+        "units": "imperial"
+      }
+    },
+    {
+      "id": "age",
+      "label": "Age",
+      "type": "number",
+      "suffix": "years",
+      "default": "30",
+      "min": "0",
+      "max": "120"
+    },
+    {
+      "id": "sex",
+      "label": "Sex at birth",
+      "type": "segmented",
+      "options": {
+        "male": "Male",
+        "female": "Female"
+      },
+      "default": "male",
+      "hint": "The equation was fitted separately for each, which is why it is asked rather than assumed."
+    }
+  ],
+  "formula": "var metric = 'metric' === ( v.units || 'metric' );\nvar kg = toKg( v, metric );\nvar cm = toCm( v, metric );\nvar age = num( v.age );\n\n/* Mifflin-St Jeor, which predicts resting energy more accurately than\n   Harris-Benedict for most modern populations. */\nvar bmr = ( 10 * kg ) + ( 6.25 * cm ) - ( 5 * age ) + ( 'female' === v.sex ? -161 : 5 );\n\nif ( kg <= 0 || cm <= 0 ) {\n\treturn { label: 'Basal metabolic rate', value: '\\u2014', rows: [], note: 'Enter a height and a weight.' };\n}\n\nbmr = Math.max( bmr, 0 );\n\n/* The four activity multipliers people actually meet, shown as rows rather\n   than as a second field, because the question underneath a BMR search is\n   almost always what it means for eating. */\nvar sedentary = bmr * 1.2;\nvar light = bmr * 1.375;\nvar moderate = bmr * 1.55;\nvar hard = bmr * 1.725;\n\nreturn {\n\tlabel: 'Basal metabolic rate',\n\tvalue: decimals( bmr, 0 ) + ' kcal/day',\n\tsub: 'at rest, before any movement at all',\n\tbar: [\n\t\t{ pct: share( bmr, moderate ), color: ACCENT },\n\t\t{ pct: share( moderate - bmr, moderate ), color: NEUTRAL }\n\t],\n\trows: [\n\t\t{ label: 'Desk job, little exercise', value: decimals( sedentary, 0 ) + ' kcal', color: ACCENT },\n\t\t{ label: 'Light exercise, 1 to 3 days', value: decimals( light, 0 ) + ' kcal' },\n\t\t{ label: 'Moderate exercise, 3 to 5 days', value: decimals( moderate, 0 ) + ' kcal' },\n\t\t{ label: 'Hard exercise, 6 to 7 days', value: decimals( hard, 0 ) + ' kcal', divide: true }\n\t],\n\tnote: 'BMR is the floor, not a target. The rows below it add movement back in, and even the lowest of them assumes you get out of bed.'\n}",
+  "related": [
+    "tdee-calculator",
+    "bmi-calculator",
+    "macro-calculator",
+    "body-fat-calculator"
+  ],
+  "disclaimer": "This is a population equation rather than a measurement of your own metabolism, and it cannot account for thyroid conditions, medication or body composition. Treat it as a starting figure for a conversation with a clinician or dietitian rather than as a prescription.",
+  "default_result": {
+    "label": "Basal metabolic rate",
+    "value": "1,649 kcal/day",
+    "rows": [
+      {
+        "label": "Desk job, little exercise",
+        "value": "1,979 kcal"
+      },
+      {
+        "label": "Light exercise, 1 to 3 days",
+        "value": "2,267 kcal"
+      },
+      {
+        "label": "Moderate exercise, 3 to 5 days",
+        "value": "2,556 kcal"
+      },
+      {
+        "label": "Hard exercise, 6 to 7 days",
+        "value": "2,844 kcal"
+      }
+    ],
+    "sub": "at rest, before any movement at all",
+    "note": "BMR is the floor, not a target. The rows below it add movement back in, and even the lowest of them assumes you get out of bed."
+  },
+  "explainer": [
+    {
+      "heading": "How your basal metabolic rate is worked out",
+      "body": "Your basal metabolic rate is the energy your body spends staying alive while you do nothing at all. It pays for your heart beating, your lungs moving, your kidneys filtering and your brain running, and it accounts for somewhere between sixty and seventy per cent of everything most people burn in a day. Nobody measures it directly outside a lab, because doing that properly means lying still in a metabolic chamber after a twelve hour fast, so the figure above comes from an equation fitted to thousands of people who did exactly that.\n\nThe equation takes four things: your weight, your height, your age and your sex at birth. Weight carries the most influence by a distance, because tissue is what costs energy to maintain. Height adds a smaller amount, since a taller frame holds more of everything. Age subtracts, because metabolic rate drifts down as you get older even when your weight does not change. Sex enters as a flat adjustment rather than as a multiplier, which is the equation's way of accounting for the fact that men carry more lean mass on average at the same height and weight.",
+      "formula": "BMR = (10 &times; weight in kg) + (6.25 &times; height in cm) &minus; (5 &times; age) + 5 for men, or &minus;161 for women",
+      "example": "A 30 year old man of 175 cm and 70 kg: (10 &times; 70) + (6.25 &times; 175) &minus; (5 &times; 30) + 5 = 700 + 1,093.75 &minus; 150 + 5 = 1,649 kcal a day."
+    },
+    {
+      "heading": "Why this calculator uses Mifflin-St Jeor",
+      "body": "Three equations are in common use and they disagree with each other by enough to matter. Harris-Benedict came first, in 1919, and was revised in 1984. Mifflin-St Jeor arrived in 1990 and was fitted to a population that looked more like the one alive today. Katch-McArdle takes a different route entirely: it ignores height and sex and works from lean body mass, which makes it the most accurate of the three if you know your body fat percentage and the least useful if you do not.\n\nWhen the American Dietetic Association compared them against measured resting energy expenditure, Mifflin-St Jeor came within ten per cent of the measured value more often than any other equation that did not need a body composition reading. That is why it is the one running above. It is worth knowing how far apart they land, because a number quoted from one equation and compared against a number from another will look like a change when nothing has changed at all.",
+      "table": {
+        "caption": "The same 30 year old man, 175 cm and 70 kg, through each equation",
+        "head": [
+          "Equation",
+          "Published",
+          "Result",
+          "Needs body fat?"
+        ],
+        "rows": [
+          [
+            "Mifflin-St Jeor",
+            "1990",
+            "1,649 kcal",
+            "No"
+          ],
+          [
+            "Revised Harris-Benedict",
+            "1984",
+            "1,696 kcal",
+            "No"
+          ],
+          [
+            "Original Harris-Benedict",
+            "1919",
+            "1,702 kcal",
+            "No"
+          ],
+          [
+            "Katch-McArdle (at 15% fat)",
+            "1996",
+            "1,655 kcal",
+            "Yes"
+          ]
+        ]
+      }
+    },
+    {
+      "heading": "What the number means for what you eat",
+      "body": "Your BMR is a floor rather than a target, and eating to it is not a diet plan. Even a day spent mostly sitting costs around twenty per cent more than the resting figure, because standing up, walking to the kitchen and digesting your food all take energy. Multiplying BMR by an activity factor gives total daily energy expenditure, which is the number that actually matters for eating, and the rows beside your result have already done that arithmetic for the four activity levels people usually recognise themselves in.\n\nPick the level that describes your week rather than the one that describes your best week. Most people overestimate here, and the error compounds, because a factor that is one step too high on a 1,650 kcal base puts nearly three hundred extra calories a day into the target. Deliberate exercise is also less of the total than it feels: an hour in the gym typically adds three to five hundred calories, while the rest of the difference between a sedentary day and an active one comes from ordinary movement you are not counting.",
+      "table": {
+        "caption": "Activity factors and what they describe",
+        "head": [
+          "Factor",
+          "Who it describes",
+          "Applied to 1,649 kcal"
+        ],
+        "rows": [
+          [
+            "1.2",
+            "Desk job, no deliberate exercise",
+            "1,979 kcal"
+          ],
+          [
+            "1.375",
+            "Light exercise one to three days a week",
+            "2,267 kcal"
+          ],
+          [
+            "1.55",
+            "Moderate exercise three to five days a week",
+            "2,556 kcal"
+          ],
+          [
+            "1.725",
+            "Hard exercise six or seven days a week",
+            "2,844 kcal"
+          ],
+          [
+            "1.9",
+            "Physical job plus daily training",
+            "3,133 kcal"
+          ]
+        ]
+      }
+    },
+    {
+      "heading": "Why two people the same size burn different amounts",
+      "body": "The equation sees your weight but not what that weight is made of, and that is where most of its error comes from. Muscle burns roughly three times as much energy at rest as fat does per kilogram, so a lean 70 kg person and a 70 kg person carrying considerably more fat produce the same number here and genuinely different rates in a lab. The gap runs to a few hundred calories a day at the extremes, which is why bodybuilders and endurance athletes consistently find this equation reads low for them.\n\nOther things move the needle and none of them are inputs above. An underactive thyroid can pull resting rate down by ten to fifteen per cent, and an overactive one pushes it up further still. Some medications, beta blockers among them, lower it measurably. A long period of eating well below your needs lowers it too, by more than the weight loss alone accounts for, which is the adaptive component that makes the last stretch of a diet so much harder than the first. Cold weather raises it slightly, and so does being unwell.",
+      "steps": [
+        "Weigh yourself at the same time of day, ideally first thing, because normal daily swing is one to two kilograms and it will move your result by twenty calories or so.",
+        "Measure your height rather than recalling it, since adults routinely overstate it by a couple of centimetres and most people stop checking after their twenties.",
+        "Recalculate after any weight change of three kilograms or more, because at that point the figure has moved by enough to change what a sensible target looks like."
+      ]
+    },
+    {
+      "heading": "How accurate is this for you specifically",
+      "body": "Mifflin-St Jeor lands within ten per cent of measured resting energy expenditure for roughly seven people in ten. That sounds reassuring until you translate it: ten per cent of 1,650 kcal is 165 kcal a day, which is about two slices of bread, and for the three people in ten who fall outside that band the miss can be larger still. So treat the figure as the centre of a range rather than as a reading.\n\nThe practical way to use it is as a starting point you then correct with evidence. Eat at the calculated total for two or three weeks, weigh yourself consistently, and see what your weight actually does. If it holds steady, your real maintenance figure is the one you have been eating. If it moves, adjust by two hundred calories and watch again. Your own scale over a fortnight beats any equation, because it is measuring you rather than a population average you may not sit in the middle of.",
+      "table": {
+        "caption": "How far the estimate can sit from the measured figure",
+        "head": [
+          "Who you are",
+          "Typical direction of error",
+          "Rough size"
+        ],
+        "rows": [
+          [
+            "Average build, moderately active",
+            "Close either way",
+            "Within 10%"
+          ],
+          [
+            "Heavily muscled",
+            "Reads low",
+            "100 to 300 kcal low"
+          ],
+          [
+            "Carrying substantial excess fat",
+            "Reads high",
+            "100 to 250 kcal high"
+          ],
+          [
+            "Long history of dieting",
+            "Reads high",
+            "Up to 15% high"
+          ],
+          [
+            "Untreated underactive thyroid",
+            "Reads high",
+            "10 to 15% high"
+          ]
+        ]
+      }
+    },
+    {
+      "heading": "What this calculator does not do",
+      "body": "It does not know your body composition, so it cannot separate the muscle from the fat inside your weight. It does not know your thyroid function, your medication or your dieting history, all of which move resting rate and none of which have an input box. It does not estimate the energy cost of a specific workout, because that depends on intensity and duration rather than on anything asked for here, and the activity rows above deliberately describe whole weeks instead.\n\nIt is also not a clinical tool. Resting energy expenditure genuinely matters in some medical situations, for people recovering from serious burns, for those on artificial feeding and for anyone being treated for an eating disorder, and in all of those cases the figure is measured rather than estimated for exactly the reasons set out above. If you are calculating this because a clinician asked you to, take the question back to them rather than taking this number to them."
+    }
+  ],
+  "faqs": [
+    {
+      "q": "Should I eat my BMR or my total daily calories?",
+      "a": "Your total, which is the activity rows beside the result rather than the headline figure. BMR is what your body spends before you move at all, so eating to it means eating less than a day in bed would need. It is a common and genuinely harmful misreading, because the deficit it creates is far larger than anyone intends and the fatigue arrives within a week."
+    },
+    {
+      "q": "Why does my BMR fall as I lose weight?",
+      "a": "Two things happen together. A smaller body costs less to run, which the equation captures because weight is its largest input, and prolonged eating below your needs lowers resting rate further by more than the size change alone explains. That second part is why the same calorie target stops working part way through a diet, and it is the reason to recalculate every few kilograms rather than setting a number once."
+    },
+    {
+      "q": "Can I raise my BMR?",
+      "a": "A little, and slowly. Adding muscle is the only lever with real evidence behind it, and it is a modest one: each additional kilogram of muscle adds roughly thirteen calories a day, so a serious year of training might buy you a hundred. Nothing you drink or swallow will do more than that, whatever the label says. Eating enough to avoid a prolonged deficit protects the rate you already have, which is the larger effect for most people."
+    },
+    {
+      "q": "Why does the calculator ask for sex at birth?",
+      "a": "Because that is the variable the equation was fitted against. Mifflin-St Jeor applies a flat adjustment of plus five for men and minus 161 for women, which stands in for the average difference in lean mass at the same height and weight. It is a population average rather than a statement about any individual, and if you know your body fat percentage the Katch-McArdle equation avoids the question entirely by working from lean mass directly."
+    },
+    {
+      "q": "Is BMR the same as resting metabolic rate?",
+      "a": "Nearly, and the two get used interchangeably in most places including this page. Strictly, BMR is measured after an overnight fast in a temperature controlled room following complete rest, while resting metabolic rate is measured under less severe conditions and comes out around ten per cent higher. The equation here was fitted against measurements closer to the resting definition, which is one more reason to read the result as a range."
+    }
+  ]
+}

@@ -30,11 +30,55 @@ foreach ( glob( $root . '/calculators/*.php' ) as $file ) {
 	}
 }
 
+$errors = isset( $errors ) ? $errors : array();
+
+/*
+ * Calculators defined in JSON stand beside the PHP ones from here on. They
+ * carry their own formula rather than having one in the bundle, so they have
+ * to join both lists or the check below would report every one of them as a
+ * config with no formula behind it.
+ */
+$json = array();
+
+foreach ( glob( $root . '/calculators/json/*.json' ) as $file ) {
+	$definition = json_decode( file_get_contents( $file ), true );
+
+	if ( ! is_array( $definition ) || empty( $definition['slug'] ) ) {
+		$errors[] = 'unreadable JSON definition: ' . basename( $file );
+		continue;
+	}
+
+	$slug = $definition['slug'];
+
+	if ( basename( $file, '.json' ) !== $slug ) {
+		$errors[] = sprintf( 'filename %s does not match slug %s', basename( $file ), $slug );
+	}
+
+	if ( isset( $configs[ $slug ] ) ) {
+		$errors[] = sprintf(
+			'%s is defined twice, once as %s and again in %s',
+			$slug,
+			in_array( $slug, $json, true ) ? 'another JSON definition' : 'a PHP config',
+			basename( $file )
+		);
+		continue;
+	}
+
+	if ( empty( $definition['formula'] ) ) {
+		$errors[] = "JSON definition carries no formula: $slug";
+	}
+
+	if ( empty( $definition['default_result']['value'] ) ) {
+		$errors[] = "JSON definition carries no worked answer: $slug";
+	}
+
+	$configs[ $slug ] = $definition;
+	$json[] = $slug;
+}
+
 $js = file_get_contents( $root . '/assets/js/formulas.js' );
 preg_match_all( "/formulas\[ '([a-z0-9\-]+)' \]/", $js, $matches );
-$formulas = array_unique( $matches[1] );
-
-$errors = isset( $errors ) ? $errors : array();
+$formulas = array_merge( array_unique( $matches[1] ), $json );
 $warnings = array();
 
 foreach ( $configs as $slug => $config ) {
@@ -114,7 +158,7 @@ foreach ( array( 'tokens.css', 'calculator.css', 'site.css' ) as $sheet ) {
 	}
 }
 
-printf( "%d configs, %d formulas\n", count( $configs ), count( $formulas ) );
+printf( "%d configs (%d of them JSON), %d formulas\n", count( $configs ), count( $json ), count( $formulas ) );
 
 foreach ( $warnings as $warning ) {
 	echo "  WARN  $warning\n";

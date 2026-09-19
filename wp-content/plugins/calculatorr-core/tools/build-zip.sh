@@ -28,15 +28,27 @@ done
 for f in assets/js/*.js tests/*.js tools/*.js; do
 	node --check "$f"
 done
+# A JSON calculator that will not parse is a calculator that quietly vanishes
+# from the site after an upgrade, which is the kind of failure nobody notices
+# for a month.
+for f in calculators/json/*.json; do
+	[ -e "$f" ] || continue
+	node -e "JSON.parse(require('fs').readFileSync('$f','utf8'))"
+done
 echo "    php and js clean"
+
+echo "==> Refreshing the field dump the sandbox parity test runs against"
+php tools/build-fixtures.php
 
 echo "==> Tests"
 php  tests/test-integrity.php  | tail -2
 node tests/test-formulas.js    | tail -1
 node tests/test-robustness.js  | tail -1
+node tests/test-sandbox.js     | tail -1
 php  tests/test-render.php     | tail -2
 php  tests/test-settings.php   | tail -1
 php  tests/test-seo-handover.php | tail -1
+php  tests/test-json-calculators.php | tail -1
 
 echo "==> Packaging $SLUG $VERSION"
 mkdir -p "$OUT_DIR"

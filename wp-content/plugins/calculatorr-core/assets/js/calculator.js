@@ -758,6 +758,14 @@
 
 			if ( message.ok ) {
 				paint( job.root, message.result );
+
+				/* Enabled here rather than when the run started, because the
+				   worker's first answer can be a few hundred milliseconds away
+				   on a cold start while it fetches and compiles itself, and
+				   until it lands the panel is still showing the worked example.
+				   Offering to copy or share that would send somebody else's
+				   numbers out under the visitor's name. */
+				setResultActionsEnabled( job.root, true );
 				return;
 			}
 
@@ -844,7 +852,6 @@
 		}
 
 		root.classList.remove( 'calcr--awaiting' );
-		setResultActionsEnabled( root, true );
 		countUse( slug );
 
 		/* Counted per calculator rather than globally, because the sandbox is
@@ -853,9 +860,13 @@
 		var seq = root.__calcrSeq = ( root.__calcrSeq || 0 ) + 1;
 
 		if ( typeof formula !== 'function' ) {
+			/* Copying and sharing are switched on by the answer landing, not
+			   by the run starting. See the handler above. */
 			runSandboxed( root, slug, source, gather( root ), seq );
 			return;
 		}
+
+		setResultActionsEnabled( root, true );
 
 		try {
 			paint( root, formula( gather( root ) ) );
