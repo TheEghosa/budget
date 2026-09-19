@@ -484,6 +484,104 @@ $values['design'] = array();
 $settings->save( $values );
 check( 'clearing it returns to the shipped design', Calculatorr_Design::get( 'light_accent' ), '#0E6E63' );
 
+/* --- editing a calculator's content --------------------------------------- */
+
+/*
+ * The point of these fields is that the copy stops being something only a code
+ * change can alter. The risk they carry is the opposite of the usual one: not
+ * that somebody saves nonsense, but that saving prose quietly destroys the
+ * richer parts of a section that this screen does not show.
+ */
+$before = Calculatorr_Registry::instance()->get( 'concrete-calculator' );
+check( 'the config ships sections with extras', isset( $before['explainer'][0]['steps'] ), true );
+
+$settings->save_override( 'concrete-calculator', array(
+	'keyword'   => 'concrete calculator',
+	'keywords'  => array( 'cubic yards of concrete', 'how much concrete', 'cubic yards of concrete' ),
+	'explainer' => Calculatorr_Admin::clean_sections( array(
+		array(
+			'heading' => 'How to work out what you need',
+			'body'    => 'Rewritten body copy.',
+			'carried' => wp_json_encode( array( 'steps' => $before['explainer'][0]['steps'] ) ),
+		),
+		array( 'heading' => '', 'body' => 'Orphan body with no heading.' ),
+	) ),
+	'faqs' => Calculatorr_Admin::clean_faqs( array(
+		array( 'q' => 'How many bags to a yard?', 'a' => 'About forty-five 80 lb bags.' ),
+		array( 'q' => 'A question with no answer', 'a' => '' ),
+		array( 'q' => '', 'a' => 'An answer with no question' ),
+	) ),
+) );
+
+$after = Calculatorr_Registry::instance()->get( 'concrete-calculator' );
+
+check( 'the primary keyword is overridden', $after['keyword'], 'concrete calculator' );
+check( 'secondary keywords are stored as a list', count( $after['keywords'] ), 2 );
+check( 'and deduplicated', in_array( 'cubic yards of concrete', $after['keywords'], true ), true );
+
+check( 'the rewritten section lands', $after['explainer'][0]['body'], 'Rewritten body copy.' );
+/* The steps were never on screen, so losing them would be silent. */
+check( 'the steps this screen never showed survive', isset( $after['explainer'][0]['steps'] ), true );
+check( 'and are unchanged', $after['explainer'][0]['steps'], $before['explainer'][0]['steps'] );
+check( 'a section with no heading is dropped', count( $after['explainer'] ), 1 );
+
+check( 'a complete question and answer is kept', count( $after['faqs'] ), 1 );
+check( 'and a half-filled pair is not', $after['faqs'][0]['q'], 'How many bags to a yard?' );
+
+/* An array run through sanitize_text_field becomes the string "Array", which
+   would delete the content without erroring, so the storage path must not. */
+check( 'lists are not flattened on the way in', is_array( $after['explainer'] ), true );
+
+$settings->save_override( 'concrete-calculator', array() );
+check( 'clearing hands the config file back', isset( Calculatorr_Registry::instance()->get( 'concrete-calculator' )['keywords'] ), false );
+
+/* --- usage and its charts ------------------------------------------------- */
+
+check( 'counting is on by default', (int) $settings->get( 'usage_enabled' ), 1 );
+
+$days = Calculatorr_Usage::empty_days( 30 );
+check( 'a window is a full run of days', count( $days ), 30 );
+/* A line with holes in it reads as a drop that never happened, so the quiet
+   days have to be present as zero rather than missing. */
+check( 'quiet days are zero rather than absent', array_sum( $days ), 0 );
+check( 'and the window ends today', array_key_last( $days ), gmdate( 'Y-m-d' ) );
+
+$series = array();
+foreach ( array( 3, 7, 5, 12, 9, 14, 18, 11, 22, 19 ) as $i => $value ) {
+	$series[ gmdate( 'Y-m-d', time() - ( ( 9 - $i ) * 86400 ) ) ] = $value;
+}
+
+$trend = Calculatorr_Chart::trend( $series );
+check( 'every point is interrogable', substr_count( $trend, 'calcr-chart__dot' ), 10 );
+check( 'only the latest point is labelled', substr_count( $trend, 'calcr-chart__value' ), 1 );
+check( 'the chart names itself for a screen reader', false !== strpos( $trend, '<title>' ), true );
+/* One series, so a legend would be a box explaining the only thing on screen. */
+check( 'a single series carries no legend', false !== strpos( $trend, 'legend' ), false );
+
+/* Dividing by a zero maximum puts a flat line through the middle of the chart
+   as though something were happening. */
+$flat = array_fill_keys( array_keys( $series ), 0 );
+check( 'an empty week does not divide by zero', false !== strpos( Calculatorr_Chart::sparkline( $flat ), 'polyline' ), true );
+check( 'a single day is not a trend', false !== strpos( Calculatorr_Chart::trend( array( '2026-09-19' => 4 ) ), 'Not enough days' ), true );
+
+$bars = Calculatorr_Chart::bars( array( 'Mortgage Payment Calculator' => 220, 'BMI Calculator' => 140 ) );
+check( 'bars carry their values directly', substr_count( $bars, 'calcr-chart__value' ), 2 );
+check( 'and a hover label each', substr_count( $bars, '<title>' ), 2 );
+check( 'nothing to chart says so', false !== strpos( Calculatorr_Chart::bars( array() ), 'Nothing recorded' ), true );
+
+/* --- the merged advertising screen ---------------------------------------- */
+
+/*
+ * The header and footer tab is gone, but its fields are not: AdSense serves
+ * nothing until its loader is in the head, so deleting the boxes would have
+ * removed the one thing the tab existed for.
+ */
+$admin_src = file_get_contents( CALCULATORR_PATH . 'includes/class-admin.php' );
+check( 'the tab is gone', false !== strpos( $admin_src, "'code'        => 'Header" ), false );
+check( 'the screen it pointed at is gone too', false !== strpos( $admin_src, 'function render_code' ), false );
+check( 'the head box survives inside advertising', substr_count( $admin_src, "'code_head'" ), 2 );
+check( 'and is still saved', false !== strpos( $admin_src, "'code_head', 'code_body', 'code_footer'" ), true );
+
 /* --- results -------------------------------------------------------------- */
 printf( "%d checks\n\n", $checks );
 foreach ( $failures as $failure ) { echo "  FAIL $failure\n"; }

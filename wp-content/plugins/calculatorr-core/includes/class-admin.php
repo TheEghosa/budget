@@ -20,7 +20,6 @@ class Calculatorr_Admin {
 		'calculators' => 'Calculators',
 		'design'      => 'Design',
 		'ads'         => 'Advertising',
-		'code'        => 'Header &amp; footer',
 		'settings'    => 'Settings',
 		'log'         => 'Error log',
 	);
@@ -66,10 +65,31 @@ class Calculatorr_Admin {
 		return admin_url( 'admin.php?page=calculatorr&tab=' . $tab );
 	}
 
+	/**
+	 * An upgrade does not fire the activation hook, so an install that already
+	 * had the plugin would otherwise never get the usage table. Checked once a
+	 * day rather than on every admin page, because SHOW TABLES on every request
+	 * to earn nothing is a query nobody asked for.
+	 */
+	private function ensure_usage_table() {
+		if ( get_transient( 'calculatorr_usage_table' ) ) {
+			return;
+		}
+
+		if ( ! Calculatorr_Usage::table_exists() ) {
+			Calculatorr_Usage::install();
+		}
+
+		Calculatorr_Usage::prune();
+		set_transient( 'calculatorr_usage_table', 1, DAY_IN_SECONDS );
+	}
+
 	public function screen() {
 		if ( ! current_user_can( 'manage_options' ) ) {
 			return;
 		}
+
+		$this->ensure_usage_table();
 
 		$tab = $this->tab();
 		$notice = get_transient( 'calculatorr_notice' );
@@ -124,16 +144,124 @@ class Calculatorr_Admin {
 		}
 
 		$checks = $this->health_checks( $all, $pages );
+
+		$tracking = (bool) $settings->get( 'usage_enabled' );
+		$daily    = $tracking ? Calculatorr_Usage::daily( 30 ) : array();
+		$ranked   = $tracking ? Calculatorr_Usage::by_slug( 30 ) : array();
+		$sparks   = $tracking ? Calculatorr_Usage::sparklines( 30 ) : array();
+		$trend    = $tracking ? Calculatorr_Usage::trend( 7 ) : array( 'now' => 0, 'before' => 0, 'change' => null );
+
+		$month = array_sum( $daily );
+		$used  = count( array_filter( $ranked ) );
+
+		$delta = null;
+		if ( null !== $trend['change'] ) {
+			/* The sign is a separate string: number_format_i18n returns text,
+			   and multiplying that by minus one turns the formatted figure back
+			   into a bare number and throws the separators away. */
+			$size  = abs( $trend['change'] );
+			$delta = sprintf(
+				'%s%s%% on the previous seven days',
+				$trend['change'] >= 0 ? '+' : '-',
+				number_format_i18n( $size, $size < 10 ? 1 : 0 )
+			);
+		}
 		?>
 		<div class="calcr-stats">
 			<?php
+			$this->stat( 'Calculations, 30 days', number_format_i18n( $month ), $tracking ? $used . ' of ' . count( $all ) . ' calculators used' : 'counting is switched off' );
+			$this->stat( 'Last 7 days', number_format_i18n( $trend['now'] ), $delta ? $delta : 'no earlier week to compare' );
 			$this->stat( 'Active calculators', $active, count( $all ) . ' registered' );
-			$this->stat( 'Switched off', count( $disabled ), $disabled ? 'not shown to visitors' : 'all live' );
-			$this->stat( 'Categories', count( $categories ), 'hub pages' );
 			$this->stat( 'Pages created', $pages, $pages < count( $all ) ? ( count( $all ) - $pages ) . ' still to create' : 'all present' );
 			$this->stat( 'Logged errors', $log->count(), $log->count() ? count( $log->affected_slugs() ) . ' calculators affected' : 'nothing reported' );
 			?>
 		</div>
+
+		<?php if ( ! $tracking ) : ?>
+			<div class="calcr-panel calcr-panel--quiet">
+				<h2>Usage counting is off</h2>
+				<p>
+					Turn it on under Settings and this screen fills in as people use the calculators. It records
+					one hit per calculator per page load when a calculation actually runs, stores no visitor
+					data and sets no cookie.
+				</p>
+			</div>
+		<?php else : ?>
+			<div class="calcr-panel">
+				<h2>Calculations per day</h2>
+				<p class="calcr-panel__note">
+					A page view is not a use. This counts a calculation actually running, once per calculator per
+					page load, so the line reflects people using the tools rather than arriving at them.
+				</p>
+				<?php echo Calculatorr_Chart::trend( $daily ); ?>
+			</div>
+
+			<div class="calcr-panel">
+				<h2>Most used, last 30 days</h2>
+				<?php
+				$top = array();
+				foreach ( array_slice( $ranked, 0, 12, true ) as $slug => $hits ) {
+					$config = $registry->get( $slug );
+					$top[ $config ? $config['h1'] : $slug ] = $hits;
+				}
+				echo Calculatorr_Chart::bars( $top );
+				?>
+			</div>
+
+			<div class="calcr-panel">
+				<h2>Every calculator</h2>
+				<p class="calcr-panel__note">
+					The same numbers as a table, sorted by use. The ones at the bottom are either genuinely
+					niche or not being found, and the difference between those two is a question for Search
+					Console rather than for this screen.
+				</p>
+				<table class="widefat striped calcr-usage">
+					<thead>
+						<tr>
+							<th scope="col">Calculator</th>
+							<th scope="col">Category</th>
+							<th scope="col" class="calcr-usage__num">30 days</th>
+							<th scope="col" class="calcr-usage__num">7 days</th>
+							<th scope="col">Shape</th>
+							<th scope="col"></th>
+						</tr>
+					</thead>
+					<tbody>
+					<?php
+					/* Everything is listed, including the calculators with no
+					   hits, because a zero is the most actionable number here
+					   and hiding it would be flattering rather than useful. */
+					$ordered = $ranked;
+					foreach ( array_keys( $all ) as $slug ) {
+						if ( ! isset( $ordered[ $slug ] ) ) {
+							$ordered[ $slug ] = 0;
+						}
+					}
+
+					foreach ( $ordered as $slug => $hits ) :
+						$config = $registry->get( $slug );
+
+						if ( ! $config ) {
+							continue;
+						}
+
+						$category = $registry->category( $config['category'] );
+						$spark    = isset( $sparks[ $slug ] ) ? $sparks[ $slug ] : Calculatorr_Usage::empty_days( 30 );
+						$week     = array_sum( array_slice( $spark, -7 ) );
+						?>
+						<tr<?php echo $hits ? '' : ' class="calcr-usage__idle"'; ?>>
+							<td><strong><?php echo esc_html( $config['h1'] ); ?></strong></td>
+							<td><?php echo esc_html( $category ? $category['h1'] : $config['category'] ); ?></td>
+							<td class="calcr-usage__num"><?php echo esc_html( number_format_i18n( $hits ) ); ?></td>
+							<td class="calcr-usage__num"><?php echo esc_html( number_format_i18n( $week ) ); ?></td>
+							<td class="calcr-usage__spark"><?php echo Calculatorr_Chart::sparkline( $spark ); ?></td>
+							<td><a href="<?php echo esc_url( $this->url( 'calculators' ) . '&edit=' . rawurlencode( $slug ) ); ?>">Edit</a></td>
+						</tr>
+					<?php endforeach; ?>
+					</tbody>
+				</table>
+			</div>
+		<?php endif; ?>
 
 		<div class="calcr-panel">
 			<h2>Health</h2>
@@ -325,7 +453,22 @@ class Calculatorr_Admin {
 	private function render_override_form( $config ) {
 		$override = Calculatorr_Settings::instance()->overrides( $config['slug'] );
 		$value = function ( $key ) use ( $override, $config ) {
-			return isset( $override[ $key ] ) ? $override[ $key ] : $config[ $key ];
+			if ( isset( $override[ $key ] ) ) {
+				return $override[ $key ];
+			}
+
+			return isset( $config[ $key ] ) ? $config[ $key ] : '';
+		};
+
+		/* The list fields need the same fallback but must always come back as
+		   an array, because a config that has never carried one returns null
+		   and foreach over null is a warning on every page load. */
+		$value_list = function ( $key ) use ( $override, $config ) {
+			if ( isset( $override[ $key ] ) ) {
+				return (array) $override[ $key ];
+			}
+
+			return isset( $config[ $key ] ) ? (array) $config[ $key ] : array();
 		};
 		?>
 		<div class="calcr-panel">
@@ -366,7 +509,117 @@ class Calculatorr_Admin {
 							<p class="description">Shown on the category hub and in related links.</p>
 						</td>
 					</tr>
+					<tr>
+						<th><label for="ov-keyword">Primary keyword</label></th>
+						<td>
+							<input id="ov-keyword" name="keyword" type="text" class="regular-text" value="<?php echo esc_attr( $value( 'keyword' ) ); ?>">
+							<p class="description">
+								The phrase this page is built to win. It is the fallback for the heading and the
+								title tag, so changing it here changes what the page claims to be about.
+							</p>
+						</td>
+					</tr>
+					<tr>
+						<th><label for="ov-keywords">Secondary keywords</label></th>
+						<td>
+							<?php $tags = (array) $value_list( 'keywords' ); ?>
+							<input id="ov-keywords" name="keywords" type="text" class="large-text" value="<?php echo esc_attr( implode( ', ', $tags ) ); ?>">
+							<p class="description">
+								Comma separated. These are for your own targeting and reporting rather than for
+								the page: a meta keywords tag has been ignored by every search engine that
+								matters for well over a decade, so writing them into one would be theatre.
+								Where they earn their keep is telling you what this page is supposed to cover
+								when you come back to write the copy.
+							</p>
+							<?php if ( $tags ) : ?>
+								<p class="calcr-tags">
+									<?php foreach ( $tags as $tag ) : ?>
+										<span class="calcr-tag"><?php echo esc_html( $tag ); ?></span>
+									<?php endforeach; ?>
+								</p>
+							<?php endif; ?>
+						</td>
+					</tr>
 				</table>
+
+				<h3>Long description</h3>
+				<p class="description calcr-panel__note">
+					The sections below the calculator. This is where the depth that earns a ranking lives, so
+					it is the part worth spending time on. Leave a heading empty to drop that section. Anything
+					richer that the config file carries for a section, a numbered list of steps or a reference
+					table, is kept as it is and is not shown here, so editing the text cannot quietly delete it.
+				</p>
+
+				<?php
+				$sections = (array) $value_list( 'explainer' );
+				/* Two spare slots so adding a section needs no button and no
+				   JavaScript: the empty ones are simply dropped on save. */
+				$sections[] = array();
+				$sections[] = array();
+
+				foreach ( $sections as $i => $section ) :
+					$carried = $section;
+					unset( $carried['heading'], $carried['body'], $carried['formula'] );
+					?>
+					<div class="calcr-section">
+						<p>
+							<label>
+								<strong>Section <?php echo (int) ( $i + 1 ); ?> heading</strong>
+								<input type="text" class="large-text" name="explainer[<?php echo (int) $i; ?>][heading]"
+									value="<?php echo esc_attr( isset( $section['heading'] ) ? $section['heading'] : '' ); ?>">
+							</label>
+						</p>
+						<p>
+							<label>
+								Body
+								<textarea name="explainer[<?php echo (int) $i; ?>][body]" rows="5" class="large-text"><?php echo esc_textarea( isset( $section['body'] ) ? $section['body'] : '' ); ?></textarea>
+							</label>
+						</p>
+						<p>
+							<label>
+								Formula <span class="description">(optional, shown in a box)</span>
+								<input type="text" class="large-text code" name="explainer[<?php echo (int) $i; ?>][formula]"
+									value="<?php echo esc_attr( isset( $section['formula'] ) ? $section['formula'] : '' ); ?>">
+							</label>
+						</p>
+						<?php if ( $carried ) : ?>
+							<p class="description">
+								Also carries: <?php echo esc_html( implode( ', ', array_keys( $carried ) ) ); ?>. Kept as it is.
+							</p>
+							<input type="hidden" name="explainer[<?php echo (int) $i; ?>][carried]"
+								value="<?php echo esc_attr( wp_json_encode( $carried ) ); ?>">
+						<?php endif; ?>
+					</div>
+				<?php endforeach; ?>
+
+				<h3>Common questions</h3>
+				<p class="description calcr-panel__note">
+					These are published as FAQ structured data as well as on the page, so a question with a
+					straight answer under it can win the answer box. Leave a question empty to drop the pair.
+				</p>
+
+				<?php
+				$faqs = (array) $value_list( 'faqs' );
+				$faqs[] = array();
+				$faqs[] = array();
+
+				foreach ( $faqs as $i => $faq ) : ?>
+					<div class="calcr-section calcr-section--faq">
+						<p>
+							<label>
+								<strong>Question <?php echo (int) ( $i + 1 ); ?></strong>
+								<input type="text" class="large-text" name="faqs[<?php echo (int) $i; ?>][q]"
+									value="<?php echo esc_attr( isset( $faq['q'] ) ? $faq['q'] : '' ); ?>">
+							</label>
+						</p>
+						<p>
+							<label>
+								Answer
+								<textarea name="faqs[<?php echo (int) $i; ?>][a]" rows="4" class="large-text"><?php echo esc_textarea( isset( $faq['a'] ) ? $faq['a'] : '' ); ?></textarea>
+							</label>
+						</p>
+					</div>
+				<?php endforeach; ?>
 
 				<?php submit_button( 'Save' ); ?>
 				<a class="button" href="<?php echo esc_url( $this->url( 'calculators' ) ); ?>">Back to the list</a>
@@ -525,37 +778,21 @@ class Calculatorr_Admin {
 					<textarea name="<?php echo esc_attr( $key ); ?>" rows="4" class="large-text code"><?php echo esc_textarea( $settings->get( $key ) ); ?></textarea>
 				<?php endforeach; ?>
 
-				<?php submit_button( 'Save advertising' ); ?>
-			</form>
-		</div>
-		<?php
-	}
+				<hr>
 
-	private function render_code() {
-		$settings = Calculatorr_Settings::instance();
-		$fields = array(
-			'code_head'   => array( 'Head', 'Goes just before &lt;/head&gt; on every page. This is where the AdSense loader script belongs, along with Search Console and Bing verification tags and most analytics snippets.' ),
-			'code_body'   => array( 'After the opening body tag', 'For anything that has to run before the content, such as Google Tag Manager&rsquo;s noscript fallback. Needs a theme that calls wp_body_open, which almost all have since WordPress 5.2.' ),
-			'code_footer' => array( 'Footer', 'Goes just before &lt;/body&gt;. Anything that does not need to block rendering is better here than in the head, because a script in the head delays the page for every visitor.' ),
-		);
-		?>
-		<div class="calcr-panel">
-			<h2>Header and footer code</h2>
-			<p>
-				Site-wide script and meta tags, without needing a separate plugin for four text boxes. This is
-				where the AdSense loader goes; the individual ad units go in the Advertising tab.
-			</p>
-			<p>
-				The code is printed exactly as you paste it, because an ad tag or an analytics snippet is script
-				by nature and sanitising it would break every one of them. Only administrators can edit this, which
-				is the same trust model WordPress applies to the theme editor. Paste from the source, not from a
-				forum post.
-			</p>
-
-			<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
-				<input type="hidden" name="action" value="calculatorr_save_settings">
-				<input type="hidden" name="section" value="code">
-				<?php wp_nonce_field( 'calculatorr_save_settings' ); ?>
+				<h2>Site-wide code</h2>
+				<p>
+					The slots above are where an ad unit is drawn. These three are where the code that makes
+					units work at all has to live, which is a different job: AdSense serves nothing until its
+					loader script is in the head of every page, and the same goes for Search Console
+					verification and most analytics.
+				</p>
+				<p>
+					It is printed exactly as you paste it, because an ad tag is script by nature and sanitising
+					it would break every network there is. Only administrators can reach this screen, which is
+					the same trust WordPress already extends to the theme editor. Paste from the source, not
+					from a forum post.
+				</p>
 
 				<p>
 					<label>
@@ -565,29 +802,32 @@ class Calculatorr_Admin {
 					<span class="description">Never runs in the admin or on feeds, where an ad loader has nothing to attach to.</span>
 				</p>
 
-				<?php foreach ( $fields as $key => $field ) : ?>
+				<?php
+				$code_fields = array(
+					'code_head'   => array( 'Head', 'Goes just before &lt;/head&gt; on every page. The AdSense loader belongs here, along with Search Console and Bing verification tags.' ),
+					'code_body'   => array( 'After the opening body tag', 'For anything that has to run before the content, such as Google Tag Manager&rsquo;s noscript fallback.' ),
+					'code_footer' => array( 'Footer', 'Goes just before &lt;/body&gt;. Anything that does not need to block rendering is better here, because a script in the head delays the page for every visitor.' ),
+				);
+
+				foreach ( $code_fields as $key => $field ) : ?>
 					<h3><?php echo esc_html( $field[0] ); ?></h3>
 					<p class="description"><?php echo wp_kses_post( $field[1] ); ?></p>
-					<textarea name="<?php echo esc_attr( $key ); ?>" rows="6" class="large-text code" spellcheck="false"><?php echo esc_textarea( $settings->get( $key ) ); ?></textarea>
+					<textarea name="<?php echo esc_attr( $key ); ?>" rows="5" class="large-text code" spellcheck="false"><?php echo esc_textarea( $settings->get( $key ) ); ?></textarea>
 				<?php endforeach; ?>
 
-				<?php submit_button( 'Save code' ); ?>
-			</form>
-		</div>
+				<p class="description">
+					AdSense also wants an <code>ads.txt</code> file at the root of the domain with your publisher
+					ID in it. That is a real file rather than a script, so it cannot live in a text box; AdSense
+					gives you the exact line once your account exists.
+				</p>
 
-		<div class="calcr-panel">
-			<h2>One thing AdSense needs that is not code</h2>
-			<p>
-				An <code>ads.txt</code> file at the root of the domain, listing your publisher ID. It is not a
-				script, so it cannot go in the boxes above: it has to be a real file at
-				<code>calculatorr.org/ads.txt</code>. AdSense shows you the exact line to put in it once your
-				account is set up, and it will warn you repeatedly until the file exists.
-			</p>
+				<?php submit_button( 'Save advertising and code' ); ?>
+			</form>
 		</div>
 		<?php
 	}
 
-	private function render_settings() {
+private function render_settings() {
 		$settings = Calculatorr_Settings::instance();
 		$toggles = array(
 			'seo_enabled'    => array( 'Write meta tags', 'Title, description, canonical and social tags. Turn off if another SEO plugin should own them, though Calculatorr detects the common ones and stands down automatically.' ),
@@ -597,6 +837,7 @@ class Calculatorr_Admin {
 			'site_chrome' => array( 'Style the theme header and footer', 'Loads one small stylesheet on every page so the site header, navigation and footer carry the calculatorr design. Turn it off if you build the header and footer yourself.' ),
 			'theme_switch' => array( 'Offer a light and dark switch', 'Adds a control to the end of the header menu so a visitor can choose, and remembers the choice. With this off the palette still follows the visitor\'s system setting, they just cannot override it.' ),
 			'empty_start' => array( 'Start calculators empty', 'Fields open blank with the usual figure shown as a placeholder, so nobody has to clear somebody else\'s numbers before entering their own. Turn it off to prefill every field with a worked example instead.' ),
+			'usage_enabled' => array( 'Count which calculators get used', 'Records one hit per calculator per page load when a calculation actually runs, which is what the dashboard charts. It stores no visitor data and sets no cookie, so it needs no consent banner of its own.' ),
 			'render_heading' => array( 'Print the heading and intro', 'Most themes already output the page title as the H1, so this is off by default to avoid two of them. Turn it on if your theme does not, or if the theme heading does not match the calculator title.' ),
 			'log_enabled'    => array( 'Collect errors', 'Records JavaScript errors reported by visitors and PHP problems inside the plugin. Worth leaving on: a formula that breaks on a phone leaves no trace on the server otherwise.' ),
 		);
@@ -715,16 +956,6 @@ class Calculatorr_Admin {
 		$settings = Calculatorr_Settings::instance();
 		$values = $settings->all();
 
-		if ( 'code' === $section ) {
-			$values['head_footer_enabled'] = isset( $_POST['head_footer_enabled'] ) ? 1 : 0;
-			foreach ( array( 'code_head', 'code_body', 'code_footer' ) as $key ) {
-				/* Stored verbatim, as the screen explains. */
-				$values[ $key ] = isset( $_POST[ $key ] ) ? trim( wp_unslash( $_POST[ $key ] ) ) : '';
-			}
-			$settings->save( $values );
-			$this->finish( 'Header and footer code saved.', 'code' );
-		}
-
 		if ( 'design' === $section ) {
 			if ( isset( $_POST['reset_design'] ) ) {
 				$values['design'] = array();
@@ -744,6 +975,13 @@ class Calculatorr_Admin {
 		if ( 'ads' === $section ) {
 			$values['ads_enabled'] = isset( $_POST['ads_enabled'] ) ? 1 : 0;
 			$values['house_ads_enabled'] = isset( $_POST['house_ads_enabled'] ) ? 1 : 0;
+			$values['head_footer_enabled'] = isset( $_POST['head_footer_enabled'] ) ? 1 : 0;
+
+			/* Stored verbatim, as the screen explains. */
+			foreach ( array( 'code_head', 'code_body', 'code_footer' ) as $key ) {
+				$values[ $key ] = isset( $_POST[ $key ] ) ? trim( wp_unslash( $_POST[ $key ] ) ) : '';
+			}
+
 			foreach ( array( 'ad_after_calculator', 'ad_in_content', 'ad_sidebar' ) as $key ) {
 				/* Ad code is markup and script by nature, so it is stored as
 				   given. Only an administrator can reach this screen, and
@@ -751,10 +989,10 @@ class Calculatorr_Admin {
 				$values[ $key ] = isset( $_POST[ $key ] ) ? trim( wp_unslash( $_POST[ $key ] ) ) : '';
 			}
 			$settings->save( $values );
-			$this->finish( 'Advertising saved.', 'ads' );
+			$this->finish( 'Advertising and site-wide code saved.', 'ads' );
 		}
 
-		foreach ( array( 'seo_enabled', 'schema_enabled', 'share_enabled', 'site_chrome', 'theme_switch', 'empty_start', 'load_fonts', 'log_enabled', 'render_heading' ) as $flag ) {
+		foreach ( array( 'seo_enabled', 'schema_enabled', 'share_enabled', 'site_chrome', 'theme_switch', 'empty_start', 'load_fonts', 'log_enabled', 'usage_enabled', 'render_heading' ) as $flag ) {
 			$values[ $flag ] = isset( $_POST[ $flag ] ) ? 1 : 0;
 		}
 		$values['log_limit'] = isset( $_POST['log_limit'] ) ? (int) $_POST['log_limit'] : 200;
@@ -790,6 +1028,80 @@ class Calculatorr_Admin {
 		$this->finish( sprintf( '%d calculators live, %d switched off.', count( $registry->all() ) - count( $values['disabled'] ), count( $values['disabled'] ) ), 'calculators' );
 	}
 
+	/**
+	 * Turns the posted explainer rows into config-shaped sections.
+	 *
+	 * A section with no heading is dropped, which is how a row is deleted
+	 * without a delete button. The carried field holds whatever the config had
+	 * that this screen does not show, a numbered step list or a reference
+	 * table, so editing the prose cannot quietly throw those away.
+	 */
+	public static function clean_sections( $rows ) {
+		$out = array();
+
+		foreach ( $rows as $row ) {
+			if ( ! is_array( $row ) ) {
+				continue;
+			}
+
+			$heading = isset( $row['heading'] ) ? trim( (string) $row['heading'] ) : '';
+
+			if ( '' === $heading ) {
+				continue;
+			}
+
+			$section = array( 'heading' => wp_kses_post( $heading ) );
+			$body    = isset( $row['body'] ) ? trim( (string) $row['body'] ) : '';
+
+			if ( '' !== $body ) {
+				$section['body'] = wp_kses_post( $body );
+			}
+
+			$formula = isset( $row['formula'] ) ? trim( (string) $row['formula'] ) : '';
+
+			if ( '' !== $formula ) {
+				$section['formula'] = wp_kses_post( $formula );
+			}
+
+			if ( ! empty( $row['carried'] ) ) {
+				$carried = json_decode( (string) $row['carried'], true );
+
+				if ( is_array( $carried ) ) {
+					$section = array_merge( $section, $carried );
+				}
+			}
+
+			$out[] = $section;
+		}
+
+		return $out;
+	}
+
+	/** Question and answer pairs; a pair with no question is dropped. */
+	public static function clean_faqs( $rows ) {
+		$out = array();
+
+		foreach ( $rows as $row ) {
+			if ( ! is_array( $row ) ) {
+				continue;
+			}
+
+			$question = isset( $row['q'] ) ? trim( (string) $row['q'] ) : '';
+			$answer   = isset( $row['a'] ) ? trim( (string) $row['a'] ) : '';
+
+			if ( '' === $question || '' === $answer ) {
+				continue;
+			}
+
+			$out[] = array(
+				'q' => wp_kses_post( $question ),
+				'a' => wp_kses_post( $answer ),
+			);
+		}
+
+		return $out;
+	}
+
 	public function handle_override() {
 		$this->guard( 'calculatorr_save_override' );
 
@@ -801,13 +1113,37 @@ class Calculatorr_Admin {
 		}
 
 		$values = array();
-		foreach ( array( 'h1', 'meta_title', 'meta_description', 'description' ) as $key ) {
+		foreach ( array( 'h1', 'meta_title', 'meta_description', 'description', 'keyword' ) as $key ) {
 			$given = isset( $_POST[ $key ] ) ? trim( wp_unslash( $_POST[ $key ] ) ) : '';
+			$current = isset( $config[ $key ] ) ? $config[ $key ] : '';
 			/* Storing a value identical to the config would be a pointless
 			   override that then hides future config changes, so it is left out. */
-			if ( '' !== $given && $given !== $config[ $key ] ) {
+			if ( '' !== $given && $given !== $current ) {
 				$values[ $key ] = $given;
 			}
+		}
+
+		if ( isset( $_POST['keywords'] ) ) {
+			$tags = array_filter( array_map( 'trim', explode( ',', (string) wp_unslash( $_POST['keywords'] ) ) ) );
+
+			if ( $tags ) {
+				$values['keywords'] = array_values( array_unique( $tags ) );
+			}
+		}
+
+		$explainer = self::clean_sections(
+			isset( $_POST['explainer'] ) ? (array) wp_unslash( $_POST['explainer'] ) : array()
+		);
+
+		/* An empty result means every section was cleared, which is a real
+		   instruction and not the same as never having touched the field, so
+		   it is stored as an empty array rather than dropped. */
+		if ( isset( $_POST['explainer'] ) ) {
+			$values['explainer'] = $explainer;
+		}
+
+		if ( isset( $_POST['faqs'] ) ) {
+			$values['faqs'] = self::clean_faqs( (array) wp_unslash( $_POST['faqs'] ) );
 		}
 
 		Calculatorr_Settings::instance()->save_override( $slug, $values );

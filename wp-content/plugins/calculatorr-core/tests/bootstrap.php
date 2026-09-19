@@ -51,6 +51,14 @@ function shortcode_atts( $pairs, $atts, $shortcode = '' ) {
 function esc_url_raw( $u, $p = array() ) { return preg_match( '#^https://#', (string) $u ) ? $u : ''; }
 function esc_textarea( $t ) { return htmlspecialchars( (string) $t, ENT_QUOTES, 'UTF-8' ); }
 function wp_unslash( $v ) { return is_string( $v ) ? stripslashes( $v ) : $v; }
+function number_format_i18n( $n, $d = 0 ) { return number_format( (float) $n, (int) $d ); }
+function current_time( $f ) { return gmdate( $f ); }
+if ( ! defined( 'DAY_IN_SECONDS' ) ) { define( 'DAY_IN_SECONDS', 86400 ); }
+function admin_url( $p = '' ) { return 'https://calculatorr.org/wp-admin/' . $p; }
+function submit_button( $t = '', $c = '', $n = '', $w = true ) {}
+function wp_nonce_field( $a = -1, $n = '_wpnonce', $r = true, $e = true ) {}
+function checked( $a, $b = true, $echo = true ) { $r = ( (string) $a === (string) $b ) ? ' checked' : ''; if ( $echo ) { echo $r; } return $r; }
+function add_submenu_page() {}
 function esc_html__( $t, $d = '' ) { return $t; }
 function __( $t, $d = '' ) { return $t; }
 function esc_html( $t )  { return htmlspecialchars( (string) $t, ENT_QUOTES, 'UTF-8' ); }
@@ -104,6 +112,8 @@ function mb_substr_compat( $s, $a, $b ) { return substr( $s, $a, $b ); }
 
 $GLOBALS['calcr_options'] = array();
 
+require_once CALCULATORR_PATH . 'includes/class-chart.php';
+require_once CALCULATORR_PATH . 'includes/class-usage.php';
 require_once CALCULATORR_PATH . 'includes/class-design.php';
 require_once CALCULATORR_PATH . 'includes/class-settings.php';
 require_once CALCULATORR_PATH . 'includes/class-error-log.php';
@@ -115,3 +125,4 @@ require_once CALCULATORR_PATH . 'includes/class-pages.php';
 require_once CALCULATORR_PATH . 'includes/class-seo.php';
 require_once CALCULATORR_PATH . 'includes/class-head-footer.php';
 require_once CALCULATORR_PATH . 'includes/class-site-chrome.php';
+require_once CALCULATORR_PATH . 'includes/class-admin.php';

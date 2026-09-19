@@ -3,7 +3,7 @@
  * Plugin Name:       Calculatorr Core
  * Plugin URI:        https://calculatorr.org
  * Description:       Powers every calculator on calculatorr.org. Each calculator is one config file, so adding the hundred and first is a config file rather than a new template.
- * Version:           1.3.0
+ * Version:           1.4.0
  * Requires at least: 6.0
  * Requires PHP:      7.4
  * Author:            calculatorr.org
@@ -15,7 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'CALCULATORR_VERSION', '1.3.0' );
+define( 'CALCULATORR_VERSION', '1.4.0' );
 define( 'CALCULATORR_FILE', __FILE__ );
 define( 'CALCULATORR_PATH', plugin_dir_path( __FILE__ ) );
 define( 'CALCULATORR_URL', plugin_dir_url( __FILE__ ) );
@@ -29,6 +29,8 @@ require_once CALCULATORR_PATH . 'includes/class-seo.php';
 require_once CALCULATORR_PATH . 'includes/class-ads.php';
 require_once CALCULATORR_PATH . 'includes/class-head-footer.php';
 require_once CALCULATORR_PATH . 'includes/class-pages.php';
+require_once CALCULATORR_PATH . 'includes/class-usage.php';
+require_once CALCULATORR_PATH . 'includes/class-chart.php';
 require_once CALCULATORR_PATH . 'includes/class-design.php';
 require_once CALCULATORR_PATH . 'includes/class-site-chrome.php';
 require_once CALCULATORR_PATH . 'includes/class-rest-settings.php';
@@ -48,6 +50,7 @@ function calculatorr_boot() {
 	Calculatorr_SEO::instance();
 	Calculatorr_Ads::instance();
 	Calculatorr_Head_Footer::instance();
+	Calculatorr_Usage::instance();
 	Calculatorr_Design::instance();
 	Calculatorr_Site_Chrome::instance();
 	Calculatorr_Rest_Settings::instance();

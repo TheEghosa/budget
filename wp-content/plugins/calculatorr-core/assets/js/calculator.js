@@ -431,6 +431,37 @@
 		}
 	}
 
+	/* One calculator, one page load, one count. Sent on the first calculation
+	   that actually produces an answer, because a page view is not usage:
+	   somebody can arrive from a search, read the explainer and leave without
+	   touching a field. sendBeacon so it never delays anything, and it is
+	   simply skipped where the browser does not have it rather than falling
+	   back to a request that could hold the page open. */
+	var counted = {};
+
+	function countUse( slug ) {
+		var config = window.CalculatorrConfig;
+
+		if ( ! config || ! config.usageUrl || counted[ slug ] ) {
+			return;
+		}
+
+		counted[ slug ] = true;
+
+		if ( ! navigator.sendBeacon ) {
+			return;
+		}
+
+		try {
+			navigator.sendBeacon(
+				config.usageUrl,
+				new Blob( [ JSON.stringify( { slug: slug } ) ], { type: 'application/json' } )
+			);
+		} catch ( error ) {
+			/* Counting is never worth an error in front of a visitor. */
+		}
+	}
+
 	function recalculate( root ) {
 		applyVisibility( root );
 		updateResetState( root );
@@ -449,6 +480,7 @@
 
 		root.classList.remove( 'calcr--awaiting' );
 		setResultActionsEnabled( root, true );
+		countUse( slug );
 
 		try {
 			paint( root, formula( gather( root ) ) );

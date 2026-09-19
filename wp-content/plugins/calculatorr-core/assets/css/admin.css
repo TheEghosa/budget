@@ -157,3 +157,139 @@
 	.calcr-stat__value { font-size: 28px; }
 	.calcr-panel { padding: 16px; }
 }
+
+/* ------------------------------------------------------------- charts -- */
+
+/*
+ * One series per chart, so there is nothing to tell apart and no categorical
+ * palette to get wrong. The mark colour is a brighter sibling of the brand
+ * teal: the brand teal itself sits below the chroma floor for a data mark and
+ * reads as grey against white. Labels and values wear text colours rather than
+ * the series colour, so nothing depends on colour alone.
+ */
+.calcr-panel {
+	--calcr-chart-series: #0C9B88;
+	--calcr-chart-area: rgba( 12, 155, 136, 0.13 );
+	--calcr-chart-grid: #E2E4E7;
+	--calcr-chart-ink: #1d2327;
+	--calcr-chart-muted: #646970;
+}
+
+.calcr-chart {
+	display: block;
+	max-width: 100%;
+	overflow: visible;
+}
+
+.calcr-chart__line {
+	fill: none;
+	stroke: var(--calcr-chart-series);
+	stroke-width: 2;
+	stroke-linecap: round;
+	stroke-linejoin: round;
+}
+
+.calcr-chart__area {
+	fill: var(--calcr-chart-area);
+	stroke: none;
+}
+
+.calcr-chart__last {
+	fill: var(--calcr-chart-series);
+	/* A ring in the surface colour so the marker stays readable where the line
+	   passes behind it. */
+	stroke: #fff;
+	stroke-width: 2;
+}
+
+/* The hover targets are larger than the marks and invisible until used, which
+   keeps the line thin while still making every point interrogable. */
+.calcr-chart__dot {
+	fill: transparent;
+	cursor: default;
+}
+
+.calcr-chart__dot:hover {
+	fill: var(--calcr-chart-area);
+}
+
+.calcr-chart__grid {
+	stroke: var(--calcr-chart-grid);
+	stroke-width: 1;
+	shape-rendering: crispEdges;
+}
+
+.calcr-chart__axis,
+.calcr-chart__date {
+	fill: var(--calcr-chart-muted);
+	font-size: 11px;
+}
+
+.calcr-chart__label {
+	fill: var(--calcr-chart-ink);
+	font-size: 13px;
+}
+
+.calcr-chart__value {
+	fill: var(--calcr-chart-ink);
+	font-size: 12px;
+	font-weight: 600;
+	font-variant-numeric: tabular-nums;
+}
+
+.calcr-chart__bar {
+	fill: var(--calcr-chart-series);
+}
+
+.calcr-chart__bar:hover {
+	fill: #0A8574;
+}
+
+.calcr-chart--spark {
+	width: 120px;
+	height: 28px;
+}
+
+.calcr-chart__empty,
+.calcr-chart__none {
+	color: var(--calcr-chart-muted);
+}
+
+.calcr-panel__note {
+	max-width: 70ch;
+	color: #50575e;
+}
+
+.calcr-usage__num {
+	text-align: right;
+	font-variant-numeric: tabular-nums;
+	white-space: nowrap;
+}
+
+.calcr-usage__spark {
+	width: 130px;
+}
+
+/* A calculator nobody has used is the most actionable row on the screen, so it
+   is dimmed rather than hidden. */
+.calcr-usage__idle td {
+	opacity: 0.6;
+}
+
+.calcr-panel--quiet {
+	background: #f6f7f7;
+}
+
+@media ( prefers-color-scheme: dark ) {
+	.calcr-panel {
+		--calcr-chart-grid: #3c434a;
+		--calcr-chart-ink: #f0f0f1;
+		--calcr-chart-muted: #a7aaad;
+		--calcr-chart-area: rgba( 79, 184, 168, 0.18 );
+		--calcr-chart-series: #4FB8A8;
+	}
+
+	.calcr-chart__last {
+		stroke: #1d2327;
+	}
+}

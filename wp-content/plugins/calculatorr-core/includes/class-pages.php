@@ -19,6 +19,8 @@ class Calculatorr_Pages {
 	private static $url_cache = array();
 
 	public static function on_activate() {
+		Calculatorr_Usage::install();
+
 		self::sync();
 		flush_rewrite_rules();
 	}

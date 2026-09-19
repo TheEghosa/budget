@@ -50,6 +50,7 @@ class Calculatorr_Settings {
 			'schema_enabled'      => 1,
 			'share_enabled'       => 1,
 			'log_enabled'         => 1,
+			'usage_enabled'       => 1,
 			'render_heading'      => 0,
 			'log_limit'           => 200,
 			'design'              => array(),
@@ -73,7 +74,7 @@ class Calculatorr_Settings {
 		$clean = wp_parse_args( $values, $this->all() );
 		$clean['disabled'] = array_values( array_unique( array_map( 'sanitize_key', (array) $clean['disabled'] ) ) );
 
-		foreach ( array( 'ads_enabled', 'house_ads_enabled', 'head_footer_enabled', 'site_chrome', 'theme_switch', 'empty_start', 'load_fonts', 'seo_enabled', 'schema_enabled', 'share_enabled', 'log_enabled', 'render_heading' ) as $flag ) {
+		foreach ( array( 'ads_enabled', 'house_ads_enabled', 'head_footer_enabled', 'site_chrome', 'theme_switch', 'empty_start', 'load_fonts', 'seo_enabled', 'schema_enabled', 'share_enabled', 'log_enabled', 'usage_enabled', 'render_heading' ) as $flag ) {
 			$clean[ $flag ] = empty( $clean[ $flag ] ) ? 0 : 1;
 		}
 
@@ -118,9 +119,29 @@ class Calculatorr_Settings {
 		$all = $this->overrides();
 		$clean = array();
 
-		foreach ( array( 'h1', 'meta_title', 'meta_description', 'description' ) as $key ) {
+		foreach ( array( 'h1', 'meta_title', 'meta_description', 'description', 'keyword' ) as $key ) {
 			if ( isset( $values[ $key ] ) && '' !== trim( $values[ $key ] ) ) {
 				$clean[ $key ] = sanitize_text_field( $values[ $key ] );
+			}
+		}
+
+		/* The list fields are already shaped and cleaned by the screen that
+		   posted them, so they are taken as arrays rather than run through
+		   sanitize_text_field, which would flatten an array to the string
+		   "Array" and silently delete the content. */
+		if ( isset( $values['keywords'] ) ) {
+			$tags = array_filter( array_map( 'sanitize_text_field', (array) $values['keywords'] ) );
+
+			if ( $tags ) {
+				/* Deduplicated at the storage boundary rather than only on the
+				   screen, so the same is true however the value arrives. */
+				$clean['keywords'] = array_values( array_unique( $tags ) );
+			}
+		}
+
+		foreach ( array( 'explainer', 'faqs' ) as $key ) {
+			if ( isset( $values[ $key ] ) && is_array( $values[ $key ] ) ) {
+				$clean[ $key ] = $values[ $key ];
 			}
 		}
 
@@ -132,6 +153,12 @@ class Calculatorr_Settings {
 
 		update_option( self::OVERRIDE, $all );
 		$this->overrides = $all;
+
+		/* The registry folded the previous overrides in when it loaded, so
+		   without this a read straight after a save returns the old text. */
+		if ( class_exists( 'Calculatorr_Registry' ) ) {
+			Calculatorr_Registry::instance()->reload();
+		}
 	}
 
 	/**

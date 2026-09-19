@@ -42,12 +42,19 @@ class Calculatorr_Renderer {
 		wp_enqueue_style( 'calculatorr-app' );
 		wp_enqueue_script( 'calculatorr-app' );
 
-		if ( Calculatorr_Settings::instance()->get( 'log_enabled' ) ) {
-			wp_localize_script(
-				'calculatorr-app',
-				'CalculatorrConfig',
-				array( 'logUrl' => rest_url( 'calculatorr/v1/log' ) )
-			);
+		$settings = Calculatorr_Settings::instance();
+		$config_js = array();
+
+		if ( $settings->get( 'log_enabled' ) ) {
+			$config_js['logUrl'] = rest_url( 'calculatorr/v1/log' );
+		}
+
+		if ( $settings->get( 'usage_enabled' ) ) {
+			$config_js['usageUrl'] = rest_url( 'calculatorr/v1/usage' );
+		}
+
+		if ( $config_js ) {
+			wp_localize_script( 'calculatorr-app', 'CalculatorrConfig', $config_js );
 		}
 
 		return $this->render_page( $config );

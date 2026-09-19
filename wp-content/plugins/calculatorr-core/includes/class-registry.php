@@ -243,6 +243,20 @@ class Calculatorr_Registry {
 	}
 
 	/**
+	 * Rebuilds the merged configs.
+	 *
+	 * Overrides are folded in when the registry loads, which means anything
+	 * already holding a config keeps the old text after a save. The admin gets
+	 * away with it because it redirects, but a save followed by a read in the
+	 * same request would otherwise return the previous copy, so saving an
+	 * override calls this.
+	 */
+	public function reload() {
+		$this->calculators = array();
+		$this->load_calculators();
+	}
+
+	/**
 	 * Null for a calculator an administrator has switched off, so the renderer
 	 * shows nothing rather than a half-working tool.
 	 */

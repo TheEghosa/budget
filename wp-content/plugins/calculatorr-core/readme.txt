@@ -4,7 +4,7 @@ Tags: calculator, tools, seo, elementor
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 1.3.0
+Stable tag: 1.4.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -65,6 +65,13 @@ In the visitor's browser. Nothing is sent to the server, so salaries, weights
 and health measurements never leave the device.
 
 == Changelog ==
+
+= 1.4.0 =
+* The dashboard now leads with usage: calculations per day, the most used calculators, and every calculator in a table with a sparkline each. It counts a calculation actually running rather than a page view, once per calculator per page load, and stores no visitor data.
+* The per-calculator editor now covers the long description and the common questions as well as the meta, so the copy that earns a ranking can be written without a code change. A section's numbered steps or reference table are carried through untouched, so editing the prose cannot delete them.
+* Primary and secondary keywords are editable per calculator, the secondary ones as a comma separated list for your own targeting rather than for a meta tag no search engine has read this century.
+* The Header and footer tab is gone and its three boxes now live at the foot of Advertising, which is where the rest of the ad setup already was. The boxes stay because AdSense serves nothing until its loader is in the head.
+* Saving an override now rebuilds the registry, so a read straight after a save returns the new text rather than the previous copy.
 
 = 1.3.0 =
 * A Design tab holding the palette, the fonts, the content width and a custom CSS box. Everything on it is a stored value written into the page as a custom property override, so a look-and-feel change reaches all 118 pages on the next request with no upload.
