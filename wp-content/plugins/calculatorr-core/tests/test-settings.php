@@ -239,7 +239,40 @@ check(
 );
 check(
 	'chrome darkens the footer',
+	(bool) preg_match( '/site-footer\.dynamic-footer\s*\{[^}]*background:\s*var\(--calcr-footer-bg\)/', $chrome_css ),
+	true
+);
+
+/*
+ * The footer band was painted with --calcr-ink, which is the body text colour
+ * and therefore flips to near-white the moment the dark palette loads. The
+ * whole footer turned white with pale grey links on it. The band needs a token
+ * that stays dark in both palettes, so using the ink token here is the actual
+ * regression to guard against, not just a style preference.
+ */
+check(
+	'footer does not reuse a token that inverts',
 	(bool) preg_match( '/site-footer\.dynamic-footer\s*\{[^}]*background:\s*var\(--calcr-ink\)/', $chrome_css ),
+	false
+);
+
+/* Every token the chrome and the homepage read has to exist in all three
+   palettes, or one of them silently falls back to nothing. */
+$tokens_css = file_get_contents( CALCULATORR_PATH . 'assets/css/tokens.css' );
+
+foreach ( array( 'footer-bg', 'footer-ink', 'footer-strong', 'footer-quiet', 'footer-line', 'logo-filter', 'shadow' ) as $token ) {
+	check(
+		sprintf( '--calcr-%s is defined in all three palettes', $token ),
+		substr_count( $tokens_css, '--calcr-' . $token . ':' ),
+		3
+	);
+}
+
+/* The wordmark is dark ink, so on a dark header it needs inverting, and the
+   only way that can follow the palette is through a token. */
+check(
+	'the header logo filter follows the palette',
+	(bool) preg_match( '/img\.custom-logo\s*\{[^}]*filter:\s*var\(--calcr-logo-filter\)/', $chrome_css ),
 	true
 );
 
@@ -272,6 +305,79 @@ check( 'homepage description is written', '' !== trim( $home_description ), true
 check( 'homepage description fits a snippet', strlen( $home_description ) <= 158, true );
 check( 'homepage description counts the calculators', (bool) strpos( $home_description, (string) count( $registry->all( false ) ) ), true );
 check( 'social card ships for og:image', file_exists( CALCULATORR_PATH . 'assets/images/social-card.png' ), true );
+
+/* --- starting empty ------------------------------------------------------- */
+
+/*
+ * Landing on a calculator that is already full of somebody else's numbers
+ * means clearing every box before you can use it. These checks pin the blank
+ * start, the placeholder that replaces the prefilled value, and the rule that
+ * decides which blanks the runtime is allowed to treat as nothing.
+ */
+check( 'empty start is on by default', (int) $settings->get( 'empty_start' ), 1 );
+
+$amort = $renderer->shortcode( array( 'slug' => 'amortization-calculator' ) );
+
+check(
+	'the loan amount opens blank',
+	(bool) preg_match( '/data-calcr-input="principal"/', $amort ) && ! preg_match( '/value="300000"/', $amort ),
+	true
+);
+check( 'the usual figure survives as a hint', (bool) strpos( $amort, 'placeholder="300000"' ), true );
+check( 'a field the answer needs is marked required', (bool) strpos( $amort, 'data-calcr-required="1"' ), true );
+check( 'the panel waits rather than showing a worked example', (bool) strpos( $amort, 'calcr--awaiting' ), true );
+check( 'the panel says what to do', (bool) strpos( $amort, 'Fill in the fields above' ), true );
+
+/* Copying or sharing a result that does not exist yet is a dead end, and the
+   state has to be right in the markup rather than applied by script, so it is
+   never briefly wrong while the runtime loads. */
+check( 'copy starts disabled', (bool) preg_match( '/data-calcr-copy\s+disabled/', $amort ), true );
+check( 'share starts disabled', (bool) preg_match( '/data-calcr-share-toggle[^>]*\sdisabled/', $amort ), true );
+
+/* A default of zero is the config author saying this one can be left alone,
+   so it must not hold the whole result back. */
+$waste = $renderer->shortcode( array( 'slug' => 'cubic-yard-calculator' ) );
+check(
+	'a field defaulting to zero is not required',
+	(bool) preg_match( '/data-calcr-input="waste"[^>]*data-calcr-required/', $waste ),
+	false
+);
+
+/* A select is a choice rather than the visitor's data, so it keeps its
+   default: there is no sensible blank state for one. */
+$converter = $renderer->shortcode( array( 'slug' => 'unit-converter' ) );
+check( 'choices keep a selected option', (bool) preg_match( '/<option[^>]* selected/', $converter ), true );
+
+$values = $settings->all();
+$values['empty_start'] = 0;
+$settings->save( $values );
+
+$prefilled = $renderer->shortcode( array( 'slug' => 'amortization-calculator' ) );
+check( 'switching it off prefills again', (bool) strpos( $prefilled, 'value="300000"' ), true );
+check( 'and the panel shows an answer', false !== strpos( $prefilled, 'calcr--awaiting' ), false );
+
+$values['empty_start'] = 1;
+$settings->save( $values );
+
+/* --- light and dark ------------------------------------------------------- */
+
+check( 'the switch is offered by default', (int) $settings->get( 'theme_switch' ), 1 );
+
+$chrome = Calculatorr_Site_Chrome::instance();
+$header = (object) array( 'theme_location' => 'menu-1' );
+$footer = (object) array( 'theme_location' => 'menu-2' );
+
+$with_switch = $chrome->append_theme_switch( '<li>Finance</li>', $header );
+check( 'the switch joins the header menu', (bool) strpos( $with_switch, 'data-calcr-theme-toggle' ), true );
+check( 'the existing items survive', false !== strpos( $with_switch, '<li>Finance</li>' ), true );
+check( 'it is a button, not a link', (bool) strpos( $with_switch, '<button type="button"' ), true );
+check( 'the footer menu is left alone', $chrome->append_theme_switch( '<li>Finance</li>', $footer ), '<li>Finance</li>' );
+
+ob_start();
+$chrome->early_theme_script();
+$early = ob_get_clean();
+check( 'a stored choice is applied before paint', (bool) strpos( $early, 'calcr-theme' ), true );
+check( 'storage access is guarded', (bool) strpos( $early, 'try' ), true );
 
 /* --- results -------------------------------------------------------------- */
 printf( "%d checks\n\n", $checks );

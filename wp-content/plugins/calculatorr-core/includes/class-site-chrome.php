@@ -46,6 +46,56 @@ class Calculatorr_Site_Chrome {
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue' ), 20 );
 		add_filter( 'hello_elementor_page_title', array( $this, 'page_title' ) );
 		add_action( 'template_redirect', array( $this, 'drop_duplicate_canonical' ) );
+
+		if ( Calculatorr_Settings::instance()->get( 'theme_switch' ) ) {
+			add_action( 'wp_head', array( $this, 'early_theme_script' ), 1 );
+			add_filter( 'wp_nav_menu_items', array( $this, 'append_theme_switch' ), 10, 2 );
+		}
+	}
+
+	/**
+	 * Applies a stored light or dark choice before anything is painted.
+	 *
+	 * This is printed inline at the very top of the head rather than enqueued,
+	 * because a file has to be fetched and a visitor who chose dark would
+	 * otherwise watch the page flash white first. It is a handful of bytes and
+	 * it touches one attribute.
+	 */
+	public function early_theme_script() {
+		?>
+<script>(function(){try{var t=window.localStorage.getItem('calcr-theme');if('dark'===t||'light'===t){document.documentElement.setAttribute('data-calcr-theme',t);}}catch(e){}}());</script>
+		<?php
+	}
+
+	/**
+	 * Adds the light and dark switch to the end of the header navigation.
+	 *
+	 * It goes in the menu markup rather than being injected by script after
+	 * load, so it cannot arrive late or shift the header once it does. The
+	 * button starts with no pressed state: which mode is active depends on the
+	 * visitor's system preference until they choose, and the server has no way
+	 * of knowing that, so the script settles it on load.
+	 *
+	 * @param string   $items Menu markup so far.
+	 * @param stdClass $args  Menu arguments, which carry the theme location.
+	 * @return string
+	 */
+	public function append_theme_switch( $items, $args ) {
+		$location = isset( $args->theme_location ) ? $args->theme_location : '';
+
+		if ( 'menu-1' !== $location ) {
+			return $items;
+		}
+
+		$moon = '<svg class="calcr-icon calcr-icon--moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"></path></svg>';
+		$sun  = '<svg class="calcr-icon calcr-icon--sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="4.2"></circle><path d="M12 2.5v2M12 19.5v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M2.5 12h2M19.5 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4"></path></svg>';
+
+		return $items . sprintf(
+			'<li class="calcr-theme-switch"><button type="button" class="calcr-theme-switch__btn" data-calcr-theme-toggle aria-pressed="false"><span class="calcr-theme-switch__icons">%1$s%2$s</span><span class="calcr-theme-switch__label" data-calcr-theme-label>%3$s</span></button></li>',
+			$moon,
+			$sun,
+			esc_html__( 'Dark', 'calculatorr' )
+		);
 	}
 
 	/**
@@ -70,6 +120,16 @@ class Calculatorr_Site_Chrome {
 			array( 'calculatorr-tokens' ),
 			CALCULATORR_VERSION
 		);
+
+		if ( Calculatorr_Settings::instance()->get( 'theme_switch' ) ) {
+			wp_enqueue_script(
+				'calculatorr-site',
+				CALCULATORR_URL . 'assets/js/site.js',
+				array(),
+				CALCULATORR_VERSION,
+				true
+			);
+		}
 	}
 
 	/**

@@ -1235,3 +1235,36 @@
 		min-height: 0 !important;
 	}
 }
+
+/* ------------------------------------------------------- waiting for input -- */
+
+/*
+ * The state a calculator opens in when the fields start blank. The panel keeps
+ * its full height so nothing jumps when the first answer arrives, and the dash
+ * is quietened so it reads as a placeholder rather than as a result of zero.
+ */
+.calcr--awaiting .calcr__primary-value {
+	color: var(--calcr-muted);
+	opacity: 0.55;
+}
+
+.calcr__note--prompt {
+	color: var(--calcr-muted);
+}
+
+.calcr__btn[disabled] {
+	opacity: 0.45;
+	cursor: not-allowed;
+}
+
+.calcr__btn[disabled]:hover {
+	background: inherit;
+	border-color: var(--calcr-line-strong);
+}
+
+/* A placeholder has to read as a hint rather than as a value somebody typed,
+   which the browser default does not manage on a tinted input. */
+.calcr-input__control::placeholder {
+	color: var(--calcr-muted);
+	opacity: 0.7;
+}

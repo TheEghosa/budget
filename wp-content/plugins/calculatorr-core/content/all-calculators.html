@@ -1,14 +1,27 @@
 <!-- wp:html -->
 <div class="ch-home" id="ch-home">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&amp;family=Source+Sans+3:wght@400;600&amp;display=swap">
-<style>.ch-home{--ch-paper:#FBFAF8;--ch-surface:#FFFFFF;--ch-ink:#14181D;--ch-muted:#5A6472;
- --ch-line:#E4E2DC;--ch-line-strong:#C9CDCB;--ch-sunken:#F1EFEA;--ch-teal:#0E6E63;
- --ch-teal-soft:#E8F2F0;--ch-amber:#B45E0C;
- --ch-display:'Space Grotesk',ui-sans-serif,system-ui,sans-serif;
- --ch-body:'Source Sans 3',ui-sans-serif,system-ui,sans-serif;
+<style>/* Every colour here is the plugin's token first and a literal second. The
+   token is what makes the page follow light and dark with the rest of the
+   site; the literal is only a floor for the case where the stylesheet has not
+   loaded, and it is never the value in normal use. Writing the literals as the
+   primary value is exactly what left this block stranded in light mode while
+   the chrome around it went dark. */
+.ch-home{--ch-paper:var(--calcr-paper,#FBFAF8);--ch-surface:var(--calcr-surface,#FFFFFF);
+ --ch-ink:var(--calcr-ink,#14181D);--ch-muted:var(--calcr-muted,#5A6472);
+ --ch-line:var(--calcr-line,#E4E2DC);--ch-line-strong:var(--calcr-line-strong,#C9CDCB);
+ --ch-sunken:var(--calcr-sunken,#F1EFEA);--ch-teal:var(--calcr-accent,#0E6E63);
+ --ch-teal-soft:var(--calcr-accent-soft,#E8F2F0);--ch-amber:var(--calcr-warn,#B45E0C);
+ --ch-shadow:var(--calcr-shadow,rgba(20,24,29,.13));
+ --ch-display:var(--calcr-font-display,'Space Grotesk',ui-sans-serif,system-ui,sans-serif);
+ --ch-body:var(--calcr-font-body,'Source Sans 3',ui-sans-serif,system-ui,sans-serif);
  font-family:var(--ch-body);color:var(--ch-ink);background:var(--ch-paper);
  margin:0 calc(50% - 50vw);width:100vw;max-width:100vw;box-sizing:border-box;overflow-x:clip;
  -webkit-font-smoothing:antialiased}
+/* The chrome stylesheet colours every heading inside .site-main from the ink
+   token. These headings are inside this block, so they take its ink, which is
+   the same token; stating it keeps the two from disagreeing if either moves. */
+.ch-home h1,.ch-home h2,.ch-home h3{color:var(--ch-ink)}
 .ch-home *,.ch-home *::before,.ch-home *::after{box-sizing:border-box}
 .ch-home a{color:var(--ch-teal);text-decoration:none}
 .ch-home a:hover{color:var(--ch-amber)}
@@ -34,16 +47,17 @@ body:has(.ch-home) .page-header{display:none}
 .ch-lede{margin:0;font-size:clamp(16px,2vw,19px);line-height:1.6;color:var(--ch-muted);max-width:620px}
 
 .ch-search{position:relative;width:min(640px,100%)}
-.ch-search__box{display:flex;align-items:center;gap:12px;min-height:60px;background:var(--ch-paper);
+.ch-search__box{display:flex;align-items:center;gap:12px;min-height:60px;background:var(--ch-paper);color:var(--ch-muted);
  border:1px solid var(--ch-line-strong);border-radius:12px;padding:8px 10px 8px 18px}
 .ch-search__box:focus-within{border-color:var(--ch-teal);box-shadow:0 0 0 3px rgba(14,110,99,.15)}
 .ch-search input{flex:1 1 auto;min-width:0;border:0;outline:0;background:transparent;
  font-family:var(--ch-body);font-size:17px;color:var(--ch-ink)}
-.ch-search button{min-height:44px;padding:0 20px;background:var(--ch-teal);color:#fff;border:0;
+.ch-search input::placeholder{color:var(--ch-muted);opacity:.75}
+.ch-search button{min-height:44px;padding:0 20px;background:var(--ch-teal);color:var(--calcr-accent-ink,#fff);border:0;
  border-radius:9px;font-family:var(--ch-display);font-size:15px;font-weight:600;cursor:pointer}
-.ch-search button:hover{background:#0B5C53}
+.ch-search button:hover{filter:brightness(.92)}
 .ch-results{position:absolute;z-index:40;top:calc(100% + 8px);left:0;right:0;background:var(--ch-surface);
- border:1px solid var(--ch-line);border-radius:12px;box-shadow:0 18px 40px rgba(20,24,29,.13);
+ border:1px solid var(--ch-line);border-radius:12px;box-shadow:0 18px 40px var(--ch-shadow);
  padding:6px;margin:0;list-style:none;text-align:left;max-height:340px;overflow:auto}
 .ch-results[hidden]{display:none}
 .ch-results a{display:block;padding:10px 12px;border-radius:8px;color:var(--ch-ink);font-size:15px}
@@ -67,8 +81,8 @@ body:has(.ch-home) .page-header{display:none}
 .ch-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:16px}
 .ch-card{background:var(--ch-surface);border:1px solid var(--ch-line);border-radius:13px;padding:20px;
  display:flex;flex-direction:column;gap:10px;min-height:128px;color:inherit}
-.ch-card:hover{border-color:var(--ch-teal);box-shadow:0 8px 22px rgba(20,24,29,.07);color:inherit}
-.ch-card__icon{width:38px;height:38px;border-radius:9px;background:var(--ch-teal-soft);display:flex;
+.ch-card:hover{border-color:var(--ch-teal);box-shadow:0 8px 22px var(--ch-shadow);color:inherit}
+.ch-card__icon{width:38px;height:38px;border-radius:9px;background:var(--ch-teal-soft);color:var(--ch-teal);display:flex;
  align-items:center;justify-content:center;flex:0 0 auto}
 .ch-card__name{font-family:var(--ch-display);font-size:16px;font-weight:600;line-height:1.3;color:var(--ch-ink)}
 .ch-card__blurb{flex:1 1 auto;font-size:13px;line-height:1.5;color:var(--ch-muted)}

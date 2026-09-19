@@ -78,6 +78,7 @@ body:not([class*="elementor-page-"]) .site-main,
 	width: auto;
 	max-width: min( 60vw, 260px );
 	object-fit: contain;
+	filter: var(--calcr-logo-filter);
 }
 
 .site-header .site-title {
@@ -156,7 +157,7 @@ body:not([class*="elementor-page-"]) .site-main,
 	background: var(--calcr-surface);
 	border: 1px solid var(--calcr-line);
 	border-radius: var(--calcr-radius-lg);
-	box-shadow: 0 18px 40px rgba( 20, 24, 29, 0.13 );
+	box-shadow: 0 18px 40px var(--calcr-shadow);
 }
 
 .site-header .site-navigation ul.menu li:hover > ul,
@@ -178,11 +179,11 @@ body:not([class*="elementor-page-"]) .site-main,
 /* --------------------------------------------------------------- footer -- */
 
 .site-footer.dynamic-footer {
-	background: var(--calcr-ink);
-	color: #C9CDCB;
+	background: var(--calcr-footer-bg);
+	color: var(--calcr-footer-ink);
 	margin-top: clamp( 40px, 6vw, 72px );
 	padding-block: clamp( 28px, 4vw, 40px );
-	border-top: 0;
+	border-top: 1px solid var(--calcr-footer-line);
 }
 
 .site-footer.dynamic-footer .footer-inner {
@@ -205,7 +206,7 @@ body:not([class*="elementor-page-"]) .site-main,
 	margin: 0;
 	font-size: 14px;
 	line-height: 1.6;
-	color: #C9CDCB;
+	color: var(--calcr-footer-ink);
 }
 
 .site-footer img.custom-logo {
@@ -218,7 +219,7 @@ body:not([class*="elementor-page-"]) .site-main,
 }
 
 .site-footer .site-title a {
-	color: #FFFFFF;
+	color: var(--calcr-footer-strong);
 	font-family: var(--calcr-font-display);
 	font-size: 21px;
 	font-weight: 700;
@@ -242,22 +243,22 @@ body:not([class*="elementor-page-"]) .site-main,
 .site-footer .site-navigation a {
 	font-size: 14px;
 	line-height: 1.45;
-	color: #C9CDCB;
+	color: var(--calcr-footer-ink);
 	text-decoration: none;
 }
 
 .site-footer .site-navigation a:hover,
 .site-footer .site-navigation a:focus-visible {
-	color: #FFFFFF;
+	color: var(--calcr-footer-strong);
 	text-decoration: underline;
 }
 
 .site-footer .copyright {
 	margin: 0;
 	padding-top: 18px;
-	border-top: 1px solid rgba( 255, 255, 255, 0.12 );
+	border-top: 1px solid var(--calcr-footer-line);
 	font-size: 13px;
-	color: #8D96A0;
+	color: var(--calcr-footer-quiet);
 }
 
 .site-footer .copyright p {
@@ -317,4 +318,123 @@ body:not([class*="elementor-page-"]) .site-main,
 	color: var(--calcr-ink);
 	border-radius: var(--calcr-radius);
 	box-shadow: 0 0 0 3px var(--calcr-accent);
+}
+
+/* ------------------------------------------------------------ link rules -- */
+
+/*
+ * Hello Elementor underlines every link inside .page-content, and that rule is
+ * specific enough to beat the card styles in calculator.css, which is why the
+ * category cards arrive with their titles and blurbs underlined. Cards, chips
+ * and navigation are not prose, so the underline comes off them. It stays on
+ * genuine prose links, because inside a paragraph a link needs to be
+ * distinguishable by more than colour alone.
+ */
+.page-content .calcr-page a,
+.page-content .calcr a,
+.page-content .ch-home a,
+.page-content .calcr-hub a,
+.page-content .calcr-breadcrumb a,
+.page-content .calcr-related a,
+.page-content .calcr-popular a,
+.page-content .calcr-house a,
+.page-content .calcr-toc a {
+	text-decoration: none;
+}
+
+.page-content .calcr-page a:hover,
+.page-content .calcr-hub a:hover,
+.page-content .ch-home a:hover {
+	text-decoration: none;
+}
+
+.page-content .calcr-explainer p a,
+.page-content .calcr-faqs p a,
+.page-content .calcr-sources a {
+	text-decoration: underline;
+	text-underline-offset: 2px;
+}
+
+/* ---------------------------------------------------------- theme switch -- */
+
+/*
+ * Sits at the end of the header navigation. It is a real button in the menu
+ * list rather than something JavaScript injects after load, so it cannot
+ * arrive late, shift the header, or vanish when the markup changes.
+ */
+.calcr-theme-switch {
+	display: flex;
+	align-items: center;
+	margin-inline-start: auto;
+}
+
+.calcr-theme-switch__btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 7px;
+	min-height: 38px;
+	padding: 0 12px;
+	background: var(--calcr-sunken);
+	color: var(--calcr-ink);
+	border: 1px solid var(--calcr-line);
+	border-radius: 19px;
+	font-family: var(--calcr-font-body);
+	font-size: 14px;
+	font-weight: 600;
+	line-height: 1;
+	cursor: pointer;
+}
+
+.calcr-theme-switch__btn:hover {
+	border-color: var(--calcr-accent);
+	color: var(--calcr-accent);
+}
+
+.calcr-theme-switch__btn:focus-visible {
+	outline: 2px solid var(--calcr-accent);
+	outline-offset: 2px;
+}
+
+.calcr-theme-switch__btn svg {
+	width: 16px;
+	height: 16px;
+	flex: 0 0 auto;
+}
+
+/* One button, two icons: whichever mode is active hides its own icon and
+   shows the one describing where the button will take you. */
+.calcr-theme-switch__btn .calcr-icon--moon { display: inline-block; }
+.calcr-theme-switch__btn .calcr-icon--sun  { display: none; }
+
+:root[data-calcr-theme="dark"] .calcr-theme-switch__btn .calcr-icon--moon,
+.calcr-theme-switch__btn[aria-pressed="true"] .calcr-icon--moon { display: none; }
+
+:root[data-calcr-theme="dark"] .calcr-theme-switch__btn .calcr-icon--sun,
+.calcr-theme-switch__btn[aria-pressed="true"] .calcr-icon--sun { display: inline-block; }
+
+@media ( prefers-color-scheme: dark ) {
+	:root:not([data-calcr-theme="light"]) .calcr-theme-switch__btn .calcr-icon--moon { display: none; }
+	:root:not([data-calcr-theme="light"]) .calcr-theme-switch__btn .calcr-icon--sun { display: inline-block; }
+}
+
+/* The label is for the widest screens only; below that the icon carries it,
+   and the accessible name lives on the button itself either way. */
+.calcr-theme-switch__label {
+	display: none;
+}
+
+@media ( min-width: 1100px ) {
+	.calcr-theme-switch__label {
+		display: inline;
+	}
+}
+
+/* Nothing should flash the wrong palette while the stylesheet loads, so the
+   colour scheme is declared to the browser as well as painted. */
+:root { color-scheme: light; }
+:root[data-calcr-theme="dark"] { color-scheme: dark; }
+
+@media ( prefers-color-scheme: dark ) {
+	:root:not([data-calcr-theme="light"]) { color-scheme: dark; }
 }

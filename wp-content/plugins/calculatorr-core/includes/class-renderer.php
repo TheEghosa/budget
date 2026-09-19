@@ -295,9 +295,20 @@ class Calculatorr_Renderer {
 		$slug = $config['slug'];
 		$result = isset( $config['default_result'] ) ? $config['default_result'] : array();
 
+		/*
+		 * With empty start on, the fields open blank, so the panel has nothing
+		 * to report yet and says so rather than showing a worked example the
+		 * visitor did not ask for and would have to clear. The prompt is
+		 * rendered on the server, not written in by script, so the panel is
+		 * never briefly wrong while JavaScript loads.
+		 */
+		$empty_start = (bool) Calculatorr_Settings::instance()->get( 'empty_start' );
+		$prompt      = 'Fill in the fields above and your answer appears here.';
+		$shown       = $empty_start ? array( 'label' => isset( $result['label'] ) ? $result['label'] : 'Result' ) : $result;
+
 		ob_start();
 		?>
-		<div class="calcr" data-calcr-slug="<?php echo esc_attr( $slug ); ?>">
+		<div class="calcr<?php echo $empty_start ? ' calcr--awaiting' : ''; ?>" data-calcr-slug="<?php echo esc_attr( $slug ); ?>"<?php echo $empty_start ? ' data-calcr-empty-start="1" data-calcr-prompt="' . esc_attr( $prompt ) . '"' : ''; ?>>
 			<form class="calcr__form" novalidate>
 				<?php
 				foreach ( $config['fields'] as $field ) {
@@ -310,14 +321,14 @@ class Calculatorr_Renderer {
 						Reset
 					</button>
 
-					<button type="button" class="calcr__btn calcr__btn--ghost" data-calcr-copy>
+					<button type="button" class="calcr__btn calcr__btn--ghost" data-calcr-copy<?php echo $empty_start ? ' disabled' : ''; ?>>
 						<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="9" y="9" width="12" height="12" rx="2"></rect><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"></path></svg>
 						<span data-calcr-copy-label>Copy result</span>
 					</button>
 
 					<?php if ( Calculatorr_Settings::instance()->get( 'share_enabled' ) ) : ?>
 					<div class="calcr__share">
-						<button type="button" class="calcr__btn calcr__btn--primary" data-calcr-share-toggle aria-expanded="false" aria-haspopup="true">
+						<button type="button" class="calcr__btn calcr__btn--primary" data-calcr-share-toggle aria-expanded="false" aria-haspopup="true"<?php echo $empty_start ? ' disabled' : ''; ?>>
 							<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.6" y1="10.5" x2="15.4" y2="6.5"></line><line x1="8.6" y1="13.5" x2="15.4" y2="17.5"></line></svg>
 							Share
 						</button>
@@ -361,15 +372,15 @@ class Calculatorr_Renderer {
 
 			<output class="calcr__result" data-calcr-result>
 				<div class="calcr__primary">
-					<span class="calcr__primary-label" data-calcr-primary-label><?php echo esc_html( isset( $result['label'] ) ? $result['label'] : 'Result' ); ?></span>
-					<span class="calcr__primary-value" data-calcr-primary-value><?php echo esc_html( isset( $result['value'] ) ? $result['value'] : '—' ); ?></span>
+					<span class="calcr__primary-label" data-calcr-primary-label><?php echo esc_html( isset( $shown['label'] ) ? $shown['label'] : 'Result' ); ?></span>
+					<span class="calcr__primary-value" data-calcr-primary-value><?php echo esc_html( isset( $shown['value'] ) ? $shown['value'] : '—' ); ?></span>
 				</div>
 
 				<div class="calcr__bar" data-calcr-bar hidden></div>
 
 				<ul class="calcr__rows" data-calcr-rows>
-					<?php if ( ! empty( $result['rows'] ) ) : ?>
-						<?php foreach ( $result['rows'] as $row ) : ?>
+					<?php if ( ! empty( $shown['rows'] ) ) : ?>
+						<?php foreach ( $shown['rows'] as $row ) : ?>
 							<li class="calcr__row">
 								<span class="calcr__row-label"><?php echo esc_html( $row['label'] ); ?></span>
 								<span class="calcr__row-value"><?php echo esc_html( $row['value'] ); ?></span>
@@ -378,7 +389,8 @@ class Calculatorr_Renderer {
 					<?php endif; ?>
 				</ul>
 
-				<p class="calcr__note" data-calcr-note<?php echo empty( $result['note'] ) ? ' hidden' : ''; ?>><?php echo esc_html( isset( $result['note'] ) ? $result['note'] : '' ); ?></p>
+				<?php $note = $empty_start ? $prompt : ( isset( $shown['note'] ) ? $shown['note'] : '' ); ?>
+				<p class="calcr__note<?php echo $empty_start ? ' calcr__note--prompt' : ''; ?>" data-calcr-note<?php echo '' === $note ? ' hidden' : ''; ?>><?php echo esc_html( $note ); ?></p>
 			</output>
 
 			<?php if ( ! empty( $config['disclaimer'] ) ) : ?>
@@ -390,8 +402,8 @@ class Calculatorr_Renderer {
 			         changed. Hidden from assistive tech because it duplicates the
 			         result panel, which is already announced. */ ?>
 			<div class="calcr__sticky" data-calcr-sticky hidden aria-hidden="true">
-				<span class="calcr__sticky-label" data-calcr-sticky-label><?php echo esc_html( isset( $result['label'] ) ? $result['label'] : 'Result' ); ?></span>
-				<span class="calcr__sticky-value" data-calcr-sticky-value><?php echo esc_html( isset( $result['value'] ) ? $result['value'] : '' ); ?></span>
+				<span class="calcr__sticky-label" data-calcr-sticky-label><?php echo esc_html( isset( $shown['label'] ) ? $shown['label'] : 'Result' ); ?></span>
+				<span class="calcr__sticky-value" data-calcr-sticky-value><?php echo esc_html( isset( $shown['value'] ) ? $shown['value'] : '' ); ?></span>
 			</div>
 		</div>
 		<?php
@@ -413,11 +425,35 @@ class Calculatorr_Renderer {
 				'step'    => 'any',
 				'min'     => null,
 				'max'     => null,
+				'optional' => null,
 				'show_when' => array(),
 			)
 		);
 
 		$input_id = 'calcr-' . $slug . '-' . $field['id'];
+
+		/*
+		 * With empty start switched on, a field opens blank and shows its usual
+		 * figure as a placeholder, so nobody has to clear somebody else's
+		 * numbers before entering their own.
+		 *
+		 * The runtime then needs to know which blanks it is allowed to treat as
+		 * nothing. A config can say so outright, and where it does not, a
+		 * default of zero or nothing is taken as the config author saying this
+		 * one can be left alone: a waste allowance, an extra discount, a count
+		 * of holidays. Anything with a real figure behind it is the visitor's
+		 * to supply before an answer means anything.
+		 */
+		$empty_start = (bool) Calculatorr_Settings::instance()->get( 'empty_start' );
+		$optional    = null === $field['optional']
+			? in_array( (string) $field['default'], array( '', '0' ), true )
+			: (bool) $field['optional'];
+
+		$starts_blank = $empty_start && in_array( $field['type'], array( 'number', 'text', 'date' ), true );
+		$placeholder  = ( $starts_blank && '' !== (string) $field['default'] )
+			? ' placeholder="' . esc_attr( $field['default'] ) . '"'
+			: '';
+		$required     = ( $starts_blank && ! $optional ) ? ' data-calcr-required="1"' : '';
 
 		/* A field can declare which other field values it belongs to, so the
 		   imperial inputs stay out of the way while metric is selected rather
@@ -489,8 +525,8 @@ class Calculatorr_Renderer {
 					id="<?php echo esc_attr( $input_id ); ?>"
 					type="<?php echo esc_attr( $type ); ?>"
 					class="calcr-input__control"
-					value="<?php echo esc_attr( $field['default'] ); ?>"
-					data-calcr-input="<?php echo esc_attr( $field['id'] ); ?>"
+					value="<?php echo $starts_blank ? '' : esc_attr( $field['default'] ); ?>"
+					data-calcr-input="<?php echo esc_attr( $field['id'] ); ?>"<?php echo $placeholder . $required; ?>
 					<?php echo ( 'number' === $type ) ? ' inputmode="decimal" step="' . esc_attr( $field['step'] ) . '"' : ''; ?>
 					<?php echo ( null !== $field['min'] ) ? ' min="' . esc_attr( $field['min'] ) . '"' : ''; ?>
 					<?php echo ( null !== $field['max'] ) ? ' max="' . esc_attr( $field['max'] ) . '"' : ''; ?>>
@@ -503,6 +539,10 @@ class Calculatorr_Renderer {
 	}
 
 	private function render_repeater_row( $field, $index ) {
+		/* A repeater row is entirely the visitor's data, so it follows the same
+		   rule as a single field: blank, with the usual figure as a hint. */
+		$blank = (bool) Calculatorr_Settings::instance()->get( 'empty_start' );
+
 		ob_start();
 		?>
 		<div class="calcr-rep__row" data-calcr-rep-row>
@@ -516,7 +556,8 @@ class Calculatorr_Renderer {
 				<?php else : ?>
 					<div class="calcr-input">
 						<input type="<?php echo esc_attr( $cell['type'] ); ?>" class="calcr-input__control"
-							value="<?php echo esc_attr( $cell['default'] ); ?>"
+							value="<?php echo $blank ? '' : esc_attr( $cell['default'] ); ?>"
+							<?php echo ( $blank && '' !== (string) $cell['default'] ) ? ' placeholder="' . esc_attr( $cell['default'] ) . '"' : ''; ?>
 							data-calcr-rep-cell="<?php echo esc_attr( $cell['id'] ); ?>"
 							aria-label="<?php echo esc_attr( $cell['label'] ); ?>"
 							<?php echo ( 'number' === $cell['type'] ) ? ' inputmode="decimal" step="any"' : ''; ?>>

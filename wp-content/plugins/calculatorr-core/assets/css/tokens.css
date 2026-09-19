@@ -29,6 +29,23 @@
 
 	--calcr-neutral-mark: #7C8A99;
 
+	/*
+	 * The footer band and the header wordmark are the two places a colour
+	 * cannot simply follow the palette. The footer is dark by design in light
+	 * mode, so painting it with --calcr-ink turns it white the moment the dark
+	 * palette loads. The wordmark is dark ink on a transparent background, so
+	 * it needs inverting wherever it sits on a dark surface. Both get their own
+	 * token rather than a value written into a rule, because a value in a rule
+	 * is exactly what fell out of step.
+	 */
+	--calcr-footer-bg: #14181D;
+	--calcr-footer-ink: #C9CDCB;
+	--calcr-footer-strong: #FFFFFF;
+	--calcr-footer-quiet: #8D96A0;
+	--calcr-footer-line: rgba( 255, 255, 255, 0.12 );
+	--calcr-logo-filter: none;
+	--calcr-shadow: rgba( 20, 24, 29, 0.13 );
+
 	--calcr-font-display: 'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
 	--calcr-font-body: 'Source Sans 3', ui-sans-serif, system-ui, sans-serif;
 
@@ -73,6 +90,16 @@
 		--calcr-warn-soft: #2E2418;
 		--calcr-warn-line: #4A3A22;
 		--calcr-warn-ink: #EBCFA6;
+
+		/* Deeper than --calcr-paper, so the footer still reads as a band
+		   rather than merging into the end of the page. */
+		--calcr-footer-bg: #0E1116;
+		--calcr-footer-ink: #9BA5B0;
+		--calcr-footer-strong: #F2F4F5;
+		--calcr-footer-quiet: #6F7A86;
+		--calcr-footer-line: rgba( 255, 255, 255, 0.09 );
+		--calcr-logo-filter: invert( 1 ) hue-rotate( 180deg );
+		--calcr-shadow: rgba( 0, 0, 0, 0.45 );
 	}
 }
 
@@ -95,4 +122,14 @@
 	--calcr-warn-soft: #2E2418;
 	--calcr-warn-line: #4A3A22;
 	--calcr-warn-ink: #EBCFA6;
+
+	/* Deeper than --calcr-paper, so the footer still reads as a band
+	   rather than merging into the end of the page. */
+	--calcr-footer-bg: #0E1116;
+	--calcr-footer-ink: #9BA5B0;
+	--calcr-footer-strong: #F2F4F5;
+	--calcr-footer-quiet: #6F7A86;
+	--calcr-footer-line: rgba( 255, 255, 255, 0.09 );
+	--calcr-logo-filter: invert( 1 ) hue-rotate( 180deg );
+	--calcr-shadow: rgba( 0, 0, 0, 0.45 );
 }

@@ -493,6 +493,8 @@ class Calculatorr_Admin {
 			'share_enabled'  => array( 'Show the share button', 'The share panel with the rendered snapshot, the X post and the copyable link.' ),
 			'load_fonts'     => array( 'Load Space Grotesk and Source Sans 3', 'Turn off if your theme already loads them or if you self-host, which is faster and better for privacy.' ),
 			'site_chrome' => array( 'Style the theme header and footer', 'Loads one small stylesheet on every page so the site header, navigation and footer carry the calculatorr design. Turn it off if you build the header and footer yourself.' ),
+			'theme_switch' => array( 'Offer a light and dark switch', 'Adds a control to the end of the header menu so a visitor can choose, and remembers the choice. With this off the palette still follows the visitor\'s system setting, they just cannot override it.' ),
+			'empty_start' => array( 'Start calculators empty', 'Fields open blank with the usual figure shown as a placeholder, so nobody has to clear somebody else\'s numbers before entering their own. Turn it off to prefill every field with a worked example instead.' ),
 			'render_heading' => array( 'Print the heading and intro', 'Most themes already output the page title as the H1, so this is off by default to avoid two of them. Turn it on if your theme does not, or if the theme heading does not match the calculator title.' ),
 			'log_enabled'    => array( 'Collect errors', 'Records JavaScript errors reported by visitors and PHP problems inside the plugin. Worth leaving on: a formula that breaks on a phone leaves no trace on the server otherwise.' ),
 		);
@@ -634,7 +636,7 @@ class Calculatorr_Admin {
 			$this->finish( 'Advertising saved.', 'ads' );
 		}
 
-		foreach ( array( 'seo_enabled', 'schema_enabled', 'share_enabled', 'site_chrome', 'load_fonts', 'log_enabled', 'render_heading' ) as $flag ) {
+		foreach ( array( 'seo_enabled', 'schema_enabled', 'share_enabled', 'site_chrome', 'theme_switch', 'empty_start', 'load_fonts', 'log_enabled', 'render_heading' ) as $flag ) {
 			$values[ $flag ] = isset( $_POST[ $flag ] ) ? 1 : 0;
 		}
 		$values['log_limit'] = isset( $_POST['log_limit'] ) ? (int) $_POST['log_limit'] : 200;

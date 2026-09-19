@@ -4,7 +4,7 @@ Tags: calculator, tools, seo, elementor
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 1.1.0
+Stable tag: 1.2.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -65,6 +65,13 @@ In the visitor's browser. Nothing is sent to the server, so salaries, weights
 and health measurements never leave the device.
 
 == Changelog ==
+
+= 1.2.0 =
+* One palette across the whole site. The homepage carried its own light colours while the chrome followed the theme, so in dark mode the headings went white on white and the footer band turned into a white slab.
+* A light and dark switch in the header, remembered between visits, with the system setting still the starting point for anyone who never touches it.
+* Calculators open blank with the usual figure as a placeholder, so nobody has to clear somebody else's numbers first. The result panel says what to do until there is something to show, and copying and sharing stay switched off until then.
+* The header wordmark inverts in dark mode rather than disappearing into the header.
+* Category cards no longer inherit the theme's underline on every link.
 
 = 1.1.0 =
 * The site header, navigation and footer now carry the calculatorr design, so the pages no longer sit inside an unstyled theme shell.

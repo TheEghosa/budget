@@ -297,6 +297,76 @@
 		} );
 	}
 
+	/**
+	 * Whether enough has been typed for an answer to mean anything.
+	 *
+	 * Only fields marked required on the server count, and only while they are
+	 * on screen, because a metric height is not missing when the imperial
+	 * inputs are the ones showing. Optional fields stay out of it, so a waste
+	 * allowance left blank does not hold the whole result back.
+	 */
+	function isReady( root ) {
+		if ( ! root.hasAttribute( 'data-calcr-empty-start' ) ) {
+			return true;
+		}
+
+		var ready = true;
+
+		root.querySelectorAll( '[data-calcr-required]' ).forEach( function ( el ) {
+			var field = el.closest ? el.closest( '[data-calcr-when]' ) : null;
+
+			if ( field && field.hidden ) {
+				return;
+			}
+
+			if ( '' === String( el.value ).trim() ) {
+				ready = false;
+			}
+		} );
+
+		return ready;
+	}
+
+	/**
+	 * The panel before anything has been entered: the label it will carry, a
+	 * dash where the number goes, and one line saying what to do. Copying or
+	 * sharing is switched off until there is something to copy or share.
+	 */
+	function awaitInput( root ) {
+		var label = root.querySelector( '[data-calcr-primary-label]' );
+
+		paint( root, {
+			label: label ? label.textContent : 'Result',
+			value: '—',
+			rows: [],
+			bar: [],
+			note: root.getAttribute( 'data-calcr-prompt' ) || ''
+		} );
+
+		root.__calcrResult = null;
+		root.classList.add( 'calcr--awaiting' );
+		setResultActionsEnabled( root, false );
+	}
+
+	function setResultActionsEnabled( root, enabled ) {
+		root.querySelectorAll( '[data-calcr-copy], [data-calcr-share-toggle]' ).forEach( function ( button ) {
+			button.disabled = ! enabled;
+		} );
+
+		if ( ! enabled ) {
+			var panel = root.querySelector( '[data-calcr-share-panel]' );
+			var toggle = root.querySelector( '[data-calcr-share-toggle]' );
+
+			if ( panel ) {
+				panel.hidden = true;
+			}
+
+			if ( toggle ) {
+				toggle.setAttribute( 'aria-expanded', 'false' );
+			}
+		}
+	}
+
 	function recalculate( root ) {
 		applyVisibility( root );
 
@@ -306,6 +376,14 @@
 		if ( typeof formula !== 'function' ) {
 			return;
 		}
+
+		if ( ! isReady( root ) ) {
+			awaitInput( root );
+			return;
+		}
+
+		root.classList.remove( 'calcr--awaiting' );
+		setResultActionsEnabled( root, true );
 
 		try {
 			paint( root, formula( gather( root ) ) );

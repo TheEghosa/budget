@@ -1,14 +1,27 @@
 <!-- wp:html -->
 <div class="ch-home" id="ch-home">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&amp;family=Source+Sans+3:wght@400;600&amp;display=swap">
-<style>.ch-home{--ch-paper:#FBFAF8;--ch-surface:#FFFFFF;--ch-ink:#14181D;--ch-muted:#5A6472;
- --ch-line:#E4E2DC;--ch-line-strong:#C9CDCB;--ch-sunken:#F1EFEA;--ch-teal:#0E6E63;
- --ch-teal-soft:#E8F2F0;--ch-amber:#B45E0C;
- --ch-display:'Space Grotesk',ui-sans-serif,system-ui,sans-serif;
- --ch-body:'Source Sans 3',ui-sans-serif,system-ui,sans-serif;
+<style>/* Every colour here is the plugin's token first and a literal second. The
+   token is what makes the page follow light and dark with the rest of the
+   site; the literal is only a floor for the case where the stylesheet has not
+   loaded, and it is never the value in normal use. Writing the literals as the
+   primary value is exactly what left this block stranded in light mode while
+   the chrome around it went dark. */
+.ch-home{--ch-paper:var(--calcr-paper,#FBFAF8);--ch-surface:var(--calcr-surface,#FFFFFF);
+ --ch-ink:var(--calcr-ink,#14181D);--ch-muted:var(--calcr-muted,#5A6472);
+ --ch-line:var(--calcr-line,#E4E2DC);--ch-line-strong:var(--calcr-line-strong,#C9CDCB);
+ --ch-sunken:var(--calcr-sunken,#F1EFEA);--ch-teal:var(--calcr-accent,#0E6E63);
+ --ch-teal-soft:var(--calcr-accent-soft,#E8F2F0);--ch-amber:var(--calcr-warn,#B45E0C);
+ --ch-shadow:var(--calcr-shadow,rgba(20,24,29,.13));
+ --ch-display:var(--calcr-font-display,'Space Grotesk',ui-sans-serif,system-ui,sans-serif);
+ --ch-body:var(--calcr-font-body,'Source Sans 3',ui-sans-serif,system-ui,sans-serif);
  font-family:var(--ch-body);color:var(--ch-ink);background:var(--ch-paper);
  margin:0 calc(50% - 50vw);width:100vw;max-width:100vw;box-sizing:border-box;overflow-x:clip;
  -webkit-font-smoothing:antialiased}
+/* The chrome stylesheet colours every heading inside .site-main from the ink
+   token. These headings are inside this block, so they take its ink, which is
+   the same token; stating it keeps the two from disagreeing if either moves. */
+.ch-home h1,.ch-home h2,.ch-home h3{color:var(--ch-ink)}
 .ch-home *,.ch-home *::before,.ch-home *::after{box-sizing:border-box}
 .ch-home a{color:var(--ch-teal);text-decoration:none}
 .ch-home a:hover{color:var(--ch-amber)}
@@ -34,16 +47,17 @@ body:has(.ch-home) .page-header{display:none}
 .ch-lede{margin:0;font-size:clamp(16px,2vw,19px);line-height:1.6;color:var(--ch-muted);max-width:620px}
 
 .ch-search{position:relative;width:min(640px,100%)}
-.ch-search__box{display:flex;align-items:center;gap:12px;min-height:60px;background:var(--ch-paper);
+.ch-search__box{display:flex;align-items:center;gap:12px;min-height:60px;background:var(--ch-paper);color:var(--ch-muted);
  border:1px solid var(--ch-line-strong);border-radius:12px;padding:8px 10px 8px 18px}
 .ch-search__box:focus-within{border-color:var(--ch-teal);box-shadow:0 0 0 3px rgba(14,110,99,.15)}
 .ch-search input{flex:1 1 auto;min-width:0;border:0;outline:0;background:transparent;
  font-family:var(--ch-body);font-size:17px;color:var(--ch-ink)}
-.ch-search button{min-height:44px;padding:0 20px;background:var(--ch-teal);color:#fff;border:0;
+.ch-search input::placeholder{color:var(--ch-muted);opacity:.75}
+.ch-search button{min-height:44px;padding:0 20px;background:var(--ch-teal);color:var(--calcr-accent-ink,#fff);border:0;
  border-radius:9px;font-family:var(--ch-display);font-size:15px;font-weight:600;cursor:pointer}
-.ch-search button:hover{background:#0B5C53}
+.ch-search button:hover{filter:brightness(.92)}
 .ch-results{position:absolute;z-index:40;top:calc(100% + 8px);left:0;right:0;background:var(--ch-surface);
- border:1px solid var(--ch-line);border-radius:12px;box-shadow:0 18px 40px rgba(20,24,29,.13);
+ border:1px solid var(--ch-line);border-radius:12px;box-shadow:0 18px 40px var(--ch-shadow);
  padding:6px;margin:0;list-style:none;text-align:left;max-height:340px;overflow:auto}
 .ch-results[hidden]{display:none}
 .ch-results a{display:block;padding:10px 12px;border-radius:8px;color:var(--ch-ink);font-size:15px}
@@ -67,8 +81,8 @@ body:has(.ch-home) .page-header{display:none}
 .ch-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:16px}
 .ch-card{background:var(--ch-surface);border:1px solid var(--ch-line);border-radius:13px;padding:20px;
  display:flex;flex-direction:column;gap:10px;min-height:128px;color:inherit}
-.ch-card:hover{border-color:var(--ch-teal);box-shadow:0 8px 22px rgba(20,24,29,.07);color:inherit}
-.ch-card__icon{width:38px;height:38px;border-radius:9px;background:var(--ch-teal-soft);display:flex;
+.ch-card:hover{border-color:var(--ch-teal);box-shadow:0 8px 22px var(--ch-shadow);color:inherit}
+.ch-card__icon{width:38px;height:38px;border-radius:9px;background:var(--ch-teal-soft);color:var(--ch-teal);display:flex;
  align-items:center;justify-content:center;flex:0 0 auto}
 .ch-card__name{font-family:var(--ch-display);font-size:16px;font-weight:600;line-height:1.3;color:var(--ch-ink)}
 .ch-card__blurb{flex:1 1 auto;font-size:13px;line-height:1.5;color:var(--ch-muted)}
@@ -105,22 +119,22 @@ body:has(.ch-home) .page-header{display:none}
 <p class="ch-eyebrow">105 tools, ten use cases, no sign-up</p>
 <h1>A calculator for everything in life</h1>
 <p class="ch-lede">Mortgages, macros, percentages, paint. Type your numbers in and read the answer, because working it out yourself was never the interesting part.</p>
-<form class="ch-search" id="ch-form" role="search" autocomplete="off"><div class="ch-search__box"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#5A6472" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><line x1="16.5" y1="16.5" x2="21" y2="21"></line></svg><label class="screen-reader-text" for="ch-q" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Search calculators</label><input id="ch-q" type="search" placeholder="Try mortgage, BMI, percentage, tip"><button type="submit">Search</button></div><ul class="ch-results" id="ch-results" hidden></ul></form>
+<form class="ch-search" id="ch-form" role="search" autocomplete="off"><div class="ch-search__box"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><line x1="16.5" y1="16.5" x2="21" y2="21"></line></svg><label class="screen-reader-text" for="ch-q" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Search calculators</label><input id="ch-q" type="search" placeholder="Try mortgage, BMI, percentage, tip"><button type="submit">Search</button></div><ul class="ch-results" id="ch-results" hidden></ul></form>
 <div class="ch-chips"><span>Most used today</span><a class="ch-chip" href="/math-calculators-online/percentage-calculator/">Percentage</a><a class="ch-chip" href="/loan-calculators-online/mortgage-payment-calculator/">Mortgage</a><a class="ch-chip" href="/health-calculators-online/bmi-calculator/">BMI</a><a class="ch-chip" href="/time-and-date-calculators-online/age-calculator/">Age</a><a class="ch-chip" href="/business-calculators-online/tip-calculator/">Tip</a><a class="ch-chip" href="/financial-calculators-online/compound-interest-calculator/">Compound interest</a></div>
 </div></div></section>
 <section class="ch-section"><div class="ch-wrap">
 <div class="ch-section__head"><div><h2>Browse by use case</h2><p>Ten categories, organised the way people actually search.</p></div></div>
 <div class="ch-grid">
-<a class="ch-card" href="/financial-calculators-online/"><span class="ch-card__icon"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#0E6E63" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2v20M17 6H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg></span><span class="ch-card__name">Financial Calculators</span><span class="ch-card__blurb">Savings, interest, retirement and take-home pay</span><span class="ch-card__count">9 calculators</span></a>
-<a class="ch-card" href="/loan-calculators-online/"><span class="ch-card__icon"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#0E6E63" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10l9-7 9 7v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"></path></svg></span><span class="ch-card__name">Loan Calculators</span><span class="ch-card__blurb">Repayments, affordability and payoff plans</span><span class="ch-card__count">6 calculators</span></a>
-<a class="ch-card" href="/health-calculators-online/"><span class="ch-card__icon"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#0E6E63" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.8 5.6a5 5 0 0 0-7.1 0L12 7.3l-1.7-1.7a5 5 0 0 0-7.1 7.1L12 21l8.8-8.3a5 5 0 0 0 0-7.1z"></path></svg></span><span class="ch-card__name">Health &amp; Body Calculators</span><span class="ch-card__blurb">BMI, calories, macros and training zones</span><span class="ch-card__count">13 calculators</span></a>
-<a class="ch-card" href="/math-calculators-online/"><span class="ch-card__icon"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#0E6E63" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 5L5 19M7.5 8a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5zM17 21a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5z"></path></svg></span><span class="ch-card__name">Math Calculators</span><span class="ch-card__blurb">Percentages, fractions, averages and solvers</span><span class="ch-card__count">22 calculators</span></a>
-<a class="ch-card" href="/geometry-calculators-online/"><span class="ch-card__icon"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#0E6E63" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l9 16H3z"></path></svg></span><span class="ch-card__name">Geometry Calculators</span><span class="ch-card__blurb">Area, volume, triangles and surface area</span><span class="ch-card__count">9 calculators</span></a>
-<a class="ch-card" href="/unit-conversion-calculators-online/"><span class="ch-card__icon"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#0E6E63" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h15m0 0l-4-4m4 4l-4 4M20 16H5m0 0l4 4m-4-4l4-4"></path></svg></span><span class="ch-card__name">Unit Conversion Calculators</span><span class="ch-card__blurb">Length, weight, temperature and cooking</span><span class="ch-card__count">7 calculators</span></a>
-<a class="ch-card" href="/business-calculators-online/"><span class="ch-card__icon"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#0E6E63" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"></path></svg></span><span class="ch-card__name">Business &amp; Shopping Calculators</span><span class="ch-card__blurb">Margin, markup, break-even, tax and tips</span><span class="ch-card__count">10 calculators</span></a>
-<a class="ch-card" href="/construction-calculators-online/"><span class="ch-card__icon"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#0E6E63" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 6l4 4L8 20H4v-4zM13 7l4 4"></path></svg></span><span class="ch-card__name">Construction &amp; DIY Calculators</span><span class="ch-card__blurb">Paint, flooring, concrete, roofing and fencing</span><span class="ch-card__count">13 calculators</span></a>
-<a class="ch-card" href="/time-and-date-calculators-online/"><span class="ch-card__icon"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#0E6E63" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 7v5l3 2"></path></svg></span><span class="ch-card__name">Time &amp; Date Calculators</span><span class="ch-card__blurb">Age, durations, business days and time zones</span><span class="ch-card__count">12 calculators</span></a>
-<a class="ch-card" href="/grade-calculators-online/"><span class="ch-card__icon"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#0E6E63" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 9L12 4 2 9l10 5zM6 12v5c0 1.5 2.7 3 6 3s6-1.5 6-3v-5"></path></svg></span><span class="ch-card__name">Grade &amp; Study Calculators</span><span class="ch-card__blurb">GPA, grades, reading time and word counts</span><span class="ch-card__count">4 calculators</span></a>
+<a class="ch-card" href="/financial-calculators-online/"><span class="ch-card__icon"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2v20M17 6H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg></span><span class="ch-card__name">Financial Calculators</span><span class="ch-card__blurb">Savings, interest, retirement and take-home pay</span><span class="ch-card__count">9 calculators</span></a>
+<a class="ch-card" href="/loan-calculators-online/"><span class="ch-card__icon"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10l9-7 9 7v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"></path></svg></span><span class="ch-card__name">Loan Calculators</span><span class="ch-card__blurb">Repayments, affordability and payoff plans</span><span class="ch-card__count">6 calculators</span></a>
+<a class="ch-card" href="/health-calculators-online/"><span class="ch-card__icon"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.8 5.6a5 5 0 0 0-7.1 0L12 7.3l-1.7-1.7a5 5 0 0 0-7.1 7.1L12 21l8.8-8.3a5 5 0 0 0 0-7.1z"></path></svg></span><span class="ch-card__name">Health &amp; Body Calculators</span><span class="ch-card__blurb">BMI, calories, macros and training zones</span><span class="ch-card__count">13 calculators</span></a>
+<a class="ch-card" href="/math-calculators-online/"><span class="ch-card__icon"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 5L5 19M7.5 8a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5zM17 21a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5z"></path></svg></span><span class="ch-card__name">Math Calculators</span><span class="ch-card__blurb">Percentages, fractions, averages and solvers</span><span class="ch-card__count">22 calculators</span></a>
+<a class="ch-card" href="/geometry-calculators-online/"><span class="ch-card__icon"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l9 16H3z"></path></svg></span><span class="ch-card__name">Geometry Calculators</span><span class="ch-card__blurb">Area, volume, triangles and surface area</span><span class="ch-card__count">9 calculators</span></a>
+<a class="ch-card" href="/unit-conversion-calculators-online/"><span class="ch-card__icon"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h15m0 0l-4-4m4 4l-4 4M20 16H5m0 0l4 4m-4-4l4-4"></path></svg></span><span class="ch-card__name">Unit Conversion Calculators</span><span class="ch-card__blurb">Length, weight, temperature and cooking</span><span class="ch-card__count">7 calculators</span></a>
+<a class="ch-card" href="/business-calculators-online/"><span class="ch-card__icon"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"></path></svg></span><span class="ch-card__name">Business &amp; Shopping Calculators</span><span class="ch-card__blurb">Margin, markup, break-even, tax and tips</span><span class="ch-card__count">10 calculators</span></a>
+<a class="ch-card" href="/construction-calculators-online/"><span class="ch-card__icon"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 6l4 4L8 20H4v-4zM13 7l4 4"></path></svg></span><span class="ch-card__name">Construction &amp; DIY Calculators</span><span class="ch-card__blurb">Paint, flooring, concrete, roofing and fencing</span><span class="ch-card__count">13 calculators</span></a>
+<a class="ch-card" href="/time-and-date-calculators-online/"><span class="ch-card__icon"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 7v5l3 2"></path></svg></span><span class="ch-card__name">Time &amp; Date Calculators</span><span class="ch-card__blurb">Age, durations, business days and time zones</span><span class="ch-card__count">12 calculators</span></a>
+<a class="ch-card" href="/grade-calculators-online/"><span class="ch-card__icon"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 9L12 4 2 9l10 5zM6 12v5c0 1.5 2.7 3 6 3s6-1.5 6-3v-5"></path></svg></span><span class="ch-card__name">Grade &amp; Study Calculators</span><span class="ch-card__blurb">GPA, grades, reading time and word counts</span><span class="ch-card__count">4 calculators</span></a>
 </div>
 <div class="ch-promo"><h2>Most used this week</h2><p>The pages people open first, if you would rather skip the browse.</p><ul>
 <li><a href="/math-calculators-online/percentage-calculator/">Percentage Calculator</a></li>

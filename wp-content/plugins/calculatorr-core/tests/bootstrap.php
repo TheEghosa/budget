@@ -48,6 +48,8 @@ function shortcode_atts( $pairs, $atts, $shortcode = '' ) {
 	return $out;
 }
 
+function esc_html__( $t, $d = '' ) { return $t; }
+function __( $t, $d = '' ) { return $t; }
 function esc_html( $t )  { return htmlspecialchars( (string) $t, ENT_QUOTES, 'UTF-8' ); }
 function esc_attr( $t )  { return htmlspecialchars( (string) $t, ENT_QUOTES, 'UTF-8' ); }
 function esc_url( $t )   { return htmlspecialchars( (string) $t, ENT_QUOTES, 'UTF-8' ); }
