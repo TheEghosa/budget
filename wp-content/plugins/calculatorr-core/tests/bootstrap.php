@@ -92,7 +92,31 @@ function get_page_by_path( $path, $output = OBJECT, $type = 'page' ) { return nu
 function get_permalink( $p ) { return home_url( '/' ); }
 function update_post_meta() {}
 function wp_insert_post() { return 1; }
-function is_wp_error( $t ) { return false; }
+/*
+ * Enough of WP_Error to exercise the branches that refuse bad input.
+ *
+ * This used to be a stub that returned false for everything, which meant any
+ * code asking "did that fail?" was told no, and every validation path in the
+ * plugin was untestable and quietly reported as passing.
+ */
+class WP_Error {
+	public $code;
+	public $message;
+	public $data;
+
+	public function __construct( $code = '', $message = '', $data = array() ) {
+		$this->code    = $code;
+		$this->message = $message;
+		$this->data    = $data;
+	}
+
+	public function get_error_code() { return $this->code; }
+	public function get_error_message() { return $this->message; }
+	public function get_error_data() { return $this->data; }
+}
+
+function is_wp_error( $t ) { return $t instanceof WP_Error; }
+
 function flush_rewrite_rules() {}
 function get_transient( $k ) { return false; }
 function set_transient() {}

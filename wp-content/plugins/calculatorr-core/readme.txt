@@ -4,7 +4,7 @@ Tags: calculator, tools, seo, elementor
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 1.7.4
+Stable tag: 1.8.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -65,6 +65,13 @@ In the visitor's browser. Nothing is sent to the server, so salaries, weights
 and health measurements never leave the device.
 
 == Changelog ==
+
+= 1.8.0 =
+Long-form content can now be published over the REST API, so rewriting a page
+no longer means shipping a new build. docs/content-standard.md sets out what a
+calculator page owes its reader, and the first three pages are rewritten to
+it: mm to inches, Celsius to Fahrenheit and margin, each around 1100 words
+with reference tables, formulas and worked examples.
 
 = 1.7.4 =
 Every calculator now offers at least four onward links. Thirty-one named

@@ -1,0 +1,160 @@
+{
+ "slug": "margin-calculator",
+ "explainer": [
+  {
+   "heading": "Margin and markup are not the same number",
+   "body": "<p>This is the distinction that costs small businesses real money, so it is worth being precise about. Margin is profit as a percentage of what you <em>sold</em> for. Markup is profit as a percentage of what you <em>paid</em>. Same profit, different denominator, and the two numbers are never equal.</p><p>An item costing &pound;60 and selling for &pound;100 carries &pound;40 of profit. As a margin that is 40 percent, because 40 is forty percent of the hundred you took. As a markup it is 66.7 percent, because 40 is two thirds of the sixty you spent. Quote the wrong one to a supplier or a bank and you will be describing a business that does not exist.</p>",
+   "formula": "Margin % = (Price &minus; Cost) &divide; Price &times; 100",
+   "example": "<p>You buy a chair for &pound;60 and sell it for &pound;100. Profit is &pound;40. Margin is 40 &divide; 100 = 40 percent. Markup is 40 &divide; 60 = 66.7 percent. Both describe the same forty pounds.</p>"
+  },
+  {
+   "heading": "Converting between the two",
+   "body": "<p>Because retail talks in margin and wholesale often talks in markup, you will spend more time converting between them than calculating either. The table below is the one to keep, and the pattern in it is worth noticing: markup is always the larger number, and the gap widens fast as margins climb.</p>",
+   "table": {
+    "caption": "The same profit described both ways",
+    "head": [
+     "Margin",
+     "Markup",
+     "Cost of a &pound;100 sale",
+     "Profit"
+    ],
+    "rows": [
+     [
+      "10%",
+      "11.1%",
+      "&pound;90.00",
+      "&pound;10"
+     ],
+     [
+      "20%",
+      "25.0%",
+      "&pound;80.00",
+      "&pound;20"
+     ],
+     [
+      "25%",
+      "33.3%",
+      "&pound;75.00",
+      "&pound;25"
+     ],
+     [
+      "30%",
+      "42.9%",
+      "&pound;70.00",
+      "&pound;30"
+     ],
+     [
+      "40%",
+      "66.7%",
+      "&pound;60.00",
+      "&pound;40"
+     ],
+     [
+      "50%",
+      "100.0%",
+      "&pound;50.00",
+      "&pound;50"
+     ],
+     [
+      "60%",
+      "150.0%",
+      "&pound;40.00",
+      "&pound;60"
+     ],
+     [
+      "75%",
+      "300.0%",
+      "&pound;25.00",
+      "&pound;75"
+     ]
+    ]
+   }
+  },
+  {
+   "heading": "Pricing from a target margin",
+   "body": "<p>Most pricing runs backwards from a margin you need rather than forwards from a cost you have, and this is where the arithmetic trips people. To hit a forty percent margin you do not add forty percent to cost. You divide cost by sixty percent, because cost is what is left after margin comes out.</p><p>Adding forty percent to a &pound;60 cost gives &pound;84, which is a 28.6 percent margin and nowhere near your target. Dividing by 0.6 gives &pound;100, which is right.</p>",
+   "formula": "Price = Cost &divide; (1 &minus; Target margin)",
+   "steps": [
+    "Write the target margin as a decimal, so 40 percent becomes 0.4.",
+    "Subtract it from 1, giving 0.6.",
+    "Divide the cost by that figure.",
+    "Check by working the margin back out of the answer."
+   ]
+  },
+  {
+   "heading": "What a discount really costs you",
+   "body": "<p>A discount comes straight out of profit, never out of cost, which is why a modest looking discount can remove most of a thin margin. On a thirty percent margin, a ten percent discount takes a third of the profit, not a tenth.</p><p>The rule is worth stating plainly, because it changes how promotions should be planned: the lower your margin, the more damage any given discount does. A business running on twenty percent cannot afford the discounts a business running on sixty percent barely notices.</p>",
+   "table": {
+    "caption": "How much profit a discount removes",
+    "head": [
+     "Starting margin",
+     "5% off",
+     "10% off",
+     "20% off"
+    ],
+    "rows": [
+     [
+      "20%",
+      "25% of profit gone",
+      "50% gone",
+      "All of it"
+     ],
+     [
+      "30%",
+      "17% gone",
+      "33% gone",
+      "67% gone"
+     ],
+     [
+      "40%",
+      "13% gone",
+      "25% gone",
+      "50% gone"
+     ],
+     [
+      "50%",
+      "10% gone",
+      "20% gone",
+      "40% gone"
+     ],
+     [
+      "60%",
+      "8% gone",
+      "17% gone",
+      "33% gone"
+     ]
+    ]
+   }
+  },
+  {
+   "heading": "Gross margin is not profit",
+   "body": "<p>The margin this calculator gives you is gross margin, which counts only the direct cost of the thing you sold. Rent, wages, software, delivery, payment processing and everything else come out of what is left, and they come out whether you sell anything or not.</p><p>A forty percent gross margin sounds healthy and can still lose money, because the question is not the percentage but whether the cash it throws off covers the fixed costs underneath. Work out what those cost you in a month, then work out how many sales at your margin it takes to cover them. That number, rather than the percentage, is the one that tells you whether the pricing works.</p>"
+  },
+  {
+   "heading": "What this calculator leaves out",
+   "body": "<p>It works on one item at a time and takes your cost figure at face value. If that figure excludes carriage, import duty, payment fees or the proportion of stock that never sells, the margin it reports is higher than the margin you are getting.</p><p>Payment processing alone is commonly between one and three percent of the sale, which on a twenty percent margin is up to a seventh of your profit. Fold those costs into the cost figure before you calculate, and the number you get back will be one you can actually plan against.</p>"
+  }
+ ],
+ "faqs": [
+  {
+   "q": "What is the difference between margin and markup?",
+   "a": "Margin divides profit by the selling price and markup divides the same profit by the cost. A &pound;60 item sold for &pound;100 has a 40 percent margin and a 66.7 percent markup. Markup is always the bigger number, and the gap grows quickly as margins rise."
+  },
+  {
+   "q": "How do I price something to hit a 40 percent margin?",
+   "a": "Divide the cost by 0.6. Do not add 40 percent to the cost, because that gives you a 28.6 percent margin instead. Cost is what remains after margin is taken out, so you divide by what remains rather than adding to it."
+  },
+  {
+   "q": "Is a 50 percent margin the same as doubling the price?",
+   "a": "Yes, those two happen to coincide. A 50 percent margin means cost is half the price, which is a 100 percent markup. It is the only round number where the relationship is that tidy, which is part of why it gets quoted so often."
+  },
+  {
+   "q": "Why does a 10 percent discount cost more than 10 percent of my profit?",
+   "a": "Because the discount comes entirely out of profit while the cost stays exactly where it was. On a 30 percent margin, taking 10 percent off the price removes a third of what you were making."
+  },
+  {
+   "q": "Does this include VAT or sales tax?",
+   "a": "No. Work in figures that exclude tax at both ends, since tax collected is not yours and including it on one side only will inflate the margin. If your selling price includes VAT, take it out before calculating."
+  }
+ ]
+}
