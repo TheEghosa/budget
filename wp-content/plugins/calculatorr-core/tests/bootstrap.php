@@ -59,6 +59,8 @@ function submit_button( $t = '', $c = '', $n = '', $w = true ) {}
 function wp_nonce_field( $a = -1, $n = '_wpnonce', $r = true, $e = true ) {}
 function checked( $a, $b = true, $echo = true ) { $r = ( (string) $a === (string) $b ) ? ' checked' : ''; if ( $echo ) { echo $r; } return $r; }
 function add_submenu_page() {}
+function do_shortcode( $c ) { return preg_replace_callback( '/\[calculatorr slug="([a-z0-9\-]+)"\]/', function ( $m ) { return $GLOBALS['calcr_shortcodes']['calculatorr']( array( 'slug' => $m[1] ) ); }, (string) $c ); }
+function wp_editor( $content, $id, $settings = array() ) { echo '<textarea name="' . ( $settings['textarea_name'] ?? $id ) . '">' . htmlspecialchars( (string) $content ) . '</textarea>'; }
 function esc_html__( $t, $d = '' ) { return $t; }
 function __( $t, $d = '' ) { return $t; }
 function esc_html( $t )  { return htmlspecialchars( (string) $t, ENT_QUOTES, 'UTF-8' ); }

@@ -582,6 +582,61 @@ check( 'the screen it pointed at is gone too', false !== strpos( $admin_src, 'fu
 check( 'the head box survives inside advertising', substr_count( $admin_src, "'code_head'" ), 2 );
 check( 'and is still saved', false !== strpos( $admin_src, "'code_head', 'code_body', 'code_footer'" ), true );
 
+/* --- the editor on the content fields ------------------------------------- */
+
+/*
+ * The body and answer fields use the editor WordPress ships rather than a bare
+ * textarea, so the copy can be written with formatting. The front end already
+ * printed these through wp_kses_post and wpautop, so the only thing that had to
+ * change was the input, but the two have to stay in step: a rich editor feeding
+ * a field that escapes its HTML would show people their own tags.
+ */
+check( 'the section body uses the WordPress editor', substr_count( $admin_src, "wp_editor(" ), 2 );
+check( 'and posts back under the same name', false !== strpos( $admin_src, "'textarea_name' => 'explainer[' . (int) \$i . '][body]'" ), true );
+check( 'the answer field uses it too', false !== strpos( $admin_src, "'textarea_name' => 'faqs[' . (int) \$i . '][a]'" ), true );
+
+$renderer_src = file_get_contents( CALCULATORR_PATH . 'includes/class-renderer.php' );
+check( 'the front end still prints body markup rather than escaping it', false !== strpos( $renderer_src, 'wp_kses_post( wpautop( $section[\'body\'] ) )' ), true );
+
+$settings->save_override( 'tip-calculator', array(
+	'explainer' => Calculatorr_Admin::clean_sections( array(
+		array(
+			'heading' => 'Formatting',
+			'body'    => '<p>A <strong>bold</strong> claim, a <a href="https://example.com">link</a> and a list.</p><ul><li>One</li><li>Two</li></ul>',
+		),
+	) ),
+) );
+
+$formatted = $renderer->shortcode( array( 'slug' => 'tip-calculator' ) );
+
+foreach ( array( '<strong>', '<a href', '<ul>', '<li>' ) as $tag ) {
+	check( sprintf( '%s survives to the page', $tag ), false !== strpos( $formatted, $tag ), true );
+}
+
+/* --- a calculation inside the copy ---------------------------------------- */
+
+/* Copy now runs its shortcodes, so a page can carry a second calculator inside
+   its prose rather than printing the shortcode as text. */
+$settings->save_override( 'tip-calculator', array(
+	'explainer' => array( array( 'heading' => 'Related', 'body' => 'Try this too: [calculatorr slug="bmi-calculator"]' ) ),
+) );
+
+$nested = $renderer->shortcode( array( 'slug' => 'tip-calculator' ) );
+check( 'an embedded calculator renders', substr_count( $nested, 'data-calcr-slug="bmi-calculator"' ), 1 );
+check( 'and the host is still there once', substr_count( $nested, 'data-calcr-slug="tip-calculator"' ), 1 );
+
+/* Which opens the door to a calculator naming itself, directly or through a
+   chain, and recursing until PHP ran out of stack. */
+$settings->save_override( 'tip-calculator', array(
+	'explainer' => array( array( 'heading' => 'See also', 'body' => 'Itself: [calculatorr slug="tip-calculator"]' ) ),
+) );
+
+$looped = $renderer->shortcode( array( 'slug' => 'tip-calculator' ) );
+check( 'a self-reference renders once rather than looping', substr_count( $looped, 'data-calcr-slug="tip-calculator"' ), 1 );
+check( 'and still produces a page', strlen( $looped ) > 2000, true );
+
+$settings->save_override( 'tip-calculator', array() );
+
 /* --- results -------------------------------------------------------------- */
 printf( "%d checks\n\n", $checks );
 foreach ( $failures as $failure ) { echo "  FAIL $failure\n"; }

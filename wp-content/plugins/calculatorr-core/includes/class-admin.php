@@ -569,12 +569,31 @@ class Calculatorr_Admin {
 									value="<?php echo esc_attr( isset( $section['heading'] ) ? $section['heading'] : '' ); ?>">
 							</label>
 						</p>
-						<p>
-							<label>
-								Body
-								<textarea name="explainer[<?php echo (int) $i; ?>][body]" rows="5" class="large-text"><?php echo esc_textarea( isset( $section['body'] ) ? $section['body'] : '' ); ?></textarea>
-							</label>
-						</p>
+						<p class="calcr-section__label"><label for="calcr_explainer_<?php echo (int) $i; ?>">Body</label></p>
+						<?php
+						/*
+						 * The editor WordPress ships and the Classic block
+						 * uses. It is one call per field, where mounting the
+						 * block editor here would mean running a whole
+						 * document editor inside a form field, and the front
+						 * end already prints this through wp_kses_post and
+						 * wpautop, so formatted HTML renders as written.
+						 */
+						wp_editor(
+							isset( $section['body'] ) ? $section['body'] : '',
+							'calcr_explainer_' . (int) $i,
+							array(
+								'textarea_name' => 'explainer[' . (int) $i . '][body]',
+								'textarea_rows' => 9,
+								'media_buttons' => true,
+								'quicktags'     => true,
+								'tinymce'       => array(
+									'toolbar1' => 'formatselect,bold,italic,bullist,numlist,blockquote,link,unlink,table,removeformat,undo,redo',
+									'toolbar2' => '',
+								),
+							)
+						);
+						?>
 						<p>
 							<label>
 								Formula <span class="description">(optional, shown in a box)</span>
@@ -612,12 +631,23 @@ class Calculatorr_Admin {
 									value="<?php echo esc_attr( isset( $faq['q'] ) ? $faq['q'] : '' ); ?>">
 							</label>
 						</p>
-						<p>
-							<label>
-								Answer
-								<textarea name="faqs[<?php echo (int) $i; ?>][a]" rows="4" class="large-text"><?php echo esc_textarea( isset( $faq['a'] ) ? $faq['a'] : '' ); ?></textarea>
-							</label>
-						</p>
+						<p class="calcr-section__label"><label for="calcr_faq_<?php echo (int) $i; ?>">Answer</label></p>
+						<?php
+						/* A smaller toolbar here: an answer that needs a table
+						   in it is a section rather than an answer, and the
+						   schema strips the markup anyway. */
+						wp_editor(
+							isset( $faq['a'] ) ? $faq['a'] : '',
+							'calcr_faq_' . (int) $i,
+							array(
+								'textarea_name' => 'faqs[' . (int) $i . '][a]',
+								'textarea_rows' => 5,
+								'media_buttons' => false,
+								'teeny'         => true,
+								'quicktags'     => true,
+							)
+						);
+						?>
 					</div>
 				<?php endforeach; ?>
 

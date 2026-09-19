@@ -16,6 +16,14 @@ class Calculatorr_Renderer {
 
 	private static $instance = null;
 
+	/**
+	 * Calculators part-way through rendering, so one cannot re-enter itself
+	 * through a shortcode in its own explainer copy.
+	 *
+	 * @var array
+	 */
+	private $rendering = array();
+
 	public static function instance() {
 		if ( null === self::$instance ) {
 			self::$instance = new self();
@@ -39,6 +47,19 @@ class Calculatorr_Renderer {
 			return '';
 		}
 
+		/*
+		 * Explainer copy runs its shortcodes, so a page can carry another
+		 * calculator inside its prose. That also means a calculator could name
+		 * itself, directly or through a chain of two, and recurse until PHP
+		 * ran out of stack, so a calculator already being rendered is refused
+		 * rather than entered again.
+		 */
+		if ( isset( $this->rendering[ $config['slug'] ] ) ) {
+			return '';
+		}
+
+		$this->rendering[ $config['slug'] ] = true;
+
 		wp_enqueue_style( 'calculatorr-app' );
 		wp_enqueue_script( 'calculatorr-app' );
 
@@ -57,7 +78,11 @@ class Calculatorr_Renderer {
 			wp_localize_script( 'calculatorr-app', 'CalculatorrConfig', $config_js );
 		}
 
-		return $this->render_page( $config );
+		$html = $this->render_page( $config );
+
+		unset( $this->rendering[ $config['slug'] ] );
+
+		return $html;
 	}
 
 	/**
@@ -595,7 +620,7 @@ class Calculatorr_Renderer {
 			}
 
 			if ( ! empty( $section['body'] ) ) {
-				echo wp_kses_post( wpautop( $section['body'] ) );
+				echo do_shortcode( wp_kses_post( wpautop( $section['body'] ) ) );
 			}
 
 			if ( ! empty( $section['formula'] ) ) {
@@ -617,7 +642,7 @@ class Calculatorr_Renderer {
 			if ( ! empty( $section['example'] ) ) {
 				echo '<div class="calcr-example">';
 				echo '<span class="calcr-example__label">Worked example</span>';
-				echo wp_kses_post( wpautop( $section['example'] ) );
+				echo do_shortcode( wp_kses_post( wpautop( $section['example'] ) ) );
 				echo '</div>';
 			}
 

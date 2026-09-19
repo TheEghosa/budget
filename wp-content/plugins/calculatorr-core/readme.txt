@@ -4,7 +4,7 @@ Tags: calculator, tools, seo, elementor
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 1.4.0
+Stable tag: 1.4.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -65,6 +65,10 @@ In the visitor's browser. Nothing is sent to the server, so salaries, weights
 and health measurements never leave the device.
 
 == Changelog ==
+
+= 1.4.1 =
+* The long description and the FAQ answers are edited with the rich editor WordPress ships rather than a plain box, so the copy can carry bold, links, lists, headings and tables, with a Text tab for raw HTML.
+* Explainer copy now runs its shortcodes, so a section can carry another calculator inside the prose instead of printing the shortcode as text. A calculator that names itself renders once rather than recursing.
 
 = 1.4.0 =
 * The dashboard now leads with usage: calculations per day, the most used calculators, and every calculator in a table with a sparkline each. It counts a calculation actually running rather than a page view, once per calculator per page load, and stores no visitor data.

@@ -293,3 +293,37 @@
 		stroke: #1d2327;
 	}
 }
+
+.calcr-section {
+	background: #fff;
+	border: 1px solid #dcdcde;
+	border-radius: 4px;
+	padding: 14px 16px 4px;
+	margin-bottom: 14px;
+}
+
+.calcr-section--faq {
+	background: #fbfbfc;
+}
+
+.calcr-section__label {
+	margin: 12px 0 4px;
+	font-weight: 600;
+}
+
+.calcr-tags {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+	margin-top: 8px;
+}
+
+.calcr-tag {
+	display: inline-block;
+	padding: 3px 9px;
+	background: #E8F2F0;
+	color: #0A5F55;
+	border-radius: 11px;
+	font-size: 12px;
+	font-weight: 600;
+}
