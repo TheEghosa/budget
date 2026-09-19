@@ -110,12 +110,40 @@ class Calculatorr_Ads {
 			}
 		}
 
-		if ( count( $picked ) < $limit ) {
-			foreach ( $registry->all( false ) as $slug => $any ) {
-				if ( ! $config || $slug !== $config['slug'] ) {
-					$picked[ $slug ] = $any;
+		if ( $config ) {
+			/*
+			 * On a calculator page the block is headed with the category's own
+			 * name, so it cannot be padded out with whatever else exists. The
+			 * boat loan page was offering the 401(k) and Age calculators under
+			 * "More loans & debt tools", because Loans holds six tools, five of
+			 * them are siblings, and the slot asked for seven. A short list of
+			 * the right things beats a full list of the wrong ones, so the
+			 * block is simply shorter when the category is small.
+			 */
+			$picked = array_filter(
+				$picked,
+				function ( $candidate ) use ( $config ) {
+					return $candidate['category'] === $config['category'];
 				}
+			);
+
+			return array_slice( $picked, 0, $limit, true );
+		}
+
+		/*
+		 * With no calculator in scope this is a category hub or a page of our
+		 * own, so anything may be promoted except what the page already lists
+		 * above: the Loans hub was repeating the Amortization Calculator from
+		 * its own grid.
+		 */
+		$current = Calculatorr_Pages::current_category();
+
+		foreach ( $registry->all( false ) as $slug => $any ) {
+			if ( $current && $any['category'] === $current['key'] ) {
+				continue;
 			}
+
+			$picked[ $slug ] = $any;
 		}
 
 		return array_slice( $picked, 0, $limit, true );

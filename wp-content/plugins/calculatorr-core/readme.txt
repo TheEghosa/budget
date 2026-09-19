@@ -4,7 +4,7 @@ Tags: calculator, tools, seo, elementor
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 1.4.1
+Stable tag: 1.5.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -65,6 +65,14 @@ In the visitor's browser. Nothing is sent to the server, so salaries, weights
 and health measurements never leave the device.
 
 == Changelog ==
+
+= 1.5.0 =
+* The palette is now generated from the design system's tokens.json rather than hand-written, with two corrections applied in the generator so regenerating cannot undo them: amber gets a light-mode value, and text-subtle clears the hover surface it was failing on.
+* Dark is the base palette, a device asking for light gets light, and the switch overrides both.
+* The names the site already used survive as aliases into the new system, so twelve hundred lines of stylesheet keep working and can move across one component at a time.
+* A calculator page now promotes only calculators from its own category, instead of padding a block headed "More loans & debt tools" with the 401(k) and Age calculators.
+* A category hub no longer promotes calculators it is already listing.
+* Contrast is computed in the test suite, so an edited token that breaks a ratio fails the build.
 
 = 1.4.1 =
 * The long description and the FAQ answers are edited with the rich editor WordPress ships rather than a plain box, so the copy can carry bold, links, lists, headings and tables, with a Text tab for raw HTML.

@@ -57,6 +57,12 @@
 	}
 
 	function apply( theme ) {
+		/* Both names are written: data-theme is what the design system
+		   specifies and what the token stylesheet keys off first, and
+		   data-calcr-theme is what the site shipped with, so a preference
+		   already sitting in somebody's browser still lands somewhere the
+		   stylesheet is listening. */
+		root.setAttribute( 'data-theme', theme );
 		root.setAttribute( 'data-calcr-theme', theme );
 		label( theme );
 	}

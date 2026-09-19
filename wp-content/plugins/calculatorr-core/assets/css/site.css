@@ -212,10 +212,11 @@ body:not([class*="elementor-page-"]) .site-main,
 .site-footer img.custom-logo {
 	height: 24px;
 	width: auto;
-	/* The wordmark is dark ink on transparent, so on the dark footer it is
-	   inverted rather than shipped twice; the hue rotation puts the teal back
-	   where the inversion would otherwise send it. */
-	filter: invert( 1 ) hue-rotate( 180deg );
+	/* The footer follows the palette now rather than being dark in both
+	   themes, so the wordmark inverts on the same condition as the header's
+	   rather than always. Inverting unconditionally would put a white mark on
+	   a light footer. */
+	filter: var(--calcr-logo-filter);
 }
 
 .site-footer .site-title a {

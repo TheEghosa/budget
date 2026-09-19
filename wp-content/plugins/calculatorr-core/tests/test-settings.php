@@ -256,17 +256,138 @@ check(
 	false
 );
 
-/* Every token the chrome and the homepage read has to exist in all three
-   palettes, or one of them silently falls back to nothing. */
+/*
+ * The palette is now generated from the design system's tokens.json, and the
+ * names the site shipped with survive as aliases pointing into it. Counting
+ * declarations no longer means anything, because an alias is declared once and
+ * follows the theme through the token it references. What matters instead is
+ * that nothing points at a token that does not exist, and that the light block
+ * actually redefines the palette rather than merely existing.
+ */
 $tokens_css = file_get_contents( CALCULATORR_PATH . 'assets/css/tokens.css' );
 
-foreach ( array( 'footer-bg', 'footer-ink', 'footer-strong', 'footer-quiet', 'footer-line', 'logo-filter', 'shadow' ) as $token ) {
-	check(
-		sprintf( '--calcr-%s is defined in all three palettes', $token ),
-		substr_count( $tokens_css, '--calcr-' . $token . ':' ),
-		3
+preg_match_all( '/^\s*(--[a-zA-Z0-9-]+)\s*:/m', $tokens_css, $declared );
+$declared = array_unique( $declared[1] );
+
+$referenced = array();
+
+foreach ( array( 'tokens.css', 'site.css', 'calculator.css' ) as $sheet ) {
+	preg_match_all(
+		'/var\(\s*(--[a-zA-Z0-9-]+)/',
+		file_get_contents( CALCULATORR_PATH . 'assets/css/' . $sheet ),
+		$found
 	);
+	$referenced = array_merge( $referenced, $found[1] );
 }
+
+$dangling = array_values( array_unique( array_diff( $referenced, $declared ) ) );
+
+check( 'every token the stylesheets read is defined', $dangling, array() );
+check( 'the design system palette is present', in_array( '--c-brand', $declared, true ), true );
+check( 'the names the site shipped with still resolve', in_array( '--calcr-accent', $declared, true ), true );
+
+/* A palette that never changes is not a palette. */
+check( 'a light block exists', (bool) preg_match( '/\[data-theme="light"\]/', $tokens_css ), true );
+check( 'the device preference is honoured', (bool) strpos( $tokens_css, 'prefers-color-scheme: light' ), true );
+check( 'both theme attributes are keyed', (bool) strpos( $tokens_css, 'data-calcr-theme="dark"' ), true );
+
+/*
+ * Contrast is computed here rather than trusted, because the palette is now
+ * generated and a single edited digit changes a ratio without changing
+ * anything a person would notice while looking at the file. The shipped design
+ * system had exactly this problem: amber was the one token identical in both
+ * themes and measured 1.88 to 2.16:1 against every light surface, which fails
+ * even the 3:1 floor for a graphic that carries meaning.
+ */
+function calcr_channel( $c ) {
+	$c = $c / 255;
+	return $c <= 0.03928 ? $c / 12.92 : pow( ( $c + 0.055 ) / 1.055, 2.4 );
+}
+
+function calcr_luminance( $hex ) {
+	$hex = ltrim( $hex, '#' );
+
+	if ( 3 === strlen( $hex ) ) {
+		$hex = $hex[0] . $hex[0] . $hex[1] . $hex[1] . $hex[2] . $hex[2];
+	}
+
+	return 0.2126 * calcr_channel( hexdec( substr( $hex, 0, 2 ) ) )
+		+ 0.7152 * calcr_channel( hexdec( substr( $hex, 2, 2 ) ) )
+		+ 0.0722 * calcr_channel( hexdec( substr( $hex, 4, 2 ) ) );
+}
+
+function calcr_contrast( $a, $b ) {
+	$la = calcr_luminance( $a );
+	$lb = calcr_luminance( $b );
+
+	return ( max( $la, $lb ) + 0.05 ) / ( min( $la, $lb ) + 0.05 );
+}
+
+/** Reads one palette out of the built stylesheet. */
+function calcr_palette( $css, $selector ) {
+	$start = strpos( $css, $selector );
+
+	if ( false === $start ) {
+		return array();
+	}
+
+	$end = strpos( $css, "\n}", $start );
+	preg_match_all( '/--(c-[a-z0-9-]+):\s*(#[0-9a-f]{3,8})\s*;/i', substr( $css, $start, $end - $start ), $m );
+
+	return array_combine( $m[1], $m[2] );
+}
+
+$dark  = calcr_palette( $tokens_css, ':root,' );
+$light = array_merge( $dark, calcr_palette( $tokens_css, ':root[data-theme="light"]' ) );
+
+check( 'the dark palette parses', count( $dark ) > 20, true );
+check( 'the light palette parses', count( $light ) > 20, true );
+
+$surfaces = array( 'c-bg-page', 'c-bg-raised', 'c-bg-footer', 'c-surface-card', 'c-surface-sunken', 'c-surface-hover', 'c-result-bg', 'c-notice-bg' );
+$texts    = array( 'c-text-primary', 'c-text-secondary', 'c-text-muted', 'c-text-subtle', 'c-brand', 'c-brand-soft-text', 'c-result-muted', 'c-notice-text' );
+
+$below = array();
+
+foreach ( array( 'dark' => $dark, 'light' => $light ) as $mode => $palette ) {
+	foreach ( $texts as $text ) {
+		foreach ( $surfaces as $surface ) {
+			if ( ! isset( $palette[ $text ], $palette[ $surface ] ) ) {
+				continue;
+			}
+
+			$ratio = calcr_contrast( $palette[ $text ], $palette[ $surface ] );
+
+			if ( $ratio < 4.5 ) {
+				$below[] = sprintf( '%s: %s on %s is %.2f', $mode, $text, $surface, $ratio );
+			}
+		}
+	}
+}
+
+check( 'no text pairing falls below 4.5:1 in either theme', $below, array() );
+
+/* Amber is a graphic rather than body text, so it answers to 3:1, and it has
+   to clear that on the surfaces it is actually drawn on. */
+$amber = array();
+
+foreach ( array( 'dark' => $dark, 'light' => $light ) as $mode => $palette ) {
+	foreach ( array( 'c-surface-card', 'c-result-bg', 'c-notice-bg', 'c-surface-sunken' ) as $surface ) {
+		$ratio = calcr_contrast( $palette['c-accent'], $palette[ $surface ] );
+
+		if ( $ratio < 3 ) {
+			$amber[] = sprintf( '%s: accent on %s is %.2f', $mode, $surface, $ratio );
+		}
+	}
+}
+
+check( 'amber clears 3:1 wherever it is drawn', $amber, array() );
+
+/* The failure that started this: one value serving both themes. */
+check(
+	'amber is not the same colour in both themes',
+	$dark['c-accent'] !== $light['c-accent'],
+	true
+);
 
 /* The wordmark is dark ink, so on a dark header it needs inverting, and the
    only way that can follow the palette is through a token. */
@@ -636,6 +757,46 @@ check( 'a self-reference renders once rather than looping', substr_count( $loope
 check( 'and still produces a page', strlen( $looped ) > 2000, true );
 
 $settings->save_override( 'tip-calculator', array() );
+
+/* --- promoted links stay on topic ----------------------------------------- */
+
+/*
+ * The design review caught both of these on the live site. A block headed with
+ * a category's name cannot be padded out with whatever else exists, and a hub
+ * cannot promote the calculators it is already listing.
+ */
+$GLOBALS['calcr_test_state']['current_slug'] = 'boat-loan-calculator';
+$boat = $renderer->shortcode( array( 'slug' => 'boat-loan-calculator' ) );
+$GLOBALS['calcr_test_state']['current_slug'] = null;
+
+preg_match_all( '#href="[^"]*/([a-z0-9\-]+)/"#', $boat, $links );
+
+$offside = array();
+
+foreach ( array_unique( $links[1] ) as $slug ) {
+	$linked = $registry->get( $slug );
+
+	if ( $linked && 'loans' !== $linked['category'] ) {
+		$offside[] = $slug;
+	}
+}
+
+/* Loans holds six calculators, five of them siblings, and the sidebar slot
+   asks for seven, which is how the 401(k) and Age calculators ended up under
+   "More loans & debt tools". A short list of the right things is the fix. */
+check( 'a loan page promotes only loan calculators', $offside, array() );
+check( 'and still promotes something', count( array_unique( $links[1] ) ) > 3, true );
+
+$GLOBALS['calcr_test_state']['current_category'] = 'loans';
+$hub = $renderer->category_shortcode( array( 'category' => 'loans' ) );
+$GLOBALS['calcr_test_state']['current_category'] = null;
+
+preg_match_all( '#href="[^"]*/([a-z0-9\-]+)/"#', $hub, $hub_links );
+$repeated = array_keys( array_filter( array_count_values( $hub_links[1] ), function ( $n ) {
+	return $n > 1;
+} ) );
+
+check( 'a category hub never lists the same calculator twice', $repeated, array() );
 
 /* --- results -------------------------------------------------------------- */
 printf( "%d checks\n\n", $checks );

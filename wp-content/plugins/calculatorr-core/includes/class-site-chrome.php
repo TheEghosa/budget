@@ -63,7 +63,7 @@ class Calculatorr_Site_Chrome {
 	 */
 	public function early_theme_script() {
 		?>
-<script>(function(){try{var t=window.localStorage.getItem('calcr-theme');if('dark'===t||'light'===t){document.documentElement.setAttribute('data-calcr-theme',t);}}catch(e){}}());</script>
+<script>(function(){try{var t=window.localStorage.getItem('calcr-theme');if('dark'===t||'light'===t){var r=document.documentElement;r.setAttribute('data-theme',t);r.setAttribute('data-calcr-theme',t);}}catch(e){}}());</script>
 		<?php
 	}
 
