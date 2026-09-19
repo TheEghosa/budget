@@ -161,10 +161,17 @@ Definitions load from two places. `calculators/json/*.json` ships with the
 plugin, and the database holds what has been published since. **Files win.**
 
 So the working rhythm is: publish over REST to put a calculator live today,
-commit the same file to `calculators/json/` so the next build ships it, and
+move the same file into `calculators/json/` **when a build is being cut**, and
 the database copy stands aside the moment that build lands. Nobody has to
 remember to delete anything, and the live definition never changes in the
 handover.
+
+Move it at build time rather than at publish time, because a shipped file wins
+and a shipped file can only be changed by another build. BMR was committed to
+`calculators/json/` in the same breath as the 1.9.0 zip, and when a flaw turned
+up in it an hour later the only way to correct it on the live site was another
+zip. A definition still sitting in the database would have been a single POST.
+Leave it in `content/definitions/` until the build, and copy it across then.
 
 The REST response says which of the two is serving each slug, so a write that
 lands behind a shipped file reports itself rather than leaving somebody

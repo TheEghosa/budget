@@ -1,0 +1,300 @@
+{
+  "slug": "auto-loan-calculator",
+  "title": "Auto Loan Calculator",
+  "category": "loans",
+  "description": "Work out the monthly payment on a car loan from the price, your deposit, the trade-in, the APR and the term, with the sales tax and fees included.",
+  "keyword": "Auto Loan Calculator",
+  "h1": "Auto Loan Calculator",
+  "meta_title": "Auto Loan Calculator - Car Payment, Interest & Total Cost",
+  "meta_description": "Free auto loan calculator. Enter the price, deposit, trade-in, APR and term to see the monthly payment, the total interest and what the car really costs.",
+  "fields": [
+    {
+      "id": "price",
+      "label": "Vehicle price",
+      "type": "number",
+      "prefix": "$",
+      "default": "35000",
+      "min": "0"
+    },
+    {
+      "id": "down",
+      "label": "Deposit",
+      "type": "number",
+      "prefix": "$",
+      "default": "5000",
+      "min": "0",
+      "optional": true
+    },
+    {
+      "id": "trade",
+      "label": "Trade-in value",
+      "type": "number",
+      "prefix": "$",
+      "default": "0",
+      "min": "0",
+      "optional": true,
+      "hint": "What the dealer allows for your old car, before any money you still owe on it."
+    },
+    {
+      "id": "rate",
+      "label": "Interest rate",
+      "type": "number",
+      "suffix": "% APR",
+      "default": "7.5",
+      "min": "0",
+      "step": "0.01"
+    },
+    {
+      "id": "term",
+      "label": "Loan term",
+      "type": "select",
+      "options": {
+        "36": "36 months (3 years)",
+        "48": "48 months (4 years)",
+        "60": "60 months (5 years)",
+        "72": "72 months (6 years)",
+        "84": "84 months (7 years)"
+      },
+      "default": "60"
+    },
+    {
+      "id": "tax",
+      "label": "Sales tax",
+      "type": "number",
+      "suffix": "%",
+      "default": "0",
+      "min": "0",
+      "step": "0.01",
+      "optional": true
+    },
+    {
+      "id": "fees",
+      "label": "Title, registration and dealer fees",
+      "type": "number",
+      "prefix": "$",
+      "default": "0",
+      "min": "0",
+      "optional": true
+    }
+  ],
+  "formula": "var price = num( v.price );\nvar taxRate = num( v.tax );\nvar fees = num( v.fees );\nvar down = num( v.down );\nvar trade = num( v.trade );\nvar rate = num( v.rate );\nvar months = Math.max( num( v.term ), 1 );\n\n/* Tax is charged on the vehicle before the deposit comes off, which is why a\n   larger deposit does not reduce the tax bill. Most states also tax the price\n   after the trade-in is deducted rather than before, so the trade comes off\n   first and the deposit does not. */\nvar taxable = Math.max( price - trade, 0 );\nvar tax = taxable * taxRate / 100;\nvar financed = Math.max( price + tax + fees - down - trade, 0 );\n\nif ( financed <= 0 ) {\n\treturn { label: 'Monthly payment', value: '—', rows: [], note: 'Enter a price, or reduce the deposit below it.' };\n}\n\nvar payment = monthlyPayment( financed, rate, months / 12 );\nvar total = payment * months;\nvar interest = Math.max( total - financed, 0 );\n\nreturn {\n\tlabel: 'Monthly payment',\n\tvalue: money2( payment ),\n\tsub: 'for ' + decimals( months, 0 ) + ' months at ' + decimals( rate, 2 ) + '% APR',\n\tbar: [\n\t\t{ pct: share( financed, total ), color: ACCENT },\n\t\t{ pct: share( interest, total ), color: WARN }\n\t],\n\trows: [\n\t\t{ label: 'Amount financed', value: money( financed ), color: ACCENT },\n\t\t{ label: 'Total interest', value: money( interest ), color: WARN, emphasis: interest > financed * 0.2 },\n\t\t{ label: 'Total of payments', value: money( total ) },\n\t\t{ label: 'Sales tax', value: money( tax ) },\n\t\t{ label: 'Total cost of the car', value: money( total + down + trade ), divide: true }\n\t],\n\tnote: 'The total cost line adds your deposit and trade-in back in, because money you put down is money you spent on the car even though the loan never sees it.'\n};",
+  "related": [
+    "personal-loan-calculator",
+    "amortization-calculator",
+    "sales-tax-calculator",
+    "mortgage-payment-calculator"
+  ],
+  "disclaimer": "This works out the loan, not the deal. It cannot see dealer add-ons, gap insurance, extended warranties or a balance still owed on the car you are trading in, and any of those can change the monthly figure substantially.",
+  "default_result": {
+    "label": "Monthly payment",
+    "value": "$601.14",
+    "rows": [
+      {
+        "label": "Amount financed",
+        "value": "$30,000"
+      },
+      {
+        "label": "Total interest",
+        "value": "$6,068"
+      },
+      {
+        "label": "Total of payments",
+        "value": "$36,068"
+      },
+      {
+        "label": "Sales tax",
+        "value": "$0"
+      },
+      {
+        "label": "Total cost of the car",
+        "value": "$41,068"
+      }
+    ],
+    "sub": "for 60 months at 7.5% APR",
+    "note": "The total cost line adds your deposit and trade-in back in, because money you put down is money you spent on the car even though the loan never sees it."
+  },
+  "explainer": [
+    {
+      "heading": "How the monthly payment is worked out",
+      "body": "A car loan is an amortising loan, which means every payment covers the interest that has built up since the last one and puts whatever is left against the balance. Early on, most of your payment is interest, because the balance it is charged against is at its largest. By the end, almost all of it is principal. The payment itself never changes, and that steadiness is the whole point of the formula: it solves for the one figure that clears the balance exactly on the final month.\n\nWhat goes into it is the amount you actually borrow rather than the price on the windscreen. Sales tax and fees get added, your deposit and trade-in come off, and what remains is the principal the interest is charged on. That ordering matters more than people expect, and the section below on tax explains why.",
+      "formula": "Payment = P &times; [ r(1 + r)<sup>n</sup> ] &divide; [ (1 + r)<sup>n</sup> &minus; 1 ], where r is the monthly rate and n is the number of months",
+      "example": "$30,000 at 7.5% over 60 months: r = 0.075 &divide; 12 = 0.00625, so the payment is 30,000 &times; (0.00625 &times; 1.4533) &divide; 0.4533 = $601.14 a month, and $36,068 over the five years."
+    },
+    {
+      "heading": "Why a longer term costs more even though it feels cheaper",
+      "body": "Stretching a loan is the easiest way to hit a monthly number you like, and it is the most expensive. Going from 60 months to 84 on the same $30,000 knocks $141 off the payment and adds $2,584 to what you hand over in total. The payment falls because the principal is spread thinner. The interest rises because you are carrying that principal for two more years.\n\nThere is a second cost that does not show up in the table. A car loses value fastest in its first three years, while a long loan pays the balance down slowest in exactly that period, so a 72 or 84 month loan leaves you owing more than the car is worth for a long stretch in the middle. That is the position people mean by being underwater, and it is the reason a written-off car or an unexpected need to sell turns into a bill rather than a cheque.",
+      "table": {
+        "caption": "$30,000 borrowed at 7.5%, by term",
+        "head": [
+          "Term",
+          "Monthly payment",
+          "Total interest",
+          "Total paid"
+        ],
+        "rows": [
+          [
+            "36 months",
+            "$933.19",
+            "$3,595",
+            "$33,595"
+          ],
+          [
+            "48 months",
+            "$725.37",
+            "$4,818",
+            "$34,818"
+          ],
+          [
+            "60 months",
+            "$601.14",
+            "$6,068",
+            "$36,068"
+          ],
+          [
+            "72 months",
+            "$518.70",
+            "$7,347",
+            "$37,347"
+          ],
+          [
+            "84 months",
+            "$460.15",
+            "$8,652",
+            "$38,652"
+          ]
+        ]
+      }
+    },
+    {
+      "heading": "What the rate is really worth to you",
+      "body": "The APR is the single number with the most leverage in the deal, and it is the one most people negotiate least. On the same $30,000 over five years, moving from 13% to 5% saves $6,988, which is more than most buyers ever claw back by haggling over the sticker price. Rates are set almost entirely by your credit score and by whether the car is new or used, and the gap between the best and worst tiers is wide enough that spending three months repairing a score can be worth more than any discount a dealer will offer you.\n\nGet a quote from your own bank or a credit union before you walk in. Dealer financing is arranged through lenders who pay the dealer for placing the loan, and the rate you are shown can carry a markup over the rate the lender actually approved. A written offer in your pocket turns that conversation into a simple question of whether they can beat it.",
+      "table": {
+        "caption": "$30,000 over 60 months, by rate",
+        "head": [
+          "APR",
+          "Monthly payment",
+          "Total interest",
+          "Against 7.5%"
+        ],
+        "rows": [
+          [
+            "3%",
+            "$539.06",
+            "$2,344",
+            "$3,724 less"
+          ],
+          [
+            "5%",
+            "$566.14",
+            "$3,968",
+            "$2,100 less"
+          ],
+          [
+            "7.5%",
+            "$601.14",
+            "$6,068",
+            "—"
+          ],
+          [
+            "10%",
+            "$637.41",
+            "$8,245",
+            "$2,177 more"
+          ],
+          [
+            "13%",
+            "$682.59",
+            "$10,956",
+            "$4,888 more"
+          ],
+          [
+            "16%",
+            "$729.54",
+            "$13,773",
+            "$7,705 more"
+          ]
+        ]
+      }
+    },
+    {
+      "heading": "How the deposit and the trade-in change the sum",
+      "body": "Both reduce what you borrow, and neither reduces the price of the car. A $5,000 deposit on a $35,000 car saves you $1,012 in interest over five years, which is a real saving and a smaller one than most people assume, because the deposit is money you spent on the car either way. What it buys beyond the interest is a smaller payment and a shorter stretch of owing more than the car is worth.\n\nThe trade-in works the same way with one trap attached. If you still owe money on the car you are trading, the dealer settles that balance and rolls whatever is left onto the new loan, so a trade-in can add to what you borrow rather than subtract from it. Find out what you owe before you find out what they will allow, because negative equity carried into a new loan is how a manageable payment becomes an unmanageable one.",
+      "table": {
+        "caption": "A $35,000 car at 7.5% over 60 months, by deposit",
+        "head": [
+          "Deposit",
+          "Amount financed",
+          "Monthly payment",
+          "Total interest"
+        ],
+        "rows": [
+          [
+            "Nothing down",
+            "$35,000",
+            "$701.33",
+            "$7,080"
+          ],
+          [
+            "$3,500 (10%)",
+            "$31,500",
+            "$631.20",
+            "$6,372"
+          ],
+          [
+            "$5,000",
+            "$30,000",
+            "$601.14",
+            "$6,068"
+          ],
+          [
+            "$7,000 (20%)",
+            "$28,000",
+            "$561.06",
+            "$5,664"
+          ],
+          [
+            "$10,500 (30%)",
+            "$24,500",
+            "$490.93",
+            "$4,956"
+          ]
+        ]
+      }
+    },
+    {
+      "heading": "Where the sales tax and the fees land",
+      "body": "Sales tax is charged on the car, not on the loan, so a larger deposit will not reduce it. In most states the tax is worked out after the trade-in is deducted, which is a genuine benefit of trading in rather than selling privately: on a $35,000 car with a $10,000 trade and a 7% rate of tax, the trade saves you $700 in tax on top of the $10,000 it knocks off the balance. This calculator follows that rule, taxing the price after the trade and before the deposit. A handful of states tax the full price regardless, so check yours if the figure has to be exact.\n\nFees are the part of the paperwork worth reading slowly. Title and registration are set by the state and are not negotiable. Documentation fees are set by the dealer, are capped in some states and not in others, and vary from trivial to several hundred dollars. Anything else on the sheet, paint protection, fabric treatment, an extended warranty, a gap policy, is a product being sold to you rather than a cost of buying the car, and each one is financed at your loan's rate for the whole term if you let it onto the contract.",
+      "steps": [
+        "Ask for the out-the-door price in writing, because it is the only number that includes tax, title, registration and every fee, and it is the only one worth comparing between dealers.",
+        "Put the vehicle price in this calculator and the tax rate separately, rather than a price you have already added tax to, or the tax gets counted twice.",
+        "Enter the trade-in as what the dealer allows, and if you still owe on that car, subtract the settlement figure first so the number you type is what actually comes off the new loan."
+      ]
+    },
+    {
+      "heading": "What this calculator does not cover",
+      "body": "It works out the loan rather than the deal. It does not know about dealer add-ons, gap insurance or an extended warranty, and any of those rolled into the contract raise the balance and the payment. It does not handle negative equity from a car you are still paying off, which has to be subtracted from the trade-in figure by hand. It does not model a lease, because a lease charges you for the depreciation and a rent factor rather than for the car, and the arithmetic is genuinely different.\n\nIt also assumes a fixed rate and equal payments throughout, which covers almost every car loan written in the United States. It does not handle a balloon payment at the end, a promotional rate that steps up after a year, or the running costs that decide whether the car is affordable at all. Insurance, fuel, tyres, servicing and registration routinely add three to five hundred dollars a month to what a car costs to own, and none of them appear on the finance agreement."
+    }
+  ],
+  "faqs": [
+    {
+      "q": "Is a longer loan ever the right choice?",
+      "a": "Sometimes, if you are clear about the trade. A longer term makes sense when the lower payment is what keeps your budget intact and you intend to keep the car well past the final payment, because the extra interest is then spread across many years of ownership. It makes very little sense on a car you expect to change in three or four years, since you will be settling a balance larger than the car is worth at exactly the point you want to move on."
+    },
+    {
+      "q": "Should I take the dealer's finance or bring my own?",
+      "a": "Bring your own quote and let the dealer try to beat it. Dealer financing is genuinely competitive when a manufacturer is subsidising a promotional rate, and it is often a point or two above what your own bank would offer when nobody is. You cannot tell which situation you are in without a written offer to compare against, and getting one from a credit union costs you nothing."
+    },
+    {
+      "q": "Does paying extra each month help?",
+      "a": "Yes, and more than the amount suggests, because every extra dollar comes straight off the principal and stops accruing interest for the rest of the term. Paying an extra $50 a month on a $30,000 loan at 7.5% clears it five months early and saves about $575. Check the agreement for a prepayment penalty first: they are uncommon on US car loans but not extinct, and the clause is easy to miss."
+    },
+    {
+      "q": "Why is my approved rate higher than the advertised one?",
+      "a": "Advertised rates are for the top credit tier and usually for new cars with a shorter term, and they are frequently subsidised by the manufacturer on specific models. Your rate depends on your credit score, the loan term, the age of the car and the size of your deposit. Used cars carry higher rates than new ones across every tier, because the collateral is worth less and falls further if the lender has to repossess it."
+    },
+    {
+      "q": "How much car can I actually afford?",
+      "a": "A common rule is twenty per cent down, no more than four years of payments and total car costs under ten per cent of your take-home pay, with the last part counting insurance, fuel and maintenance rather than the payment alone. It is a strict rule and most buyers do not meet it. Treating it as a direction rather than a threshold is still useful, because the further you sit from it, the more of your monthly income is committed to something losing value."
+    }
+  ]
+}

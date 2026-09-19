@@ -26,15 +26,21 @@ const CHROME = '/opt/pw-browsers/chromium-1194/chrome-linux/chrome';
 const PORT = 9222;
 const SERVE = 8731;
 
-const dir = process.argv[2];
-const slug = process.argv[3];
-const edits = process.argv.slice(4).map(a => {
+/* Either a built preview directory plus a slug, or a live URL. The live check
+   is the one that catches what the preview cannot: a theme that loads scripts
+   differently, a caching plugin that combines or defers them, and a CDN
+   serving a stale worker beside a fresh runtime. */
+const live = process.argv[2].startsWith('http') ? process.argv[2] : '';
+const dir = live ? '' : process.argv[2];
+const slug = live ? live.replace(/\/$/, '').split('/').pop() : process.argv[3];
+const edits = process.argv.slice(live ? 3 : 4).map(a => {
   const i = a.indexOf('=');
   return { id: a.slice(0, i), value: a.slice(i + 1) };
 });
 
-if (!dir || !slug) {
+if (!slug || (!dir && !live)) {
   console.error('Usage: node tools/check-in-browser.js <preview-dir> <slug> [field=value ...]');
+  console.error('   or: node tools/check-in-browser.js <live-url> [field=value ...]');
   process.exit(2);
 }
 
@@ -67,7 +73,7 @@ const chrome = spawn(CHROME, ['--headless', '--no-sandbox', '--disable-gpu',
   '--remote-debugging-port=' + PORT, '--remote-allow-origins=*', 'about:blank']);
 
 (async () => {
-  await new Promise(r => server.listen(SERVE, '127.0.0.1', r));
+  if (!live) { await new Promise(r => server.listen(SERVE, '127.0.0.1', r)); }
 
   let targets;
   for (let i = 0; i < 40; i++) {
@@ -135,8 +141,8 @@ const chrome = spawn(CHROME, ['--headless', '--no-sandbox', '--disable-gpu',
   await sleep(400);
   await send('Page.enable');
   await send('Runtime.enable');
-  await send('Page.navigate', { url: `http://127.0.0.1:${SERVE}/${slug}.html` });
-  await sleep(1400);
+  await send('Page.navigate', { url: live || `http://127.0.0.1:${SERVE}/${slug}.html` });
+  await sleep(live ? 3500 : 1400);
 
   const READ = `(() => {
     const root = document.querySelector('[data-calcr-slug]');
@@ -240,6 +246,6 @@ const chrome = spawn(CHROME, ['--headless', '--no-sandbox', '--disable-gpu',
 
   sock.destroy();
   chrome.kill();
-  server.close();
+  if (!live) { server.close(); }
   process.exit(0);
 })();
