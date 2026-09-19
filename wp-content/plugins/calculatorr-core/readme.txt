@@ -4,7 +4,7 @@ Tags: calculator, tools, seo, elementor
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 1.8.1
+Stable tag: 1.9.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -65,6 +65,21 @@ In the visitor's browser. Nothing is sent to the server, so salaries, weights
 and health measurements never leave the device.
 
 == Changelog ==
+
+= 1.9.0 =
+Calculators can now be defined entirely in JSON and published over the REST
+API, so a new tool no longer waits on a new copy of the plugin. A definition
+carries its own fields, copy, questions and formula, and the registry folds it
+in beside the PHP configs so nothing downstream can tell the two apart.
+
+The formula runs in a Web Worker with no DOM and no network rather than on the
+page, and the helpers it is written against moved into a shared kit that both
+the worker and the shipped formulas load, so the two cannot drift. Eighty-one
+of the shipped formulas were lifted into that sandbox unedited and produce
+byte-identical answers, which is the test that keeps it honest.
+
+Also fixes the Elementor widget, which enqueued the runtime without its
+configuration, so a formula that threw inside a widget was never reported.
 
 = 1.8.1 =
 Ten pages rewritten to the content standard, averaging just over a thousand

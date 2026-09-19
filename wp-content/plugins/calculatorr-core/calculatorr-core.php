@@ -3,7 +3,7 @@
  * Plugin Name:       Calculatorr Core
  * Plugin URI:        https://calculatorr.org
  * Description:       Powers every calculator on calculatorr.org. Each calculator is one config file, so adding the hundred and first is a config file rather than a new template.
- * Version:           1.8.1
+ * Version:           1.9.0
  * Requires at least: 6.0
  * Requires PHP:      7.4
  * Author:            calculatorr.org
@@ -15,13 +15,15 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'CALCULATORR_VERSION', '1.8.1' );
+define( 'CALCULATORR_VERSION', '1.9.0' );
 define( 'CALCULATORR_FILE', __FILE__ );
 define( 'CALCULATORR_PATH', plugin_dir_path( __FILE__ ) );
 define( 'CALCULATORR_URL', plugin_dir_url( __FILE__ ) );
 
 require_once CALCULATORR_PATH . 'includes/class-settings.php';
 require_once CALCULATORR_PATH . 'includes/class-error-log.php';
+require_once CALCULATORR_PATH . 'includes/class-content.php';
+require_once CALCULATORR_PATH . 'includes/class-json-calculators.php';
 require_once CALCULATORR_PATH . 'includes/class-registry.php';
 require_once CALCULATORR_PATH . 'includes/class-art.php';
 require_once CALCULATORR_PATH . 'includes/class-renderer.php';
@@ -101,10 +103,23 @@ function calculatorr_register_assets() {
 		CALCULATORR_VERSION,
 		true
 	);
+	/*
+	 * The helper kit loads ahead of the formulas because both the shipped
+	 * formulas and the sandbox worker are written against it. The worker is
+	 * not registered here: a worker is fetched by URL from script rather than
+	 * enqueued, so its address is handed to the runtime instead.
+	 */
+	wp_register_script(
+		'calculatorr-kit',
+		CALCULATORR_URL . 'assets/js/formula-kit.js',
+		array(),
+		CALCULATORR_VERSION,
+		true
+	);
 	wp_register_script(
 		'calculatorr-formulas',
 		CALCULATORR_URL . 'assets/js/formulas.js',
-		array(),
+		array( 'calculatorr-kit' ),
 		CALCULATORR_VERSION,
 		true
 	);

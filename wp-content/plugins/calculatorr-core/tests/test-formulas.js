@@ -2,6 +2,7 @@
 // trade constants, not read back out of the implementation.
 const fs = require('fs');
 global.window = {};
+eval(fs.readFileSync('assets/js/formula-kit.js', 'utf8'));
 eval(fs.readFileSync('assets/js/formulas.js', 'utf8'));
 const F = global.window.CalculatorrFormulas;
 

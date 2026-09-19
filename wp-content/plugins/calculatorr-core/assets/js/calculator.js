@@ -645,14 +645,196 @@
 		}
 	}
 
+	/* ---------- JSON calculators ---------- */
+
+	/*
+	 * A calculator defined in JSON carries its formula in the page beside its
+	 * own card rather than in the shared bundle, which is what lets two of them
+	 * sit on one page without either needing to know the other exists. The
+	 * formula never runs here: it is posted to the sandbox worker, which has no
+	 * DOM and no network, and the answer comes back as plain data.
+	 */
+	var SANDBOX = { worker: null, jobs: {}, seq: 0, warned: false };
+
+	function sandboxUrl() {
+		var config = window.CalculatorrConfig;
+		return ( config && config.sandboxUrl ) ? config.sandboxUrl : '';
+	}
+
+	function formulaSource( root ) {
+		if ( root.__calcrSource !== undefined ) {
+			return root.__calcrSource;
+		}
+
+		var holder = root.querySelector( '[data-calcr-formula]' );
+		root.__calcrSource = null;
+
+		if ( holder ) {
+			try {
+				root.__calcrSource = JSON.parse( holder.textContent );
+			} catch ( error ) {
+				/* Left null, so the calculator keeps the answer the server
+				   rendered rather than showing a broken one. */
+			}
+		}
+
+		return root.__calcrSource;
+	}
+
+	/**
+	 * Throws away the worker and everything waiting on it.
+	 *
+	 * Called when a formula runs past its time limit, because the only way to
+	 * stop a loop that will not end is to end the thread it is running on, and
+	 * called again if the worker fails outright. A fresh one is built on the
+	 * next keystroke, so the visitor's next edit works even though this one did
+	 * not.
+	 */
+	function resetWorker() {
+		if ( SANDBOX.worker ) {
+			try {
+				SANDBOX.worker.terminate();
+			} catch ( ignored ) {
+				/* Already gone, which is the state we wanted. */
+			}
+		}
+
+		Object.keys( SANDBOX.jobs ).forEach( function ( id ) {
+			clearTimeout( SANDBOX.jobs[ id ].timer );
+			delete SANDBOX.jobs[ id ];
+		} );
+
+		SANDBOX.worker = null;
+	}
+
+	function ensureWorker() {
+		if ( SANDBOX.worker ) {
+			return SANDBOX.worker;
+		}
+
+		var url = sandboxUrl();
+
+		if ( ! url || typeof Worker === 'undefined' ) {
+			return null;
+		}
+
+		try {
+			SANDBOX.worker = new Worker( url );
+		} catch ( error ) {
+			SANDBOX.worker = null;
+			return null;
+		}
+
+		SANDBOX.worker.onmessage = function ( event ) {
+			var message = event.data || {};
+
+			if ( message.ready ) {
+				/* The worker reports anything it could not take away from
+				   itself. An empty list is the expected answer, and a browser
+				   that hands one back with entries in it is worth seeing in the
+				   console rather than trusting quietly. */
+				if ( message.survivors && message.survivors.length && window.console ) {
+					window.console.warn( 'calculatorr sandbox kept: ' + message.survivors.join( ', ' ) );
+				}
+				return;
+			}
+
+			var job = SANDBOX.jobs[ message.id ];
+
+			if ( ! job ) {
+				return;
+			}
+
+			clearTimeout( job.timer );
+			delete SANDBOX.jobs[ message.id ];
+
+			/* Answers can arrive out of order, and an older one landing after a
+			   newer one would put a stale number on screen and leave it there.
+			   Each root counts its own runs, so a late answer to a superseded
+			   question is simply dropped. */
+			if ( job.seq !== job.root.__calcrSeq ) {
+				return;
+			}
+
+			if ( message.ok ) {
+				paint( job.root, message.result );
+				return;
+			}
+
+			if ( window.console && window.console.error ) {
+				window.console.error( 'calculatorr: ' + job.slug, message.error );
+			}
+
+			report( job.slug, new Error( message.error || 'sandbox error' ) );
+		};
+
+		SANDBOX.worker.onerror = function () {
+			resetWorker();
+		};
+
+		return SANDBOX.worker;
+	}
+
+	/* Long enough that an amortisation schedule over a hundred years finishes
+	   comfortably, short enough that a visitor never sits looking at a number
+	   that has stopped updating. */
+	var SANDBOX_TIMEOUT = 2000;
+
+	function runSandboxed( root, slug, source, values, seq ) {
+		var worker = ensureWorker();
+
+		if ( ! worker ) {
+			sandboxUnavailable( root );
+			return;
+		}
+
+		var id = ++SANDBOX.seq;
+
+		SANDBOX.jobs[ id ] = {
+			root: root,
+			slug: slug,
+			seq: seq,
+			timer: setTimeout( function () {
+				resetWorker();
+
+				if ( window.console && window.console.error ) {
+					window.console.error( 'calculatorr: ' + slug + ' timed out' );
+				}
+
+				report( slug, new Error( 'formula timed out after ' + SANDBOX_TIMEOUT + 'ms' ) );
+			}, SANDBOX_TIMEOUT )
+		};
+
+		worker.postMessage( { id: id, slug: slug, source: source, values: values } );
+	}
+
+	/**
+	 * What a visitor sees when the sandbox cannot start at all.
+	 *
+	 * The worked example the server rendered is correct arithmetic for the
+	 * numbers on screen, so it stays up rather than being replaced with a dash.
+	 * What it must not do is pretend to be the visitor's own answer, so the
+	 * example caption stays and copying and sharing stay switched off.
+	 */
+	function sandboxUnavailable( root ) {
+		if ( ! SANDBOX.warned ) {
+			SANDBOX.warned = true;
+			report( root.getAttribute( 'data-calcr-slug' ), new Error( 'sandbox worker unavailable' ) );
+		}
+
+		root.setAttribute( 'data-calcr-prompt', 'This calculator needs a browser feature yours has switched off. The figures below are a worked example.' );
+		awaitInput( root );
+	}
+
 	function recalculate( root ) {
 		applyVisibility( root );
 		updateResetState( root );
 
 		var slug = root.getAttribute( 'data-calcr-slug' );
 		var formula = FORMULAS[ slug ];
+		var source = formulaSource( root );
 
-		if ( typeof formula !== 'function' ) {
+		if ( typeof formula !== 'function' && null === source ) {
 			return;
 		}
 
@@ -664,6 +846,16 @@
 		root.classList.remove( 'calcr--awaiting' );
 		setResultActionsEnabled( root, true );
 		countUse( slug );
+
+		/* Counted per calculator rather than globally, because the sandbox is
+		   shared and an answer to one card must never be painted onto
+		   another's. */
+		var seq = root.__calcrSeq = ( root.__calcrSeq || 0 ) + 1;
+
+		if ( typeof formula !== 'function' ) {
+			runSandboxed( root, slug, source, gather( root ), seq );
+			return;
+		}
 
 		try {
 			paint( root, formula( gather( root ) ) );

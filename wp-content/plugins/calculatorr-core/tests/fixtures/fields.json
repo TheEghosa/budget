@@ -1,0 +1,4172 @@
+[
+    {
+        "slug": "401k-calculator",
+        "fields": [
+            {
+                "id": "current",
+                "label": "Current balance",
+                "type": "number",
+                "prefix": "$",
+                "default": 25000
+            },
+            {
+                "id": "salary",
+                "label": "Annual salary",
+                "type": "number",
+                "prefix": "$",
+                "default": 75000
+            },
+            {
+                "id": "contribution",
+                "label": "You contribute",
+                "type": "number",
+                "suffix": "%",
+                "default": 6
+            },
+            {
+                "id": "match",
+                "label": "Employer matches",
+                "type": "number",
+                "suffix": "%",
+                "default": 50,
+                "hint": "50 means fifty cents per dollar."
+            },
+            {
+                "id": "matchLimit",
+                "label": "Up to this much of salary",
+                "type": "number",
+                "suffix": "%",
+                "default": 6
+            },
+            {
+                "id": "raise",
+                "label": "Annual salary growth",
+                "type": "number",
+                "suffix": "%",
+                "default": 3
+            },
+            {
+                "id": "rate",
+                "label": "Annual return",
+                "type": "number",
+                "suffix": "%",
+                "default": 7
+            },
+            {
+                "id": "years",
+                "label": "Years until retirement",
+                "type": "number",
+                "default": 30
+            }
+        ]
+    },
+    {
+        "slug": "age-calculator",
+        "fields": [
+            {
+                "id": "dob",
+                "label": "Date of birth",
+                "type": "date",
+                "default": "1990-01-01"
+            },
+            {
+                "id": "upto",
+                "label": "Age at this date",
+                "type": "date",
+                "default": "",
+                "hint": "Leave empty to use today."
+            }
+        ]
+    },
+    {
+        "slug": "amortization-calculator",
+        "fields": [
+            {
+                "id": "principal",
+                "label": "Loan amount",
+                "type": "number",
+                "prefix": "$",
+                "default": 300000
+            },
+            {
+                "id": "rate",
+                "label": "Interest rate",
+                "type": "number",
+                "suffix": "%",
+                "default": 6.5,
+                "step": "any"
+            },
+            {
+                "id": "years",
+                "label": "Term",
+                "type": "number",
+                "suffix": "years",
+                "default": 30
+            }
+        ]
+    },
+    {
+        "slug": "ap-score-calculator",
+        "fields": [
+            {
+                "id": "mcCorrect",
+                "label": "Multiple choice correct",
+                "type": "number",
+                "default": 40
+            },
+            {
+                "id": "mcTotal",
+                "label": "Multiple choice questions",
+                "type": "number",
+                "default": 55
+            },
+            {
+                "id": "frqEarned",
+                "label": "Free response points earned",
+                "type": "number",
+                "default": 18
+            },
+            {
+                "id": "frqTotal",
+                "label": "Free response points available",
+                "type": "number",
+                "default": 27
+            },
+            {
+                "id": "mcWeight",
+                "label": "Multiple choice weighting",
+                "type": "number",
+                "suffix": "%",
+                "default": 50,
+                "hint": "Usually 50%, though it differs by subject."
+            }
+        ]
+    },
+    {
+        "slug": "area-calculator",
+        "fields": [
+            {
+                "id": "shape",
+                "label": "Shape",
+                "type": "segmented",
+                "options": {
+                    "rectangle": "Rectangle",
+                    "circle": "Circle",
+                    "triangle": "Triangle",
+                    "trapezoid": "Trapezoid",
+                    "ellipse": "Ellipse"
+                },
+                "default": "rectangle"
+            },
+            {
+                "id": "length",
+                "label": "Length",
+                "type": "number",
+                "default": 12,
+                "show_when": {
+                    "shape": "rectangle"
+                }
+            },
+            {
+                "id": "width",
+                "label": "Width",
+                "type": "number",
+                "default": 10,
+                "show_when": {
+                    "shape": "rectangle"
+                }
+            },
+            {
+                "id": "radius",
+                "label": "Radius",
+                "type": "number",
+                "default": 6,
+                "show_when": {
+                    "shape": [
+                        "circle",
+                        "ellipse"
+                    ]
+                }
+            },
+            {
+                "id": "radius2",
+                "label": "Second radius",
+                "type": "number",
+                "default": 4,
+                "show_when": {
+                    "shape": "ellipse"
+                }
+            },
+            {
+                "id": "base",
+                "label": "Base",
+                "type": "number",
+                "default": 12,
+                "show_when": {
+                    "shape": [
+                        "triangle",
+                        "trapezoid"
+                    ]
+                }
+            },
+            {
+                "id": "base2",
+                "label": "Second base",
+                "type": "number",
+                "default": 8,
+                "show_when": {
+                    "shape": "trapezoid"
+                }
+            },
+            {
+                "id": "heightVal",
+                "label": "Height",
+                "type": "number",
+                "default": 8,
+                "show_when": {
+                    "shape": [
+                        "triangle",
+                        "trapezoid"
+                    ]
+                }
+            }
+        ]
+    },
+    {
+        "slug": "average-calculator",
+        "fields": [
+            {
+                "id": "numbers",
+                "label": "Your numbers",
+                "type": "text",
+                "default": "4, 8, 15, 16, 23, 42",
+                "hint": "Separate numbers with spaces or commas."
+            }
+        ]
+    },
+    {
+        "slug": "bac-calculator",
+        "fields": [
+            {
+                "id": "drinks",
+                "label": "Standard drinks",
+                "type": "number",
+                "default": 3,
+                "hint": "One standard drink is 0.6 fl oz of pure alcohol: a 12oz beer, 5oz wine or 1.5oz spirit."
+            },
+            {
+                "id": "units",
+                "label": "Units",
+                "type": "segmented",
+                "options": {
+                    "metric": "Metric",
+                    "imperial": "Imperial"
+                },
+                "default": "imperial"
+            },
+            {
+                "id": "pounds",
+                "label": "Body weight",
+                "type": "number",
+                "suffix": "lb",
+                "default": 180,
+                "show_when": {
+                    "units": "imperial"
+                }
+            },
+            {
+                "id": "weight",
+                "label": "Body weight",
+                "type": "number",
+                "suffix": "kg",
+                "default": 82,
+                "show_when": {
+                    "units": "metric"
+                }
+            },
+            {
+                "id": "sex",
+                "label": "Sex assigned at birth",
+                "type": "segmented",
+                "options": {
+                    "male": "Male",
+                    "female": "Female"
+                },
+                "default": "male"
+            },
+            {
+                "id": "hours",
+                "label": "Hours since your first drink",
+                "type": "number",
+                "default": 2
+            }
+        ]
+    },
+    {
+        "slug": "bmi-calculator",
+        "fields": [
+            {
+                "id": "units",
+                "label": "Units",
+                "type": "segmented",
+                "options": {
+                    "metric": "Metric",
+                    "imperial": "Imperial"
+                },
+                "default": "metric"
+            },
+            {
+                "id": "height",
+                "label": "Height",
+                "type": "number",
+                "suffix": "cm",
+                "default": 175,
+                "min": 0,
+                "show_when": {
+                    "units": "metric"
+                }
+            },
+            {
+                "id": "weight",
+                "label": "Weight",
+                "type": "number",
+                "suffix": "kg",
+                "default": 70,
+                "min": 0,
+                "show_when": {
+                    "units": "metric"
+                }
+            },
+            {
+                "id": "feet",
+                "label": "Height (feet)",
+                "type": "number",
+                "suffix": "ft",
+                "default": 5,
+                "min": 0,
+                "show_when": {
+                    "units": "imperial"
+                }
+            },
+            {
+                "id": "inches",
+                "label": "Height (inches)",
+                "type": "number",
+                "suffix": "in",
+                "default": 9,
+                "min": 0,
+                "show_when": {
+                    "units": "imperial"
+                }
+            },
+            {
+                "id": "pounds",
+                "label": "Weight",
+                "type": "number",
+                "suffix": "lb",
+                "default": 154,
+                "min": 0,
+                "show_when": {
+                    "units": "imperial"
+                }
+            }
+        ]
+    },
+    {
+        "slug": "board-foot-calculator",
+        "fields": [
+            {
+                "id": "thickness",
+                "label": "Thickness",
+                "type": "number",
+                "suffix": "in",
+                "default": 2,
+                "min": 0,
+                "hint": "Use the nominal rough thickness, which is what the yard charges for."
+            },
+            {
+                "id": "width",
+                "label": "Width",
+                "type": "number",
+                "suffix": "in",
+                "default": 6,
+                "min": 0
+            },
+            {
+                "id": "length",
+                "label": "Length",
+                "type": "number",
+                "suffix": "ft",
+                "default": 8,
+                "min": 0
+            },
+            {
+                "id": "quantity",
+                "label": "How many boards",
+                "type": "number",
+                "default": 1,
+                "min": 1,
+                "step": 1
+            },
+            {
+                "id": "price",
+                "label": "Price per board foot",
+                "type": "number",
+                "prefix": "$",
+                "default": 0,
+                "min": 0,
+                "hint": "Leave at zero if you only want the volume."
+            }
+        ]
+    },
+    {
+        "slug": "boat-loan-calculator",
+        "fields": [
+            {
+                "id": "amount",
+                "label": "Boat price",
+                "type": "number",
+                "prefix": "$",
+                "default": 60000
+            },
+            {
+                "id": "down",
+                "label": "Deposit",
+                "type": "number",
+                "prefix": "$",
+                "default": 12000
+            },
+            {
+                "id": "rate",
+                "label": "Interest rate",
+                "type": "number",
+                "suffix": "%",
+                "default": 7.5,
+                "step": "any"
+            },
+            {
+                "id": "years",
+                "label": "Term",
+                "type": "number",
+                "suffix": "years",
+                "default": 15
+            },
+            {
+                "id": "fees",
+                "label": "Fees and documentation",
+                "type": "number",
+                "prefix": "$",
+                "default": 500
+            }
+        ]
+    },
+    {
+        "slug": "body-fat-calculator",
+        "fields": [
+            {
+                "id": "units",
+                "label": "Units",
+                "type": "segmented",
+                "options": {
+                    "metric": "Metric",
+                    "imperial": "Imperial"
+                },
+                "default": "imperial"
+            },
+            {
+                "id": "sex",
+                "label": "Sex assigned at birth",
+                "type": "segmented",
+                "options": {
+                    "male": "Male",
+                    "female": "Female"
+                },
+                "default": "male"
+            },
+            {
+                "id": "heightVal",
+                "label": "Height",
+                "type": "number",
+                "suffix": "in",
+                "default": 70,
+                "show_when": {
+                    "units": "imperial"
+                }
+            },
+            {
+                "id": "neck",
+                "label": "Neck",
+                "type": "number",
+                "suffix": "in",
+                "default": 15,
+                "show_when": {
+                    "units": "imperial"
+                }
+            },
+            {
+                "id": "waist",
+                "label": "Waist",
+                "type": "number",
+                "suffix": "in",
+                "default": 34,
+                "show_when": {
+                    "units": "imperial"
+                },
+                "hint": "At the navel for men, at the narrowest point for women."
+            },
+            {
+                "id": "hip",
+                "label": "Hip",
+                "type": "number",
+                "suffix": "in",
+                "default": 38,
+                "show_when": {
+                    "units": "imperial",
+                    "sex": "female"
+                }
+            },
+            {
+                "id": "pounds",
+                "label": "Weight",
+                "type": "number",
+                "suffix": "lb",
+                "default": 180,
+                "show_when": {
+                    "units": "imperial"
+                }
+            },
+            {
+                "id": "heightVal",
+                "label": "Height",
+                "type": "number",
+                "suffix": "cm",
+                "default": 178,
+                "show_when": {
+                    "units": "metric"
+                }
+            },
+            {
+                "id": "neck",
+                "label": "Neck",
+                "type": "number",
+                "suffix": "cm",
+                "default": 38,
+                "show_when": {
+                    "units": "metric"
+                }
+            },
+            {
+                "id": "waist",
+                "label": "Waist",
+                "type": "number",
+                "suffix": "cm",
+                "default": 86,
+                "show_when": {
+                    "units": "metric"
+                }
+            },
+            {
+                "id": "hip",
+                "label": "Hip",
+                "type": "number",
+                "suffix": "cm",
+                "default": 97,
+                "show_when": {
+                    "units": "metric",
+                    "sex": "female"
+                }
+            },
+            {
+                "id": "weight",
+                "label": "Weight",
+                "type": "number",
+                "suffix": "kg",
+                "default": 82,
+                "show_when": {
+                    "units": "metric"
+                }
+            }
+        ]
+    },
+    {
+        "slug": "body-surface-area-calculator",
+        "fields": [
+            {
+                "id": "units",
+                "label": "Units",
+                "type": "segmented",
+                "options": {
+                    "metric": "Metric",
+                    "imperial": "Imperial"
+                },
+                "default": "metric"
+            },
+            {
+                "id": "height",
+                "label": "Height",
+                "type": "number",
+                "suffix": "cm",
+                "default": 178,
+                "show_when": {
+                    "units": "metric"
+                }
+            },
+            {
+                "id": "weight",
+                "label": "Weight",
+                "type": "number",
+                "suffix": "kg",
+                "default": 75,
+                "show_when": {
+                    "units": "metric"
+                }
+            },
+            {
+                "id": "feet",
+                "label": "Height (feet)",
+                "type": "number",
+                "suffix": "ft",
+                "default": 5,
+                "show_when": {
+                    "units": "imperial"
+                }
+            },
+            {
+                "id": "inches",
+                "label": "Height (inches)",
+                "type": "number",
+                "suffix": "in",
+                "default": 10,
+                "show_when": {
+                    "units": "imperial"
+                }
+            },
+            {
+                "id": "pounds",
+                "label": "Weight",
+                "type": "number",
+                "suffix": "lb",
+                "default": 165,
+                "show_when": {
+                    "units": "imperial"
+                }
+            }
+        ]
+    },
+    {
+        "slug": "bra-size-calculator",
+        "fields": [
+            {
+                "id": "units",
+                "label": "Units",
+                "type": "segmented",
+                "options": {
+                    "metric": "Metric",
+                    "imperial": "Imperial"
+                },
+                "default": "imperial"
+            },
+            {
+                "id": "underbust",
+                "label": "Underbust",
+                "type": "number",
+                "suffix": "in",
+                "default": 32,
+                "show_when": {
+                    "units": "imperial"
+                },
+                "hint": "Snug, directly under the bust."
+            },
+            {
+                "id": "bust",
+                "label": "Bust",
+                "type": "number",
+                "suffix": "in",
+                "default": 36,
+                "show_when": {
+                    "units": "imperial"
+                },
+                "hint": "Loose, around the fullest part."
+            },
+            {
+                "id": "underbust",
+                "label": "Underbust",
+                "type": "number",
+                "suffix": "cm",
+                "default": 81,
+                "show_when": {
+                    "units": "metric"
+                }
+            },
+            {
+                "id": "bust",
+                "label": "Bust",
+                "type": "number",
+                "suffix": "cm",
+                "default": 91,
+                "show_when": {
+                    "units": "metric"
+                }
+            }
+        ]
+    },
+    {
+        "slug": "business-days-calculator",
+        "fields": [
+            {
+                "id": "start",
+                "label": "Start date",
+                "type": "date",
+                "default": "2026-09-01"
+            },
+            {
+                "id": "end",
+                "label": "End date",
+                "type": "date",
+                "default": "2026-09-30"
+            },
+            {
+                "id": "holidays",
+                "label": "Public holidays in the range",
+                "type": "number",
+                "default": 0,
+                "hint": "Entered by hand, since holidays differ by country and state."
+            }
+        ]
+    },
+    {
+        "slug": "cd-calculator",
+        "fields": [
+            {
+                "id": "principal",
+                "label": "Deposit",
+                "type": "number",
+                "prefix": "$",
+                "default": 10000
+            },
+            {
+                "id": "rate",
+                "label": "Interest rate (APY)",
+                "type": "number",
+                "suffix": "%",
+                "default": 4.5
+            },
+            {
+                "id": "months",
+                "label": "Term",
+                "type": "number",
+                "suffix": "months",
+                "default": 12
+            },
+            {
+                "id": "compounds",
+                "label": "Compounded",
+                "type": "segmented",
+                "options": {
+                    "1": "Yearly",
+                    "4": "Quarterly",
+                    "12": "Monthly",
+                    "365": "Daily"
+                },
+                "default": "12"
+            }
+        ]
+    },
+    {
+        "slug": "celsius-to-fahrenheit-calculator",
+        "fields": [
+            {
+                "id": "temperature",
+                "label": "Temperature",
+                "type": "number",
+                "default": 20,
+                "step": "any"
+            },
+            {
+                "id": "from",
+                "label": "Measured in",
+                "type": "segmented",
+                "options": {
+                    "c": "Celsius",
+                    "f": "Fahrenheit",
+                    "k": "Kelvin"
+                },
+                "default": "c"
+            }
+        ]
+    },
+    {
+        "slug": "chronological-age-calculator",
+        "fields": [
+            {
+                "id": "dob",
+                "label": "Date of birth",
+                "type": "date",
+                "default": "1990-01-01"
+            },
+            {
+                "id": "upto",
+                "label": "Age at this date",
+                "type": "date",
+                "default": "",
+                "hint": "Leave empty to use today."
+            }
+        ]
+    },
+    {
+        "slug": "circumference-calculator",
+        "fields": [
+            {
+                "id": "from",
+                "label": "I know the",
+                "type": "segmented",
+                "options": {
+                    "radius": "Radius",
+                    "diameter": "Diameter",
+                    "circumference": "Circumference",
+                    "area": "Area"
+                },
+                "default": "radius"
+            },
+            {
+                "id": "value",
+                "label": "Value",
+                "type": "number",
+                "default": 5,
+                "step": "any"
+            }
+        ]
+    },
+    {
+        "slug": "compound-interest-calculator",
+        "fields": [
+            {
+                "id": "principal",
+                "label": "Starting amount",
+                "type": "number",
+                "prefix": "$",
+                "default": 10000,
+                "min": 0
+            },
+            {
+                "id": "monthly",
+                "label": "Monthly contribution",
+                "type": "number",
+                "prefix": "$",
+                "default": 250,
+                "min": 0
+            },
+            {
+                "id": "rate",
+                "label": "Annual return",
+                "type": "number",
+                "suffix": "%",
+                "default": 7,
+                "min": 0
+            },
+            {
+                "id": "years",
+                "label": "Years",
+                "type": "number",
+                "default": 20,
+                "min": 0
+            },
+            {
+                "id": "frequency",
+                "label": "Compounding",
+                "type": "segmented",
+                "options": {
+                    "1": "Yearly",
+                    "4": "Quarterly",
+                    "12": "Monthly"
+                },
+                "default": 12
+            }
+        ]
+    },
+    {
+        "slug": "concrete-calculator",
+        "fields": [
+            {
+                "id": "shape",
+                "label": "What are you pouring",
+                "type": "segmented",
+                "options": {
+                    "slab": "Slab",
+                    "footing": "Footing",
+                    "column": "Column"
+                },
+                "default": "slab"
+            },
+            {
+                "id": "length",
+                "label": "Length",
+                "type": "number",
+                "suffix": "ft",
+                "default": 10,
+                "min": 0,
+                "show_when": {
+                    "shape": [
+                        "slab",
+                        "footing"
+                    ]
+                }
+            },
+            {
+                "id": "width",
+                "label": "Width",
+                "type": "number",
+                "suffix": "ft",
+                "default": 10,
+                "min": 0,
+                "show_when": {
+                    "shape": "slab"
+                }
+            },
+            {
+                "id": "thickness",
+                "label": "Thickness",
+                "type": "number",
+                "suffix": "in",
+                "default": 4,
+                "min": 0,
+                "show_when": {
+                    "shape": "slab"
+                },
+                "hint": "4 inches is standard for a patio or walkway, 6 for a driveway."
+            },
+            {
+                "id": "footWidth",
+                "label": "Footing width",
+                "type": "number",
+                "suffix": "in",
+                "default": 16,
+                "min": 0,
+                "show_when": {
+                    "shape": "footing"
+                }
+            },
+            {
+                "id": "footDepth",
+                "label": "Footing depth",
+                "type": "number",
+                "suffix": "in",
+                "default": 8,
+                "min": 0,
+                "show_when": {
+                    "shape": "footing"
+                }
+            },
+            {
+                "id": "diameter",
+                "label": "Column diameter",
+                "type": "number",
+                "suffix": "in",
+                "default": 12,
+                "min": 0,
+                "show_when": {
+                    "shape": "column"
+                }
+            },
+            {
+                "id": "height",
+                "label": "Column height",
+                "type": "number",
+                "suffix": "ft",
+                "default": 8,
+                "min": 0,
+                "show_when": {
+                    "shape": "column"
+                }
+            },
+            {
+                "id": "quantity",
+                "label": "How many",
+                "type": "number",
+                "default": 1,
+                "min": 1,
+                "step": 1
+            },
+            {
+                "id": "waste",
+                "label": "Waste allowance",
+                "type": "number",
+                "suffix": "%",
+                "default": 10,
+                "min": 0,
+                "hint": "Ten per cent covers spillage and uneven subgrade. Raise it if the ground is rough."
+            }
+        ]
+    },
+    {
+        "slug": "cpm-calculator",
+        "fields": [
+            {
+                "id": "solve",
+                "label": "Solve for",
+                "type": "segmented",
+                "options": {
+                    "cpm": "CPM",
+                    "cost": "Cost",
+                    "impressions": "Impressions"
+                },
+                "default": "cpm"
+            },
+            {
+                "id": "cost",
+                "label": "Campaign cost",
+                "type": "number",
+                "prefix": "$",
+                "default": 2500,
+                "step": "any"
+            },
+            {
+                "id": "impressions",
+                "label": "Impressions",
+                "type": "number",
+                "default": 500000
+            },
+            {
+                "id": "cpm",
+                "label": "CPM",
+                "type": "number",
+                "prefix": "$",
+                "default": 5,
+                "step": "any",
+                "show_when": {
+                    "solve": [
+                        "cost",
+                        "impressions"
+                    ]
+                }
+            },
+            {
+                "id": "ctr",
+                "label": "Click-through rate",
+                "type": "number",
+                "suffix": "%",
+                "default": 0.5,
+                "step": "any"
+            }
+        ]
+    },
+    {
+        "slug": "cubic-feet-calculator",
+        "fields": [
+            {
+                "id": "length",
+                "label": "Length",
+                "type": "number",
+                "default": 3
+            },
+            {
+                "id": "width",
+                "label": "Width",
+                "type": "number",
+                "default": 3
+            },
+            {
+                "id": "heightVal",
+                "label": "Height",
+                "type": "number",
+                "default": 3
+            },
+            {
+                "id": "unit",
+                "label": "Measured in",
+                "type": "segmented",
+                "options": {
+                    "inches": "Inches",
+                    "feet": "Feet",
+                    "yards": "Yards",
+                    "cm": "Centimetres",
+                    "metres": "Metres"
+                },
+                "default": "feet"
+            },
+            {
+                "id": "quantity",
+                "label": "How many",
+                "type": "number",
+                "default": 1
+            }
+        ]
+    },
+    {
+        "slug": "cubic-yard-calculator",
+        "fields": [
+            {
+                "id": "length",
+                "label": "Length",
+                "type": "number",
+                "suffix": "ft",
+                "default": 10,
+                "min": 0
+            },
+            {
+                "id": "width",
+                "label": "Width",
+                "type": "number",
+                "suffix": "ft",
+                "default": 10,
+                "min": 0
+            },
+            {
+                "id": "depth",
+                "label": "Depth",
+                "type": "number",
+                "default": 6,
+                "min": 0
+            },
+            {
+                "id": "depthUnit",
+                "label": "Depth is in",
+                "type": "segmented",
+                "options": {
+                    "inches": "Inches",
+                    "feet": "Feet"
+                },
+                "default": "inches"
+            },
+            {
+                "id": "waste",
+                "label": "Extra allowance",
+                "type": "number",
+                "suffix": "%",
+                "default": 0,
+                "min": 0
+            }
+        ]
+    },
+    {
+        "slug": "cumulative-gpa-calculator",
+        "fields": [
+            {
+                "id": "priorGpa",
+                "label": "Previous cumulative GPA",
+                "type": "number",
+                "default": 3.4,
+                "step": "any"
+            },
+            {
+                "id": "priorCredits",
+                "label": "Credits earned so far",
+                "type": "number",
+                "default": 60
+            },
+            {
+                "id": "termGpa",
+                "label": "This term’s GPA",
+                "type": "number",
+                "default": 3.8,
+                "step": "any"
+            },
+            {
+                "id": "termCredits",
+                "label": "Credits this term",
+                "type": "number",
+                "default": 15
+            }
+        ]
+    },
+    {
+        "slug": "cylinder-volume-calculator",
+        "fields": [
+            {
+                "id": "measure",
+                "label": "I know the",
+                "type": "segmented",
+                "options": {
+                    "radius": "Radius",
+                    "diameter": "Diameter"
+                },
+                "default": "radius"
+            },
+            {
+                "id": "radius",
+                "label": "Radius",
+                "type": "number",
+                "default": 3,
+                "show_when": {
+                    "measure": "radius"
+                }
+            },
+            {
+                "id": "diameter",
+                "label": "Diameter",
+                "type": "number",
+                "default": 6,
+                "show_when": {
+                    "measure": "diameter"
+                }
+            },
+            {
+                "id": "heightVal",
+                "label": "Height",
+                "type": "number",
+                "default": 10
+            }
+        ]
+    },
+    {
+        "slug": "date-calculator",
+        "fields": [
+            {
+                "id": "start",
+                "label": "Start date",
+                "type": "date",
+                "default": "2026-01-31"
+            },
+            {
+                "id": "op",
+                "label": "Operation",
+                "type": "segmented",
+                "options": {
+                    "add": "Add",
+                    "sub": "Subtract"
+                },
+                "default": "add"
+            },
+            {
+                "id": "days",
+                "label": "Days",
+                "type": "number",
+                "default": 0
+            },
+            {
+                "id": "weeks",
+                "label": "Weeks",
+                "type": "number",
+                "default": 0
+            },
+            {
+                "id": "months",
+                "label": "Months",
+                "type": "number",
+                "default": 1
+            }
+        ]
+    },
+    {
+        "slug": "decimal-to-fraction-calculator",
+        "fields": [
+            {
+                "id": "decimal",
+                "label": "Decimal",
+                "type": "number",
+                "default": 0.375,
+                "step": "any"
+            }
+        ]
+    },
+    {
+        "slug": "deck-calculator",
+        "fields": [
+            {
+                "id": "length",
+                "label": "Deck length",
+                "type": "number",
+                "suffix": "ft",
+                "default": 16,
+                "min": 0,
+                "hint": "The direction the boards run."
+            },
+            {
+                "id": "width",
+                "label": "Deck width",
+                "type": "number",
+                "suffix": "ft",
+                "default": 12,
+                "min": 0
+            },
+            {
+                "id": "boardWidth",
+                "label": "Board width",
+                "type": "number",
+                "suffix": "in",
+                "default": 5.5,
+                "min": 0,
+                "hint": "A nominal 2x6 actually measures 5.5 inches."
+            },
+            {
+                "id": "gap",
+                "label": "Gap between boards",
+                "type": "number",
+                "suffix": "in",
+                "default": 0.25,
+                "min": 0
+            },
+            {
+                "id": "joistSpacing",
+                "label": "Joist spacing",
+                "type": "segmented",
+                "options": {
+                    "12": "12in",
+                    "16": "16in",
+                    "24": "24in"
+                },
+                "default": "16"
+            },
+            {
+                "id": "waste",
+                "label": "Waste allowance",
+                "type": "number",
+                "suffix": "%",
+                "default": 10,
+                "min": 0
+            }
+        ]
+    },
+    {
+        "slug": "derivative-calculator",
+        "fields": [
+            {
+                "id": "expression",
+                "label": "Expression in x",
+                "type": "text",
+                "default": "3x^2+5x-7",
+                "hint": "Powers, sin(x), cos(x), e^x, ln(x) and sqrt(x), added or subtracted."
+            },
+            {
+                "id": "at",
+                "label": "Evaluate slope at x =",
+                "type": "number",
+                "default": 2,
+                "step": "any"
+            }
+        ]
+    },
+    {
+        "slug": "discount-calculator",
+        "fields": [
+            {
+                "id": "price",
+                "label": "Original price",
+                "type": "number",
+                "prefix": "$",
+                "default": 120,
+                "min": 0
+            },
+            {
+                "id": "discount",
+                "label": "Discount",
+                "type": "number",
+                "suffix": "%",
+                "default": 25,
+                "min": 0,
+                "max": 100
+            },
+            {
+                "id": "extra",
+                "label": "Extra discount",
+                "type": "number",
+                "suffix": "%",
+                "default": 0,
+                "min": 0,
+                "max": 100,
+                "hint": "For a coupon applied on top of a sale price. Leave at zero if there is only one discount."
+            }
+        ]
+    },
+    {
+        "slug": "distance-calculator",
+        "fields": [
+            {
+                "id": "mode",
+                "label": "Measuring",
+                "type": "segmented",
+                "options": {
+                    "plane": "Two points (x, y)",
+                    "coordinates": "Latitude and longitude"
+                },
+                "default": "plane"
+            },
+            {
+                "id": "x1",
+                "label": "x₁",
+                "type": "number",
+                "default": 0,
+                "step": "any",
+                "show_when": {
+                    "mode": "plane"
+                }
+            },
+            {
+                "id": "y1",
+                "label": "y₁",
+                "type": "number",
+                "default": 0,
+                "step": "any",
+                "show_when": {
+                    "mode": "plane"
+                }
+            },
+            {
+                "id": "x2",
+                "label": "x₂",
+                "type": "number",
+                "default": 3,
+                "step": "any",
+                "show_when": {
+                    "mode": "plane"
+                }
+            },
+            {
+                "id": "y2",
+                "label": "y₂",
+                "type": "number",
+                "default": 4,
+                "step": "any",
+                "show_when": {
+                    "mode": "plane"
+                }
+            },
+            {
+                "id": "lat1",
+                "label": "Latitude 1",
+                "type": "number",
+                "default": 40.7128,
+                "step": "any",
+                "show_when": {
+                    "mode": "coordinates"
+                }
+            },
+            {
+                "id": "lon1",
+                "label": "Longitude 1",
+                "type": "number",
+                "default": -74.006,
+                "step": "any",
+                "show_when": {
+                    "mode": "coordinates"
+                }
+            },
+            {
+                "id": "lat2",
+                "label": "Latitude 2",
+                "type": "number",
+                "default": 34.0522,
+                "step": "any",
+                "show_when": {
+                    "mode": "coordinates"
+                }
+            },
+            {
+                "id": "lon2",
+                "label": "Longitude 2",
+                "type": "number",
+                "default": -118.2437,
+                "step": "any",
+                "show_when": {
+                    "mode": "coordinates"
+                }
+            }
+        ]
+    },
+    {
+        "slug": "dividend-calculator",
+        "fields": [
+            {
+                "id": "shares",
+                "label": "Shares owned",
+                "type": "number",
+                "default": 500
+            },
+            {
+                "id": "price",
+                "label": "Share price",
+                "type": "number",
+                "prefix": "$",
+                "default": 50,
+                "step": "any"
+            },
+            {
+                "id": "dividend",
+                "label": "Dividend per share",
+                "type": "number",
+                "prefix": "$",
+                "default": 0.6,
+                "step": "any"
+            },
+            {
+                "id": "frequency",
+                "label": "Paid",
+                "type": "segmented",
+                "options": {
+                    "1": "Yearly",
+                    "2": "Twice yearly",
+                    "4": "Quarterly",
+                    "12": "Monthly"
+                },
+                "default": "4"
+            },
+            {
+                "id": "growth",
+                "label": "Annual dividend growth",
+                "type": "number",
+                "suffix": "%",
+                "default": 5
+            },
+            {
+                "id": "years",
+                "label": "Years",
+                "type": "number",
+                "default": 20
+            },
+            {
+                "id": "reinvest",
+                "label": "Reinvest dividends",
+                "type": "segmented",
+                "options": {
+                    "yes": "Yes",
+                    "no": "No"
+                },
+                "default": "yes"
+            }
+        ]
+    },
+    {
+        "slug": "dog-age-calculator",
+        "fields": [
+            {
+                "id": "years",
+                "label": "Dog’s age (years)",
+                "type": "number",
+                "default": 5
+            },
+            {
+                "id": "months",
+                "label": "Extra months",
+                "type": "number",
+                "default": 0
+            },
+            {
+                "id": "size",
+                "label": "Breed size",
+                "type": "segmented",
+                "options": {
+                    "small": "Small",
+                    "medium": "Medium",
+                    "large": "Large",
+                    "giant": "Giant"
+                },
+                "default": "medium"
+            }
+        ]
+    },
+    {
+        "slug": "ebay-fee-calculator",
+        "fields": [
+            {
+                "id": "price",
+                "label": "Item price",
+                "type": "number",
+                "prefix": "$",
+                "default": 50,
+                "step": "any"
+            },
+            {
+                "id": "shipping",
+                "label": "Shipping charged to buyer",
+                "type": "number",
+                "prefix": "$",
+                "default": 8,
+                "step": "any"
+            },
+            {
+                "id": "cost",
+                "label": "Your item cost",
+                "type": "number",
+                "prefix": "$",
+                "default": 20,
+                "step": "any"
+            },
+            {
+                "id": "shipCost",
+                "label": "Your shipping cost",
+                "type": "number",
+                "prefix": "$",
+                "default": 7,
+                "step": "any"
+            },
+            {
+                "id": "feeRate",
+                "label": "Final value fee",
+                "type": "number",
+                "suffix": "%",
+                "default": 13.25,
+                "step": "any",
+                "hint": "Varies by category and store subscription."
+            },
+            {
+                "id": "perOrder",
+                "label": "Per order fee",
+                "type": "number",
+                "prefix": "$",
+                "default": 0.3,
+                "step": "any"
+            },
+            {
+                "id": "promoted",
+                "label": "Promoted listing rate",
+                "type": "number",
+                "suffix": "%",
+                "default": 0,
+                "step": "any"
+            }
+        ]
+    },
+    {
+        "slug": "factor-calculator",
+        "fields": [
+            {
+                "id": "number",
+                "label": "Number",
+                "type": "number",
+                "default": 360
+            }
+        ]
+    },
+    {
+        "slug": "feet-to-meters-calculator",
+        "fields": [
+            {
+                "id": "value",
+                "label": "Feet",
+                "type": "number",
+                "default": 6,
+                "step": "any"
+            }
+        ]
+    },
+    {
+        "slug": "fraction-calculator",
+        "fields": [
+            {
+                "id": "n1",
+                "label": "First numerator",
+                "type": "number",
+                "default": 1
+            },
+            {
+                "id": "d1",
+                "label": "First denominator",
+                "type": "number",
+                "default": 2
+            },
+            {
+                "id": "op",
+                "label": "Operation",
+                "type": "segmented",
+                "options": {
+                    "add": "+",
+                    "sub": "−",
+                    "mul": "×",
+                    "div": "÷"
+                },
+                "default": "add"
+            },
+            {
+                "id": "n2",
+                "label": "Second numerator",
+                "type": "number",
+                "default": 1
+            },
+            {
+                "id": "d2",
+                "label": "Second denominator",
+                "type": "number",
+                "default": 3
+            }
+        ]
+    },
+    {
+        "slug": "future-value-calculator",
+        "fields": [
+            {
+                "id": "present",
+                "label": "Starting amount",
+                "type": "number",
+                "prefix": "$",
+                "default": 10000
+            },
+            {
+                "id": "payment",
+                "label": "Regular payment",
+                "type": "number",
+                "prefix": "$",
+                "default": 500
+            },
+            {
+                "id": "frequency",
+                "label": "Paid",
+                "type": "segmented",
+                "options": {
+                    "12": "Monthly",
+                    "4": "Quarterly",
+                    "1": "Yearly"
+                },
+                "default": "12"
+            },
+            {
+                "id": "rate",
+                "label": "Annual return",
+                "type": "number",
+                "suffix": "%",
+                "default": 6
+            },
+            {
+                "id": "years",
+                "label": "Years",
+                "type": "number",
+                "default": 20
+            },
+            {
+                "id": "inflation",
+                "label": "Inflation rate",
+                "type": "number",
+                "suffix": "%",
+                "default": 3
+            }
+        ]
+    },
+    {
+        "slug": "gcf-calculator",
+        "fields": [
+            {
+                "id": "numbers",
+                "label": "Your numbers",
+                "type": "text",
+                "default": "48, 180",
+                "hint": "Separate numbers with spaces or commas."
+            }
+        ]
+    },
+    {
+        "slug": "gpa-calculator",
+        "fields": [
+            {
+                "id": "courses",
+                "label": "Your courses",
+                "type": "repeater",
+                "rows": 3,
+                "row": [
+                    {
+                        "id": "grade",
+                        "label": "Grade",
+                        "type": "select",
+                        "options": {
+                            "4.0": "A  (4.0)",
+                            "3.7": "A- (3.7)",
+                            "3.3": "B+ (3.3)",
+                            "3.0": "B  (3.0)",
+                            "2.7": "B- (2.7)",
+                            "2.3": "C+ (2.3)",
+                            "2.0": "C  (2.0)",
+                            "1.7": "C- (1.7)",
+                            "1.3": "D+ (1.3)",
+                            "1.0": "D  (1.0)",
+                            "0.0": "F  (0.0)"
+                        },
+                        "default": "4.0"
+                    },
+                    {
+                        "id": "credits",
+                        "label": "Credit hours",
+                        "type": "number",
+                        "default": 3
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "slug": "gravel-calculator",
+        "fields": [
+            {
+                "id": "length",
+                "label": "Length",
+                "type": "number",
+                "suffix": "ft",
+                "default": 20,
+                "min": 0
+            },
+            {
+                "id": "width",
+                "label": "Width",
+                "type": "number",
+                "suffix": "ft",
+                "default": 10,
+                "min": 0
+            },
+            {
+                "id": "depth",
+                "label": "Depth",
+                "type": "number",
+                "suffix": "in",
+                "default": 3,
+                "min": 0,
+                "hint": "Two to three inches for a path, four or more for a driveway that carries vehicles."
+            },
+            {
+                "id": "waste",
+                "label": "Waste allowance",
+                "type": "number",
+                "suffix": "%",
+                "default": 10,
+                "min": 0
+            }
+        ]
+    },
+    {
+        "slug": "gst-calculator",
+        "fields": [
+            {
+                "id": "mode",
+                "label": "I want to",
+                "type": "segmented",
+                "options": {
+                    "add": "Add GST",
+                    "remove": "Remove GST"
+                },
+                "default": "add"
+            },
+            {
+                "id": "amount",
+                "label": "Amount",
+                "type": "number",
+                "prefix": "$",
+                "default": 100,
+                "step": "any"
+            },
+            {
+                "id": "rate",
+                "label": "GST rate",
+                "type": "number",
+                "suffix": "%",
+                "default": 10,
+                "step": "any"
+            }
+        ]
+    },
+    {
+        "slug": "heloc-calculator",
+        "fields": [
+            {
+                "id": "value",
+                "label": "Home value",
+                "type": "number",
+                "prefix": "$",
+                "default": 450000
+            },
+            {
+                "id": "owed",
+                "label": "Mortgage balance",
+                "type": "number",
+                "prefix": "$",
+                "default": 250000
+            },
+            {
+                "id": "ltv",
+                "label": "Maximum combined LTV",
+                "type": "number",
+                "suffix": "%",
+                "default": 85
+            },
+            {
+                "id": "rate",
+                "label": "Interest rate",
+                "type": "number",
+                "suffix": "%",
+                "default": 8.5,
+                "step": "any"
+            },
+            {
+                "id": "draw",
+                "label": "Amount you would draw",
+                "type": "number",
+                "prefix": "$",
+                "default": 50000
+            }
+        ]
+    },
+    {
+        "slug": "hours-calculator",
+        "fields": [
+            {
+                "id": "start",
+                "label": "Clock in",
+                "type": "text",
+                "default": "9:00 AM",
+                "hint": "Such as 9:00 AM, 5:30 PM or 14:45."
+            },
+            {
+                "id": "end",
+                "label": "Clock out",
+                "type": "text",
+                "default": "5:30 PM",
+                "hint": "Such as 9:00 AM, 5:30 PM or 14:45."
+            },
+            {
+                "id": "breakMins",
+                "label": "Unpaid break",
+                "type": "number",
+                "suffix": "minutes",
+                "default": 30
+            },
+            {
+                "id": "rate",
+                "label": "Hourly rate",
+                "type": "number",
+                "prefix": "$",
+                "default": 20
+            }
+        ]
+    },
+    {
+        "slug": "inches-to-feet-calculator",
+        "fields": [
+            {
+                "id": "value",
+                "label": "Inches",
+                "type": "number",
+                "default": 78,
+                "step": "any"
+            }
+        ]
+    },
+    {
+        "slug": "integral-calculator",
+        "fields": [
+            {
+                "id": "expression",
+                "label": "Expression in x",
+                "type": "text",
+                "default": "x^2",
+                "hint": "Powers, sin(x), cos(x), e^x, ln(x) and sqrt(x), added or subtracted."
+            },
+            {
+                "id": "from",
+                "label": "From x =",
+                "type": "number",
+                "default": 0,
+                "step": "any"
+            },
+            {
+                "id": "to",
+                "label": "To x =",
+                "type": "number",
+                "default": 3,
+                "step": "any"
+            }
+        ]
+    },
+    {
+        "slug": "lcm-calculator",
+        "fields": [
+            {
+                "id": "numbers",
+                "label": "Your numbers",
+                "type": "text",
+                "default": "4, 6",
+                "hint": "Separate numbers with spaces or commas."
+            }
+        ]
+    },
+    {
+        "slug": "long-division-calculator",
+        "fields": [
+            {
+                "id": "dividend",
+                "label": "Dividend",
+                "type": "number",
+                "default": 847
+            },
+            {
+                "id": "divisor",
+                "label": "Divisor",
+                "type": "number",
+                "default": 23
+            }
+        ]
+    },
+    {
+        "slug": "love-calculator",
+        "fields": [
+            {
+                "id": "name1",
+                "label": "First name",
+                "type": "text",
+                "default": "Alex"
+            },
+            {
+                "id": "name2",
+                "label": "Second name",
+                "type": "text",
+                "default": "Sam"
+            }
+        ]
+    },
+    {
+        "slug": "macro-calculator",
+        "fields": [
+            {
+                "id": "calories",
+                "label": "Daily calories",
+                "type": "number",
+                "suffix": "kcal",
+                "default": 2000
+            },
+            {
+                "id": "split",
+                "label": "Split",
+                "type": "segmented",
+                "options": {
+                    "balanced": "Balanced",
+                    "lowcarb": "Low carb",
+                    "highcarb": "High carb",
+                    "keto": "Keto"
+                },
+                "default": "balanced"
+            }
+        ]
+    },
+    {
+        "slug": "margin-calculator",
+        "fields": [
+            {
+                "id": "cost",
+                "label": "Unit cost",
+                "type": "number",
+                "prefix": "$",
+                "default": 40,
+                "step": "any"
+            },
+            {
+                "id": "margin",
+                "label": "Target margin",
+                "type": "number",
+                "suffix": "%",
+                "default": 40
+            }
+        ]
+    },
+    {
+        "slug": "markup-calculator",
+        "fields": [
+            {
+                "id": "cost",
+                "label": "Unit cost",
+                "type": "number",
+                "prefix": "$",
+                "default": 40,
+                "step": "any"
+            },
+            {
+                "id": "markup",
+                "label": "Markup",
+                "type": "number",
+                "suffix": "%",
+                "default": 50
+            }
+        ]
+    },
+    {
+        "slug": "military-pay-calculator",
+        "fields": [
+            {
+                "id": "basePay",
+                "label": "Monthly base pay",
+                "type": "number",
+                "prefix": "$",
+                "default": 3500,
+                "hint": "From the current DFAS pay table or your LES."
+            },
+            {
+                "id": "bah",
+                "label": "Monthly BAH",
+                "type": "number",
+                "prefix": "$",
+                "default": 1800,
+                "hint": "Depends on duty ZIP code, paygrade and dependants."
+            },
+            {
+                "id": "bas",
+                "label": "Monthly BAS",
+                "type": "number",
+                "prefix": "$",
+                "default": 460
+            },
+            {
+                "id": "special",
+                "label": "Special and incentive pay",
+                "type": "number",
+                "prefix": "$",
+                "default": 0
+            },
+            {
+                "id": "taxRate",
+                "label": "Your marginal tax rate",
+                "type": "number",
+                "suffix": "%",
+                "default": 22
+            }
+        ]
+    },
+    {
+        "slug": "military-time-converter",
+        "fields": [
+            {
+                "id": "direction",
+                "label": "Direction",
+                "type": "segmented",
+                "options": {
+                    "toMilitary": "Standard to military",
+                    "toStandard": "Military to standard"
+                },
+                "default": "toMilitary"
+            },
+            {
+                "id": "standard",
+                "label": "Standard time",
+                "type": "text",
+                "default": "2:30 PM",
+                "show_when": {
+                    "direction": "toMilitary"
+                },
+                "hint": "Such as 9:00 AM, 5:30 PM or 14:45."
+            },
+            {
+                "id": "military",
+                "label": "Military time",
+                "type": "text",
+                "default": "1430",
+                "show_when": {
+                    "direction": "toStandard"
+                },
+                "hint": "Four digits, such as 0900 or 1745."
+            }
+        ]
+    },
+    {
+        "slug": "mm-to-inches-calculator",
+        "fields": [
+            {
+                "id": "value",
+                "label": "Millimetres",
+                "type": "number",
+                "default": 100,
+                "step": "any"
+            }
+        ]
+    },
+    {
+        "slug": "molarity-calculator",
+        "fields": [
+            {
+                "id": "solve",
+                "label": "Solve for",
+                "type": "segmented",
+                "options": {
+                    "molarity": "Molarity",
+                    "mass": "Mass",
+                    "volume": "Volume"
+                },
+                "default": "molarity"
+            },
+            {
+                "id": "mass",
+                "label": "Mass of solute",
+                "type": "number",
+                "suffix": "g",
+                "default": 58.44,
+                "step": "any"
+            },
+            {
+                "id": "molarMass",
+                "label": "Molar mass",
+                "type": "number",
+                "suffix": "g/mol",
+                "default": 58.44,
+                "step": "any",
+                "hint": "Sum of the atomic masses in the formula."
+            },
+            {
+                "id": "volume",
+                "label": "Volume of solution",
+                "type": "number",
+                "suffix": "L",
+                "default": 1,
+                "step": "any"
+            },
+            {
+                "id": "molarity",
+                "label": "Molarity",
+                "type": "number",
+                "suffix": "M",
+                "default": 1,
+                "step": "any",
+                "show_when": {
+                    "solve": [
+                        "mass",
+                        "volume"
+                    ]
+                }
+            }
+        ]
+    },
+    {
+        "slug": "mortgage-payment-calculator",
+        "fields": [
+            {
+                "id": "price",
+                "label": "Home price",
+                "type": "number",
+                "prefix": "$",
+                "default": 450000,
+                "min": 0,
+                "step": 1000
+            },
+            {
+                "id": "downPct",
+                "label": "Down payment",
+                "type": "number",
+                "suffix": "%",
+                "default": 20,
+                "min": 0,
+                "max": 100
+            },
+            {
+                "id": "rate",
+                "label": "Interest rate",
+                "type": "number",
+                "suffix": "%",
+                "default": 6.5,
+                "min": 0,
+                "hint": "Annual, fixed"
+            },
+            {
+                "id": "term",
+                "label": "Loan term",
+                "type": "segmented",
+                "options": {
+                    "15": "15 years",
+                    "20": "20 years",
+                    "30": "30 years"
+                },
+                "default": 30
+            },
+            {
+                "id": "tax",
+                "label": "Property tax per year",
+                "type": "number",
+                "prefix": "$",
+                "default": 4200,
+                "min": 0
+            },
+            {
+                "id": "insurance",
+                "label": "Home insurance per year",
+                "type": "number",
+                "prefix": "$",
+                "default": 1600,
+                "min": 0
+            }
+        ]
+    },
+    {
+        "slug": "mortgage-payoff-calculator",
+        "fields": [
+            {
+                "id": "balance",
+                "label": "Current balance",
+                "type": "number",
+                "prefix": "$",
+                "default": 250000
+            },
+            {
+                "id": "rate",
+                "label": "Interest rate",
+                "type": "number",
+                "suffix": "%",
+                "default": 6.5,
+                "step": "any"
+            },
+            {
+                "id": "yearsLeft",
+                "label": "Years remaining",
+                "type": "number",
+                "default": 25
+            },
+            {
+                "id": "extra",
+                "label": "Extra per month",
+                "type": "number",
+                "prefix": "$",
+                "default": 200
+            }
+        ]
+    },
+    {
+        "slug": "mulch-calculator",
+        "fields": [
+            {
+                "id": "length",
+                "label": "Bed length",
+                "type": "number",
+                "suffix": "ft",
+                "default": 20,
+                "min": 0
+            },
+            {
+                "id": "width",
+                "label": "Bed width",
+                "type": "number",
+                "suffix": "ft",
+                "default": 10,
+                "min": 0
+            },
+            {
+                "id": "depth",
+                "label": "Depth",
+                "type": "number",
+                "suffix": "in",
+                "default": 3,
+                "min": 0,
+                "hint": "Three inches suppresses weeds without suffocating roots. More is not better."
+            },
+            {
+                "id": "waste",
+                "label": "Extra allowance",
+                "type": "number",
+                "suffix": "%",
+                "default": 10,
+                "min": 0
+            }
+        ]
+    },
+    {
+        "slug": "one-rep-max-calculator",
+        "fields": [
+            {
+                "id": "weight",
+                "label": "Weight lifted",
+                "type": "number",
+                "default": 100,
+                "step": "any"
+            },
+            {
+                "id": "unit",
+                "label": "Unit",
+                "type": "segmented",
+                "options": {
+                    "lb": "lb",
+                    "kg": "kg"
+                },
+                "default": "kg"
+            },
+            {
+                "id": "reps",
+                "label": "Reps completed",
+                "type": "number",
+                "default": 5,
+                "hint": "Reps to genuine failure give the best estimate."
+            }
+        ]
+    },
+    {
+        "slug": "overtime-calculator",
+        "fields": [
+            {
+                "id": "rate",
+                "label": "Base hourly rate",
+                "type": "number",
+                "prefix": "$",
+                "default": 20
+            },
+            {
+                "id": "regular",
+                "label": "Regular hours",
+                "type": "number",
+                "default": 40
+            },
+            {
+                "id": "overtime",
+                "label": "Overtime hours",
+                "type": "number",
+                "default": 10
+            },
+            {
+                "id": "multiplier",
+                "label": "Overtime multiplier",
+                "type": "number",
+                "default": 1.5,
+                "step": "any",
+                "hint": "1.5 is time and a half, the federal standard."
+            },
+            {
+                "id": "doubleTime",
+                "label": "Double time hours",
+                "type": "number",
+                "default": 0
+            }
+        ]
+    },
+    {
+        "slug": "ovulation-calculator",
+        "fields": [
+            {
+                "id": "lmp",
+                "label": "First day of your last period",
+                "type": "date",
+                "default": "2026-09-01"
+            },
+            {
+                "id": "cycle",
+                "label": "Cycle length",
+                "type": "number",
+                "suffix": "days",
+                "default": 28,
+                "hint": "Count from the first day of one period to the first day of the next."
+            }
+        ]
+    },
+    {
+        "slug": "paint-calculator",
+        "fields": [
+            {
+                "id": "length",
+                "label": "Room length",
+                "type": "number",
+                "suffix": "ft",
+                "default": 12,
+                "min": 0
+            },
+            {
+                "id": "width",
+                "label": "Room width",
+                "type": "number",
+                "suffix": "ft",
+                "default": 10,
+                "min": 0
+            },
+            {
+                "id": "height",
+                "label": "Wall height",
+                "type": "number",
+                "suffix": "ft",
+                "default": 8,
+                "min": 0
+            },
+            {
+                "id": "doors",
+                "label": "Doors",
+                "type": "number",
+                "default": 1,
+                "min": 0,
+                "step": 1,
+                "hint": "Counted at 21 sq ft each."
+            },
+            {
+                "id": "windows",
+                "label": "Windows",
+                "type": "number",
+                "default": 2,
+                "min": 0,
+                "step": 1,
+                "hint": "Counted at 15 sq ft each."
+            },
+            {
+                "id": "coats",
+                "label": "Coats",
+                "type": "segmented",
+                "options": {
+                    "1": "1 coat",
+                    "2": "2 coats",
+                    "3": "3 coats"
+                },
+                "default": "2"
+            },
+            {
+                "id": "ceiling",
+                "label": "Painting the ceiling too",
+                "type": "segmented",
+                "options": {
+                    "no": "No",
+                    "yes": "Yes"
+                },
+                "default": "no"
+            },
+            {
+                "id": "coverage",
+                "label": "Coverage per gallon",
+                "type": "number",
+                "suffix": "sq ft",
+                "default": 350,
+                "min": 1,
+                "hint": "350 is typical. The tin will state its own figure."
+            }
+        ]
+    },
+    {
+        "slug": "pay-raise-calculator",
+        "fields": [
+            {
+                "id": "current",
+                "label": "Current salary",
+                "type": "number",
+                "prefix": "$",
+                "default": 60000
+            },
+            {
+                "id": "mode",
+                "label": "I know the",
+                "type": "segmented",
+                "options": {
+                    "percent": "Percentage",
+                    "salary": "New salary"
+                },
+                "default": "percent"
+            },
+            {
+                "id": "percent",
+                "label": "Raise",
+                "type": "number",
+                "suffix": "%",
+                "default": 4,
+                "show_when": {
+                    "mode": "percent"
+                }
+            },
+            {
+                "id": "newSalary",
+                "label": "New salary",
+                "type": "number",
+                "prefix": "$",
+                "default": 64000,
+                "show_when": {
+                    "mode": "salary"
+                }
+            },
+            {
+                "id": "inflation",
+                "label": "Inflation rate",
+                "type": "number",
+                "suffix": "%",
+                "default": 3
+            }
+        ]
+    },
+    {
+        "slug": "percent-change-calculator",
+        "fields": [
+            {
+                "id": "from",
+                "label": "From",
+                "type": "number",
+                "default": 50
+            },
+            {
+                "id": "to",
+                "label": "To",
+                "type": "number",
+                "default": 75
+            }
+        ]
+    },
+    {
+        "slug": "percent-off-calculator",
+        "fields": [
+            {
+                "id": "price",
+                "label": "Original price",
+                "type": "number",
+                "prefix": "$",
+                "default": 80,
+                "step": "any"
+            },
+            {
+                "id": "percent",
+                "label": "Percent off",
+                "type": "number",
+                "suffix": "%",
+                "default": 30
+            }
+        ]
+    },
+    {
+        "slug": "percentage-calculator",
+        "fields": [
+            {
+                "id": "mode",
+                "label": "What do you want to work out?",
+                "type": "segmented",
+                "options": {
+                    "of": "% of a number",
+                    "is": "X is what % of Y",
+                    "change": "% change"
+                },
+                "default": "of"
+            },
+            {
+                "id": "a",
+                "label": "First number",
+                "type": "number",
+                "default": 25,
+                "hint": "The percentage, the part, or the starting value depending on the mode above."
+            },
+            {
+                "id": "b",
+                "label": "Second number",
+                "type": "number",
+                "default": 200,
+                "hint": "The total, the whole, or the ending value."
+            }
+        ]
+    },
+    {
+        "slug": "percentage-decrease-calculator",
+        "fields": [
+            {
+                "id": "value",
+                "label": "Starting value",
+                "type": "number",
+                "default": 200
+            },
+            {
+                "id": "percent",
+                "label": "Decrease by",
+                "type": "number",
+                "suffix": "%",
+                "default": 15
+            }
+        ]
+    },
+    {
+        "slug": "percentage-increase-calculator",
+        "fields": [
+            {
+                "id": "value",
+                "label": "Starting value",
+                "type": "number",
+                "default": 200
+            },
+            {
+                "id": "percent",
+                "label": "Increase by",
+                "type": "number",
+                "suffix": "%",
+                "default": 15
+            }
+        ]
+    },
+    {
+        "slug": "period-calculator",
+        "fields": [
+            {
+                "id": "lmp",
+                "label": "First day of your last period",
+                "type": "date",
+                "default": "2026-09-01"
+            },
+            {
+                "id": "cycle",
+                "label": "Cycle length",
+                "type": "number",
+                "suffix": "days",
+                "default": 28
+            },
+            {
+                "id": "length",
+                "label": "Period lasts",
+                "type": "number",
+                "suffix": "days",
+                "default": 5
+            }
+        ]
+    },
+    {
+        "slug": "personal-loan-calculator",
+        "fields": [
+            {
+                "id": "amount",
+                "label": "Loan amount",
+                "type": "number",
+                "prefix": "$",
+                "default": 15000
+            },
+            {
+                "id": "down",
+                "label": "Deposit",
+                "type": "number",
+                "prefix": "$",
+                "default": 0
+            },
+            {
+                "id": "rate",
+                "label": "Interest rate (APR)",
+                "type": "number",
+                "suffix": "%",
+                "default": 11.5,
+                "step": "any"
+            },
+            {
+                "id": "years",
+                "label": "Term",
+                "type": "number",
+                "suffix": "years",
+                "default": 5
+            },
+            {
+                "id": "fees",
+                "label": "Origination fee",
+                "type": "number",
+                "prefix": "$",
+                "default": 300
+            }
+        ]
+    },
+    {
+        "slug": "pool-volume-calculator",
+        "fields": [
+            {
+                "id": "shape",
+                "label": "Pool shape",
+                "type": "segmented",
+                "options": {
+                    "rectangle": "Rectangle",
+                    "round": "Round",
+                    "oval": "Oval"
+                },
+                "default": "rectangle"
+            },
+            {
+                "id": "length",
+                "label": "Length",
+                "type": "number",
+                "suffix": "ft",
+                "default": 32,
+                "min": 0,
+                "show_when": {
+                    "shape": [
+                        "rectangle",
+                        "oval"
+                    ]
+                }
+            },
+            {
+                "id": "width",
+                "label": "Width",
+                "type": "number",
+                "suffix": "ft",
+                "default": 16,
+                "min": 0,
+                "show_when": {
+                    "shape": [
+                        "rectangle",
+                        "oval"
+                    ]
+                }
+            },
+            {
+                "id": "diameter",
+                "label": "Diameter",
+                "type": "number",
+                "suffix": "ft",
+                "default": 18,
+                "min": 0,
+                "show_when": {
+                    "shape": "round"
+                }
+            },
+            {
+                "id": "shallow",
+                "label": "Shallow end depth",
+                "type": "number",
+                "suffix": "ft",
+                "default": 3,
+                "min": 0
+            },
+            {
+                "id": "deep",
+                "label": "Deep end depth",
+                "type": "number",
+                "suffix": "ft",
+                "default": 8,
+                "min": 0,
+                "hint": "For a flat-bottomed pool, put the same figure in both depth fields."
+            }
+        ]
+    },
+    {
+        "slug": "pregnancy-calculator",
+        "fields": [
+            {
+                "id": "lmp",
+                "label": "First day of your last period",
+                "type": "date",
+                "default": "2026-04-01"
+            },
+            {
+                "id": "cycle",
+                "label": "Cycle length",
+                "type": "number",
+                "suffix": "days",
+                "default": 28
+            }
+        ]
+    },
+    {
+        "slug": "proportion-calculator",
+        "fields": [
+            {
+                "id": "solve",
+                "label": "Solve for",
+                "type": "segmented",
+                "options": {
+                    "a": "a",
+                    "b": "b",
+                    "c": "c",
+                    "d": "d"
+                },
+                "default": "d"
+            },
+            {
+                "id": "a",
+                "label": "a",
+                "type": "number",
+                "default": 2
+            },
+            {
+                "id": "b",
+                "label": "b",
+                "type": "number",
+                "default": 3
+            },
+            {
+                "id": "c",
+                "label": "c",
+                "type": "number",
+                "default": 8
+            },
+            {
+                "id": "d",
+                "label": "d",
+                "type": "number",
+                "default": 12
+            }
+        ]
+    },
+    {
+        "slug": "pythagorean-theorem-calculator",
+        "fields": [
+            {
+                "id": "solve",
+                "label": "Solve for",
+                "type": "segmented",
+                "options": {
+                    "c": "Hypotenuse (c)",
+                    "a": "Leg a",
+                    "b": "Leg b"
+                },
+                "default": "c"
+            },
+            {
+                "id": "a",
+                "label": "Leg a",
+                "type": "number",
+                "default": 3,
+                "show_when": {
+                    "solve": [
+                        "c",
+                        "b"
+                    ]
+                }
+            },
+            {
+                "id": "b",
+                "label": "Leg b",
+                "type": "number",
+                "default": 4,
+                "show_when": {
+                    "solve": [
+                        "c",
+                        "a"
+                    ]
+                }
+            },
+            {
+                "id": "c",
+                "label": "Hypotenuse c",
+                "type": "number",
+                "default": 5,
+                "show_when": {
+                    "solve": [
+                        "a",
+                        "b"
+                    ]
+                }
+            }
+        ]
+    },
+    {
+        "slug": "quadratic-formula-calculator",
+        "fields": [
+            {
+                "id": "a",
+                "label": "a",
+                "type": "number",
+                "default": 1,
+                "step": "any"
+            },
+            {
+                "id": "b",
+                "label": "b",
+                "type": "number",
+                "default": -3,
+                "step": "any"
+            },
+            {
+                "id": "c",
+                "label": "c",
+                "type": "number",
+                "default": 2,
+                "step": "any"
+            }
+        ]
+    },
+    {
+        "slug": "ratio-calculator",
+        "fields": [
+            {
+                "id": "a",
+                "label": "First term",
+                "type": "number",
+                "default": 3
+            },
+            {
+                "id": "b",
+                "label": "Second term",
+                "type": "number",
+                "default": 4
+            },
+            {
+                "id": "c",
+                "label": "Third term",
+                "type": "number",
+                "default": 9
+            }
+        ]
+    },
+    {
+        "slug": "right-triangle-calculator",
+        "fields": [
+            {
+                "id": "a",
+                "label": "Leg a",
+                "type": "number",
+                "default": 3
+            },
+            {
+                "id": "b",
+                "label": "Leg b",
+                "type": "number",
+                "default": 4
+            }
+        ]
+    },
+    {
+        "slug": "roman-numeral-converter",
+        "fields": [
+            {
+                "id": "direction",
+                "label": "Direction",
+                "type": "segmented",
+                "options": {
+                    "toRoman": "Number to Roman",
+                    "toNumber": "Roman to number"
+                },
+                "default": "toRoman"
+            },
+            {
+                "id": "number",
+                "label": "Number",
+                "type": "number",
+                "default": 1994,
+                "show_when": {
+                    "direction": "toRoman"
+                }
+            },
+            {
+                "id": "roman",
+                "label": "Roman numeral",
+                "type": "text",
+                "default": "MCMXCIV",
+                "show_when": {
+                    "direction": "toNumber"
+                }
+            }
+        ]
+    },
+    {
+        "slug": "roth-ira-calculator",
+        "fields": [
+            {
+                "id": "current",
+                "label": "Current balance",
+                "type": "number",
+                "prefix": "$",
+                "default": 10000
+            },
+            {
+                "id": "annual",
+                "label": "Annual contribution",
+                "type": "number",
+                "prefix": "$",
+                "default": 7000
+            },
+            {
+                "id": "years",
+                "label": "Years until retirement",
+                "type": "number",
+                "default": 30
+            },
+            {
+                "id": "rate",
+                "label": "Annual return",
+                "type": "number",
+                "suffix": "%",
+                "default": 7
+            },
+            {
+                "id": "taxRate",
+                "label": "Expected retirement tax rate",
+                "type": "number",
+                "suffix": "%",
+                "default": 22
+            }
+        ]
+    },
+    {
+        "slug": "sales-tax-calculator",
+        "fields": [
+            {
+                "id": "mode",
+                "label": "What are you doing?",
+                "type": "segmented",
+                "options": {
+                    "add": "Add tax to a price",
+                    "remove": "Remove tax from a total"
+                },
+                "default": "add"
+            },
+            {
+                "id": "amount",
+                "label": "Amount",
+                "type": "number",
+                "prefix": "$",
+                "default": 100,
+                "min": 0
+            },
+            {
+                "id": "rate",
+                "label": "Tax rate",
+                "type": "number",
+                "suffix": "%",
+                "default": 8.25,
+                "min": 0
+            }
+        ]
+    },
+    {
+        "slug": "slope-calculator",
+        "fields": [
+            {
+                "id": "x1",
+                "label": "x₁",
+                "type": "number",
+                "default": 1,
+                "step": "any"
+            },
+            {
+                "id": "y1",
+                "label": "y₁",
+                "type": "number",
+                "default": 2,
+                "step": "any"
+            },
+            {
+                "id": "x2",
+                "label": "x₂",
+                "type": "number",
+                "default": 5,
+                "step": "any"
+            },
+            {
+                "id": "y2",
+                "label": "y₂",
+                "type": "number",
+                "default": 10,
+                "step": "any"
+            }
+        ]
+    },
+    {
+        "slug": "square-footage-calculator",
+        "fields": [
+            {
+                "id": "shape",
+                "label": "Shape of the space",
+                "type": "segmented",
+                "options": {
+                    "rectangle": "Rectangle",
+                    "circle": "Circle",
+                    "triangle": "Triangle"
+                },
+                "default": "rectangle"
+            },
+            {
+                "id": "length",
+                "label": "Length",
+                "type": "number",
+                "suffix": "ft",
+                "default": 12,
+                "min": 0,
+                "show_when": {
+                    "shape": "rectangle"
+                }
+            },
+            {
+                "id": "width",
+                "label": "Width",
+                "type": "number",
+                "suffix": "ft",
+                "default": 10,
+                "min": 0,
+                "show_when": {
+                    "shape": "rectangle"
+                }
+            },
+            {
+                "id": "diameter",
+                "label": "Diameter",
+                "type": "number",
+                "suffix": "ft",
+                "default": 12,
+                "min": 0,
+                "show_when": {
+                    "shape": "circle"
+                }
+            },
+            {
+                "id": "base",
+                "label": "Base",
+                "type": "number",
+                "suffix": "ft",
+                "default": 12,
+                "min": 0,
+                "show_when": {
+                    "shape": "triangle"
+                }
+            },
+            {
+                "id": "heightFt",
+                "label": "Height",
+                "type": "number",
+                "suffix": "ft",
+                "default": 8,
+                "min": 0,
+                "show_when": {
+                    "shape": "triangle"
+                }
+            },
+            {
+                "id": "rooms",
+                "label": "How many identical areas",
+                "type": "number",
+                "default": 1,
+                "min": 1,
+                "step": 1,
+                "hint": "Add up several matching rooms in one go."
+            }
+        ]
+    },
+    {
+        "slug": "square-root-calculator",
+        "fields": [
+            {
+                "id": "number",
+                "label": "Number",
+                "type": "number",
+                "default": 72,
+                "step": "any"
+            }
+        ]
+    },
+    {
+        "slug": "stair-calculator",
+        "fields": [
+            {
+                "id": "totalRise",
+                "label": "Total rise",
+                "type": "number",
+                "suffix": "in",
+                "default": 108,
+                "min": 0,
+                "hint": "Finished floor to finished floor, not floor to subfloor."
+            },
+            {
+                "id": "targetRiser",
+                "label": "Preferred riser height",
+                "type": "number",
+                "suffix": "in",
+                "default": 7,
+                "min": 0,
+                "hint": "Seven inches is comfortable. The calculator adjusts to divide the rise evenly."
+            },
+            {
+                "id": "tread",
+                "label": "Tread depth",
+                "type": "number",
+                "suffix": "in",
+                "default": 10,
+                "min": 0
+            }
+        ]
+    },
+    {
+        "slug": "standard-deviation-calculator",
+        "fields": [
+            {
+                "id": "numbers",
+                "label": "Your data",
+                "type": "text",
+                "default": "2, 4, 4, 4, 5, 5, 7, 9",
+                "hint": "Separate numbers with spaces or commas."
+            },
+            {
+                "id": "type",
+                "label": "Data set is a",
+                "type": "segmented",
+                "options": {
+                    "sample": "Sample",
+                    "population": "Population"
+                },
+                "default": "sample"
+            }
+        ]
+    },
+    {
+        "slug": "steps-to-miles-calculator",
+        "fields": [
+            {
+                "id": "steps",
+                "label": "Steps",
+                "type": "number",
+                "default": 10000
+            },
+            {
+                "id": "units",
+                "label": "Units",
+                "type": "segmented",
+                "options": {
+                    "metric": "Metric",
+                    "imperial": "Imperial"
+                },
+                "default": "imperial"
+            },
+            {
+                "id": "feet",
+                "label": "Height (feet)",
+                "type": "number",
+                "suffix": "ft",
+                "default": 5,
+                "show_when": {
+                    "units": "imperial"
+                }
+            },
+            {
+                "id": "inches",
+                "label": "Height (inches)",
+                "type": "number",
+                "suffix": "in",
+                "default": 10,
+                "show_when": {
+                    "units": "imperial"
+                }
+            },
+            {
+                "id": "height",
+                "label": "Height",
+                "type": "number",
+                "suffix": "cm",
+                "default": 178,
+                "show_when": {
+                    "units": "metric"
+                }
+            },
+            {
+                "id": "pace",
+                "label": "Pace",
+                "type": "segmented",
+                "options": {
+                    "walk": "Walking",
+                    "run": "Running"
+                },
+                "default": "walk"
+            }
+        ]
+    },
+    {
+        "slug": "system-of-equations-calculator",
+        "fields": [
+            {
+                "id": "a1",
+                "label": "Equation 1: a",
+                "type": "number",
+                "default": 2,
+                "step": "any"
+            },
+            {
+                "id": "b1",
+                "label": "Equation 1: b",
+                "type": "number",
+                "default": 1,
+                "step": "any"
+            },
+            {
+                "id": "c1",
+                "label": "Equation 1: c",
+                "type": "number",
+                "default": 5,
+                "step": "any"
+            },
+            {
+                "id": "a2",
+                "label": "Equation 2: a",
+                "type": "number",
+                "default": 1,
+                "step": "any"
+            },
+            {
+                "id": "b2",
+                "label": "Equation 2: b",
+                "type": "number",
+                "default": -1,
+                "step": "any"
+            },
+            {
+                "id": "c2",
+                "label": "Equation 2: c",
+                "type": "number",
+                "default": 1,
+                "step": "any"
+            }
+        ]
+    },
+    {
+        "slug": "take-home-pay-calculator",
+        "fields": [
+            {
+                "id": "gross",
+                "label": "Gross pay",
+                "type": "number",
+                "prefix": "$",
+                "default": 75000
+            },
+            {
+                "id": "frequency",
+                "label": "Paid",
+                "type": "segmented",
+                "options": {
+                    "week": "Weekly",
+                    "biweek": "Fortnightly",
+                    "semimonth": "Twice monthly",
+                    "month": "Monthly",
+                    "year": "Annually"
+                },
+                "default": "year"
+            },
+            {
+                "id": "federalRate",
+                "label": "Federal tax rate",
+                "type": "number",
+                "suffix": "%",
+                "default": 12,
+                "hint": "Your effective rate, not your bracket. Last year’s return is the best guide."
+            },
+            {
+                "id": "stateRate",
+                "label": "State tax rate",
+                "type": "number",
+                "suffix": "%",
+                "default": 4
+            },
+            {
+                "id": "retirement",
+                "label": "401(k) contribution",
+                "type": "number",
+                "suffix": "%",
+                "default": 6
+            },
+            {
+                "id": "healthAnnual",
+                "label": "Health premiums per year",
+                "type": "number",
+                "prefix": "$",
+                "default": 2400
+            },
+            {
+                "id": "wageBase",
+                "label": "Social Security wage base",
+                "type": "number",
+                "prefix": "$",
+                "default": 168600,
+                "hint": "Updated annually by the SSA."
+            }
+        ]
+    },
+    {
+        "slug": "tdee-calculator",
+        "fields": [
+            {
+                "id": "units",
+                "label": "Units",
+                "type": "segmented",
+                "options": {
+                    "metric": "Metric",
+                    "imperial": "Imperial"
+                },
+                "default": "metric"
+            },
+            {
+                "id": "sex",
+                "label": "Sex assigned at birth",
+                "type": "segmented",
+                "options": {
+                    "male": "Male",
+                    "female": "Female"
+                },
+                "default": "male",
+                "hint": "The formula was derived separately for each group, which is why it is asked for here."
+            },
+            {
+                "id": "age",
+                "label": "Age",
+                "type": "number",
+                "suffix": "years",
+                "default": 30,
+                "min": 0
+            },
+            {
+                "id": "height",
+                "label": "Height",
+                "type": "number",
+                "suffix": "cm",
+                "default": 180,
+                "min": 0,
+                "show_when": {
+                    "units": "metric"
+                }
+            },
+            {
+                "id": "weight",
+                "label": "Weight",
+                "type": "number",
+                "suffix": "kg",
+                "default": 80,
+                "min": 0,
+                "show_when": {
+                    "units": "metric"
+                }
+            },
+            {
+                "id": "feet",
+                "label": "Height (feet)",
+                "type": "number",
+                "suffix": "ft",
+                "default": 5,
+                "min": 0,
+                "show_when": {
+                    "units": "imperial"
+                }
+            },
+            {
+                "id": "inches",
+                "label": "Height (inches)",
+                "type": "number",
+                "suffix": "in",
+                "default": 11,
+                "min": 0,
+                "show_when": {
+                    "units": "imperial"
+                }
+            },
+            {
+                "id": "pounds",
+                "label": "Weight",
+                "type": "number",
+                "suffix": "lb",
+                "default": 176,
+                "min": 0,
+                "show_when": {
+                    "units": "imperial"
+                }
+            },
+            {
+                "id": "activity",
+                "label": "Activity level",
+                "type": "select",
+                "options": {
+                    "1.2": "Sedentary, desk job and no exercise",
+                    "1.375": "Light, exercise one to three days a week",
+                    "1.55": "Moderate, exercise three to five days a week",
+                    "1.725": "Hard, exercise six or seven days a week",
+                    "1.9": "Very hard, physical job or twice daily training"
+                },
+                "default": "1.55"
+            }
+        ]
+    },
+    {
+        "slug": "tile-calculator",
+        "fields": [
+            {
+                "id": "length",
+                "label": "Area length",
+                "type": "number",
+                "suffix": "ft",
+                "default": 12,
+                "min": 0
+            },
+            {
+                "id": "width",
+                "label": "Area width",
+                "type": "number",
+                "suffix": "ft",
+                "default": 10,
+                "min": 0
+            },
+            {
+                "id": "tileWidth",
+                "label": "Tile width",
+                "type": "number",
+                "suffix": "in",
+                "default": 12,
+                "min": 0
+            },
+            {
+                "id": "tileHeight",
+                "label": "Tile height",
+                "type": "number",
+                "suffix": "in",
+                "default": 12,
+                "min": 0
+            },
+            {
+                "id": "perBox",
+                "label": "Tiles per box",
+                "type": "number",
+                "default": 10,
+                "min": 1,
+                "step": 1,
+                "hint": "Printed on the box, and it varies by tile size."
+            },
+            {
+                "id": "waste",
+                "label": "Waste allowance",
+                "type": "number",
+                "suffix": "%",
+                "default": 10,
+                "min": 0,
+                "hint": "Ten per cent for a straight layout, fifteen for diagonal or herringbone."
+            }
+        ]
+    },
+    {
+        "slug": "time-calculator",
+        "fields": [
+            {
+                "id": "start",
+                "label": "Start time",
+                "type": "text",
+                "default": "9:00 AM",
+                "hint": "Such as 9:00 AM, 5:30 PM or 14:45."
+            },
+            {
+                "id": "op",
+                "label": "Operation",
+                "type": "segmented",
+                "options": {
+                    "add": "Add",
+                    "sub": "Subtract"
+                },
+                "default": "add"
+            },
+            {
+                "id": "hours",
+                "label": "Hours",
+                "type": "number",
+                "default": 3
+            },
+            {
+                "id": "minutes",
+                "label": "Minutes",
+                "type": "number",
+                "default": 30
+            }
+        ]
+    },
+    {
+        "slug": "time-card-calculator",
+        "fields": [
+            {
+                "id": "shifts",
+                "label": "Your shifts",
+                "type": "repeater",
+                "rows": 5,
+                "row": [
+                    {
+                        "id": "start",
+                        "label": "Start",
+                        "type": "text",
+                        "default": "9:00 AM"
+                    },
+                    {
+                        "id": "end",
+                        "label": "End",
+                        "type": "text",
+                        "default": "5:00 PM"
+                    },
+                    {
+                        "id": "brk",
+                        "label": "Break (min)",
+                        "type": "number",
+                        "default": 30
+                    }
+                ]
+            },
+            {
+                "id": "rate",
+                "label": "Hourly rate",
+                "type": "number",
+                "prefix": "$",
+                "default": 20
+            }
+        ]
+    },
+    {
+        "slug": "time-duration-calculator",
+        "fields": [
+            {
+                "id": "start",
+                "label": "Start time",
+                "type": "text",
+                "default": "10:00 PM",
+                "hint": "Such as 9:00 AM, 5:30 PM or 14:45."
+            },
+            {
+                "id": "end",
+                "label": "End time",
+                "type": "text",
+                "default": "6:30 AM",
+                "hint": "Such as 9:00 AM, 5:30 PM or 14:45."
+            }
+        ]
+    },
+    {
+        "slug": "tip-calculator",
+        "fields": [
+            {
+                "id": "bill",
+                "label": "Bill amount",
+                "type": "number",
+                "prefix": "$",
+                "default": 85,
+                "min": 0
+            },
+            {
+                "id": "tip",
+                "label": "Tip",
+                "type": "segmented",
+                "options": {
+                    "10": "10%",
+                    "15": "15%",
+                    "18": "18%",
+                    "20": "20%",
+                    "25": "25%"
+                },
+                "default": 18
+            },
+            {
+                "id": "people",
+                "label": "Split between",
+                "type": "number",
+                "suffix": "people",
+                "default": 2,
+                "min": 1,
+                "step": 1
+            }
+        ]
+    },
+    {
+        "slug": "tire-size-calculator",
+        "fields": [
+            {
+                "id": "width",
+                "label": "Section width",
+                "type": "number",
+                "suffix": "mm",
+                "default": 225
+            },
+            {
+                "id": "ratio",
+                "label": "Aspect ratio",
+                "type": "number",
+                "suffix": "%",
+                "default": 45
+            },
+            {
+                "id": "rim",
+                "label": "Rim diameter",
+                "type": "number",
+                "suffix": "in",
+                "default": 17
+            },
+            {
+                "id": "width2",
+                "label": "Compare width",
+                "type": "number",
+                "suffix": "mm",
+                "default": 235
+            },
+            {
+                "id": "ratio2",
+                "label": "Compare ratio",
+                "type": "number",
+                "suffix": "%",
+                "default": 40
+            },
+            {
+                "id": "rim2",
+                "label": "Compare rim",
+                "type": "number",
+                "suffix": "in",
+                "default": 18
+            }
+        ]
+    },
+    {
+        "slug": "topsoil-calculator",
+        "fields": [
+            {
+                "id": "length",
+                "label": "Length",
+                "type": "number",
+                "suffix": "ft",
+                "default": 20,
+                "min": 0
+            },
+            {
+                "id": "width",
+                "label": "Width",
+                "type": "number",
+                "suffix": "ft",
+                "default": 10,
+                "min": 0
+            },
+            {
+                "id": "depth",
+                "label": "Depth",
+                "type": "number",
+                "suffix": "in",
+                "default": 6,
+                "min": 0,
+                "hint": "Four inches to level a lawn, six to twelve for planting beds."
+            },
+            {
+                "id": "waste",
+                "label": "Settling allowance",
+                "type": "number",
+                "suffix": "%",
+                "default": 15,
+                "min": 0,
+                "hint": "Fresh soil settles, so ordering a little over is normal rather than wasteful."
+            }
+        ]
+    },
+    {
+        "slug": "triangle-calculator",
+        "fields": [
+            {
+                "id": "a",
+                "label": "Side a",
+                "type": "number",
+                "default": 3
+            },
+            {
+                "id": "b",
+                "label": "Side b",
+                "type": "number",
+                "default": 4
+            },
+            {
+                "id": "c",
+                "label": "Side c",
+                "type": "number",
+                "default": 5
+            }
+        ]
+    },
+    {
+        "slug": "unit-converter",
+        "fields": [
+            {
+                "id": "value",
+                "label": "Amount",
+                "type": "number",
+                "default": 1,
+                "step": "any"
+            },
+            {
+                "id": "from",
+                "label": "From",
+                "type": "select",
+                "options": {
+                    "mm": "Millimetres",
+                    "cm": "Centimetres",
+                    "m": "Metres",
+                    "km": "Kilometres",
+                    "in": "Inches",
+                    "ft": "Feet",
+                    "yd": "Yards",
+                    "mi": "Miles"
+                },
+                "default": "m"
+            },
+            {
+                "id": "to",
+                "label": "To",
+                "type": "select",
+                "options": {
+                    "mm": "Millimetres",
+                    "cm": "Centimetres",
+                    "m": "Metres",
+                    "km": "Kilometres",
+                    "in": "Inches",
+                    "ft": "Feet",
+                    "yd": "Yards",
+                    "mi": "Miles"
+                },
+                "default": "ft"
+            }
+        ]
+    },
+    {
+        "slug": "vat-calculator",
+        "fields": [
+            {
+                "id": "mode",
+                "label": "I want to",
+                "type": "segmented",
+                "options": {
+                    "add": "Add VAT",
+                    "remove": "Remove VAT"
+                },
+                "default": "add"
+            },
+            {
+                "id": "amount",
+                "label": "Amount",
+                "type": "number",
+                "prefix": "$",
+                "default": 100,
+                "step": "any"
+            },
+            {
+                "id": "rate",
+                "label": "VAT rate",
+                "type": "number",
+                "suffix": "%",
+                "default": 20,
+                "step": "any"
+            }
+        ]
+    },
+    {
+        "slug": "voltage-drop-calculator",
+        "fields": [
+            {
+                "id": "material",
+                "label": "Conductor",
+                "type": "segmented",
+                "options": {
+                    "copper": "Copper",
+                    "aluminum": "Aluminium"
+                },
+                "default": "copper"
+            },
+            {
+                "id": "gauge",
+                "label": "Wire size",
+                "type": "select",
+                "options": {
+                    "14": "AWG 14",
+                    "12": "AWG 12",
+                    "10": "AWG 10",
+                    "8": "AWG 8",
+                    "6": "AWG 6",
+                    "4": "AWG 4",
+                    "3": "AWG 3",
+                    "2": "AWG 2",
+                    "1": "AWG 1",
+                    "1/0": "AWG 1/0",
+                    "2/0": "AWG 2/0",
+                    "3/0": "AWG 3/0",
+                    "4/0": "AWG 4/0"
+                },
+                "default": "12"
+            },
+            {
+                "id": "amps",
+                "label": "Load current",
+                "type": "number",
+                "suffix": "A",
+                "default": 20,
+                "min": 0
+            },
+            {
+                "id": "distance",
+                "label": "One-way distance",
+                "type": "number",
+                "suffix": "ft",
+                "default": 100,
+                "min": 0,
+                "hint": "The run in one direction. The return leg is already accounted for."
+            },
+            {
+                "id": "volts",
+                "label": "Supply voltage",
+                "type": "number",
+                "suffix": "V",
+                "default": 120,
+                "min": 1
+            },
+            {
+                "id": "phase",
+                "label": "System",
+                "type": "segmented",
+                "options": {
+                    "single": "Single phase",
+                    "three": "Three phase"
+                },
+                "default": "single"
+            }
+        ]
+    },
+    {
+        "slug": "volume-calculator",
+        "fields": [
+            {
+                "id": "shape",
+                "label": "Shape",
+                "type": "segmented",
+                "options": {
+                    "box": "Box",
+                    "cylinder": "Cylinder",
+                    "sphere": "Sphere",
+                    "cone": "Cone",
+                    "pyramid": "Pyramid"
+                },
+                "default": "box"
+            },
+            {
+                "id": "length",
+                "label": "Length",
+                "type": "number",
+                "default": 4,
+                "show_when": {
+                    "shape": [
+                        "box",
+                        "pyramid"
+                    ]
+                }
+            },
+            {
+                "id": "width",
+                "label": "Width",
+                "type": "number",
+                "default": 3,
+                "show_when": {
+                    "shape": [
+                        "box",
+                        "pyramid"
+                    ]
+                }
+            },
+            {
+                "id": "radius",
+                "label": "Radius",
+                "type": "number",
+                "default": 3,
+                "show_when": {
+                    "shape": [
+                        "cylinder",
+                        "sphere",
+                        "cone"
+                    ]
+                }
+            },
+            {
+                "id": "heightVal",
+                "label": "Height",
+                "type": "number",
+                "default": 5,
+                "show_when": {
+                    "shape": [
+                        "box",
+                        "cylinder",
+                        "cone",
+                        "pyramid"
+                    ]
+                }
+            }
+        ]
+    },
+    {
+        "slug": "water-intake-calculator",
+        "fields": [
+            {
+                "id": "units",
+                "label": "Units",
+                "type": "segmented",
+                "options": {
+                    "metric": "Metric",
+                    "imperial": "Imperial"
+                },
+                "default": "metric"
+            },
+            {
+                "id": "weight",
+                "label": "Body weight",
+                "type": "number",
+                "suffix": "kg",
+                "default": 75,
+                "show_when": {
+                    "units": "metric"
+                }
+            },
+            {
+                "id": "pounds",
+                "label": "Body weight",
+                "type": "number",
+                "suffix": "lb",
+                "default": 165,
+                "show_when": {
+                    "units": "imperial"
+                }
+            },
+            {
+                "id": "exercise",
+                "label": "Exercise today",
+                "type": "number",
+                "suffix": "minutes",
+                "default": 30
+            },
+            {
+                "id": "climate",
+                "label": "Climate",
+                "type": "segmented",
+                "options": {
+                    "cold": "Cold",
+                    "temperate": "Temperate",
+                    "hot": "Hot"
+                },
+                "default": "temperate"
+            }
+        ]
+    },
+    {
+        "slug": "weight-converter",
+        "fields": [
+            {
+                "id": "value",
+                "label": "Amount",
+                "type": "number",
+                "default": 70,
+                "step": "any"
+            },
+            {
+                "id": "from",
+                "label": "From",
+                "type": "select",
+                "options": {
+                    "mg": "Milligrams",
+                    "g": "Grams",
+                    "kg": "Kilograms",
+                    "t": "Tonnes",
+                    "oz": "Ounces",
+                    "lb": "Pounds",
+                    "st": "Stone",
+                    "ton": "US tons"
+                },
+                "default": "kg"
+            },
+            {
+                "id": "to",
+                "label": "To",
+                "type": "select",
+                "options": {
+                    "mg": "Milligrams",
+                    "g": "Grams",
+                    "kg": "Kilograms",
+                    "t": "Tonnes",
+                    "oz": "Ounces",
+                    "lb": "Pounds",
+                    "st": "Stone",
+                    "ton": "US tons"
+                },
+                "default": "lb"
+            }
+        ]
+    },
+    {
+        "slug": "work-hours-calculator",
+        "fields": [
+            {
+                "id": "start",
+                "label": "Start time",
+                "type": "text",
+                "default": "9:00 AM",
+                "hint": "Such as 9:00 AM, 5:30 PM or 14:45."
+            },
+            {
+                "id": "end",
+                "label": "End time",
+                "type": "text",
+                "default": "5:00 PM",
+                "hint": "Such as 9:00 AM, 5:30 PM or 14:45."
+            },
+            {
+                "id": "breakMins",
+                "label": "Unpaid break",
+                "type": "number",
+                "suffix": "minutes",
+                "default": 60
+            },
+            {
+                "id": "days",
+                "label": "Days per week",
+                "type": "number",
+                "default": 5
+            },
+            {
+                "id": "rate",
+                "label": "Hourly rate",
+                "type": "number",
+                "prefix": "$",
+                "default": 25
+            }
+        ]
+    }
+]

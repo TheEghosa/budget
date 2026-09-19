@@ -3,87 +3,29 @@
  *
  * Each function receives the field values as strings and returns the shape the
  * runtime paints: a label, a headline value, optional breakdown rows, an
- * optional proportion bar and an optional note. Colours are written as CSS
- * variables rather than hex codes so the bars follow the theme into dark mode.
+ * optional proportion bar and an optional note. The helpers they are written
+ * against come from formula-kit.js, which the sandbox worker loads too.
  */
 ( function () {
 	'use strict';
 
-	var ACCENT = 'var(--calcr-accent)';
-	var WARN = 'var(--calcr-warn)';
-	var NEUTRAL = 'var(--calcr-neutral-mark)';
-
-	function num( value ) {
-		var parsed = parseFloat( String( value === undefined ? '' : value ).replace( /[^0-9.\-]/g, '' ) );
-		return isFinite( parsed ) ? parsed : 0;
-	}
-
-	function money( value, currency ) {
-		if ( ! isFinite( value ) ) {
-			return ( currency || '$' ) + '0';
-		}
-		var sign = value < 0 ? '-' : '';
-		return sign + ( currency || '$' ) + Math.abs( Math.round( value ) ).toLocaleString( 'en-US' );
-	}
-
-	function money2( value, currency ) {
-		if ( ! isFinite( value ) ) {
-			return ( currency || '$' ) + '0.00';
-		}
-		var sign = value < 0 ? '-' : '';
-		return sign + ( currency || '$' ) + Math.abs( value ).toLocaleString( 'en-US', {
-			minimumFractionDigits: 2,
-			maximumFractionDigits: 2
-		} );
-	}
-
-	function decimals( value, places ) {
-		if ( ! isFinite( value ) ) {
-			return '0';
-		}
-
-		var p = places === undefined ? 1 : places;
-
-		/* toLocaleString defaults to a maximum of three fraction digits, which
-		   silently truncated every figure asked for more than that: acres to
-		   three places, square roots to three, standard deviations to three.
-		   The maximum has to be stated explicitly. */
-		return Number( value.toFixed( p ) ).toLocaleString( 'en-US', {
-			minimumFractionDigits: 0,
-			maximumFractionDigits: p
-		} );
-	}
-
-	/**
-	 * Clamps a year count before it reaches a loop.
-	 *
-	 * Several projections iterate once per year, and nothing stopped somebody
-	 * typing a twelve digit number into the field and locking up their own
-	 * browser tab. A century is past the point where any of these projections
-	 * mean anything, so clamping there costs nothing real.
+	/*
+	 * Every helper these formulas are written against now lives in
+	 * formula-kit.js, because the sandbox worker that runs a JSON-defined
+	 * calculator loads the same file. Two copies of decimals() would have
+	 * drifted apart the first time one of them was fixed, and the answers on
+	 * the page would have quietly stopped matching each other.
 	 */
-	function years( value, max ) {
-		var n = num( value );
-		if ( ! isFinite( n ) || n < 0 ) { return 0; }
-		return Math.min( n, max === undefined ? 100 : max );
-	}
+	var KIT = globalThis.CalculatorrKit;
 
-	function share( part, total ) {
-		if ( ! isFinite( total ) || total <= 0 ) {
-			return 0;
-		}
-
-		var pct = ( part / total ) * 100;
-
-		/* Clamped at both ends. A loss, or a figure entered far outside any
-		   sensible range, could otherwise produce a segment of several
-		   thousand per cent, which drew a bar straight out of its track. */
-		if ( ! isFinite( pct ) ) {
-			return 0;
-		}
-
-		return Math.min( Math.max( pct, 0 ), 100 );
-	}
+	var ACCENT = KIT.ACCENT, WARN = KIT.WARN, NEUTRAL = KIT.NEUTRAL;
+	var num = KIT.num, money = KIT.money, money2 = KIT.money2, decimals = KIT.decimals;
+	var years = KIT.years, share = KIT.share;
+	var toKg = KIT.toKg, toCm = KIT.toCm;
+	var addDays = KIT.addDays, fmtDate = KIT.fmtDate, parseDate = KIT.parseDate;
+	var parseClock = KIT.parseClock, clockText = KIT.clockText, hhmm = KIT.hhmm;
+	var monthlyPayment = KIT.monthlyPayment;
+	var listOf = KIT.listOf, gcd = KIT.gcd, simplify = KIT.simplify, fractionText = KIT.fractionText;
 
 	var formulas = {};
 
@@ -788,38 +730,6 @@
 
 	/* ---------- Math & Numbers ---------- */
 
-	function listOf( raw ) {
-		return String( raw || '' )
-			.split( /[\s,;]+/ )
-			.filter( function ( t ) { return t !== '' && isFinite( parseFloat( t ) ); } )
-			.map( parseFloat );
-	}
-
-	function gcd( a, b ) {
-		a = Math.abs( a ); b = Math.abs( b );
-		while ( b ) { var t = b; b = a % b; a = t; }
-		return a;
-	}
-
-	function simplify( n, d ) {
-		if ( d === 0 ) { return null; }
-		var g = gcd( n, d ) || 1;
-		n = n / g; d = d / g;
-		if ( d < 0 ) { n = -n; d = -d; }
-		return { n: n, d: d };
-	}
-
-	function fractionText( f ) {
-		if ( ! f ) { return '—'; }
-		if ( f.d === 1 ) { return String( f.n ); }
-		var whole = Math.trunc( f.n / f.d );
-		var rem = Math.abs( f.n % f.d );
-		if ( whole !== 0 && rem !== 0 ) {
-			return whole + ' ' + rem + '/' + f.d;
-		}
-		return f.n + '/' + f.d;
-	}
-
 	formulas[ 'percentage-increase-calculator' ] = function ( v ) {
 		var start = num( v.value );
 		var pct = num( v.percent );
@@ -1513,26 +1423,6 @@
 
 	/* ---------- Health & Body ---------- */
 
-	function toKg( v, metric ) { return metric ? num( v.weight ) : num( v.pounds ) * 0.45359237; }
-	function toCm( v, metric ) { return metric ? num( v.height ) : ( num( v.feet ) * 12 + num( v.inches ) ) * 2.54; }
-
-	function addDays( date, days ) {
-		var d = new Date( date.getTime() );
-		d.setDate( d.getDate() + days );
-		return d;
-	}
-
-	function fmtDate( d ) {
-		if ( ! d || isNaN( d.getTime() ) ) { return '—'; }
-		return d.toLocaleDateString( 'en-US', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' } );
-	}
-
-	function parseDate( value ) {
-		if ( ! value ) { return null; }
-		var d = new Date( value + 'T00:00:00' );
-		return isNaN( d.getTime() ) ? null : d;
-	}
-
 	formulas[ 'ovulation-calculator' ] = function ( v ) {
 		var lmp = parseDate( v.lmp );
 		var cycle = Math.max( num( v.cycle ) || 28, 20 );
@@ -1872,33 +1762,6 @@
 	};
 
 	/* ---------- Date, Time & Work ---------- */
-
-	function parseClock( value ) {
-		var m = String( value || '' ).trim().match( /^(\d{1,2}):?(\d{2})?\s*(am|pm)?$/i );
-		if ( ! m ) { return null; }
-		var h = parseInt( m[1], 10 );
-		var mi = m[2] ? parseInt( m[2], 10 ) : 0;
-		var mer = m[3] ? m[3].toLowerCase() : null;
-		if ( mer === 'pm' && h < 12 ) { h += 12; }
-		if ( mer === 'am' && h === 12 ) { h = 0; }
-		if ( h > 23 || mi > 59 ) { return null; }
-		return h * 60 + mi;
-	}
-
-	function clockText( minutes ) {
-		var m = ( ( minutes % 1440 ) + 1440 ) % 1440;
-		var h = Math.floor( m / 60 );
-		var mi = Math.round( m % 60 );
-		var mer = h >= 12 ? 'PM' : 'AM';
-		var h12 = h % 12 === 0 ? 12 : h % 12;
-		return h12 + ':' + ( mi < 10 ? '0' : '' ) + mi + ' ' + mer;
-	}
-
-	function hhmm( minutes ) {
-		var sign = minutes < 0 ? '-' : '';
-		var m = Math.abs( Math.round( minutes ) );
-		return sign + Math.floor( m / 60 ) + 'h ' + ( m % 60 ) + 'm';
-	}
 
 	formulas[ 'time-calculator' ] = function ( v ) {
 		var base = parseClock( v.start );
@@ -2644,16 +2507,6 @@
 	};
 
 	/* ---------- Finance ---------- */
-
-	function monthlyPayment( principal, annualRate, term ) {
-		var r = ( annualRate / 100 ) / 12;
-		var n = years( term ) * 12;
-		if ( n <= 0 ) { return 0; }
-		if ( r === 0 ) { return principal / n; }
-		var g = Math.pow( 1 + r, n );
-		var pay = principal * ( r * g ) / ( g - 1 );
-		return isFinite( pay ) ? pay : 0;
-	}
 
 	formulas[ 'take-home-pay-calculator' ] = function ( v ) {
 		var gross = num( v.gross );

@@ -144,6 +144,8 @@ require_once CALCULATORR_PATH . 'includes/class-usage.php';
 require_once CALCULATORR_PATH . 'includes/class-design.php';
 require_once CALCULATORR_PATH . 'includes/class-settings.php';
 require_once CALCULATORR_PATH . 'includes/class-error-log.php';
+require_once CALCULATORR_PATH . 'includes/class-content.php';
+require_once CALCULATORR_PATH . 'includes/class-json-calculators.php';
 require_once CALCULATORR_PATH . 'includes/class-registry.php';
 require_once CALCULATORR_PATH . 'includes/class-art.php';
 require_once CALCULATORR_PATH . 'includes/class-renderer.php';

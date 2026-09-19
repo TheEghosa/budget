@@ -13,6 +13,7 @@ const path = require('path');
 
 const root = path.join(__dirname, '..');
 global.window = {};
+eval(fs.readFileSync(path.join(root, 'assets/js/formula-kit.js'), 'utf8'));
 eval(fs.readFileSync(path.join(root, 'assets/js/formulas.js'), 'utf8'));
 const F = global.window.CalculatorrFormulas;
 

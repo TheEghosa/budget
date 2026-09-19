@@ -60,11 +60,44 @@ class Calculatorr_Renderer {
 
 		$this->rendering[ $config['slug'] ] = true;
 
+		$html = $this->render_page( $config );
+
+		unset( $this->rendering[ $config['slug'] ] );
+
+		return $html;
+	}
+
+	/**
+	 * Loads the runtime and tells it what it needs to know.
+	 *
+	 * Called from every entry point rather than from the shortcode alone,
+	 * because the Elementor widget renders the same calculators through the
+	 * same runtime and was quietly missing the configuration: a formula that
+	 * threw inside a widget was never reported, and a JSON calculator placed
+	 * as a widget would not have known where its sandbox lived.
+	 *
+	 * The values are the same for every calculator on a page, so calling this
+	 * more than once per request is a no-op rather than a conflict.
+	 */
+	public function enqueue() {
+		static $done = false;
+
 		wp_enqueue_style( 'calculatorr-app' );
 		wp_enqueue_script( 'calculatorr-app' );
 
+		if ( $done ) {
+			return;
+		}
+
+		$done     = true;
 		$settings = Calculatorr_Settings::instance();
-		$config_js = array();
+
+		/* A worker is fetched by URL from script rather than enqueued, so the
+		   runtime is handed its address. The plugin version rides along so a
+		   released change to the sandbox is not served from a stale cache. */
+		$config_js = array(
+			'sandboxUrl' => CALCULATORR_URL . 'assets/js/sandbox.js?ver=' . CALCULATORR_VERSION,
+		);
 
 		if ( $settings->get( 'log_enabled' ) ) {
 			$config_js['logUrl'] = rest_url( 'calculatorr/v1/log' );
@@ -74,15 +107,7 @@ class Calculatorr_Renderer {
 			$config_js['usageUrl'] = rest_url( 'calculatorr/v1/usage' );
 		}
 
-		if ( $config_js ) {
-			wp_localize_script( 'calculatorr-app', 'CalculatorrConfig', $config_js );
-		}
-
-		$html = $this->render_page( $config );
-
-		unset( $this->rendering[ $config['slug'] ] );
-
-		return $html;
+		wp_localize_script( 'calculatorr-app', 'CalculatorrConfig', $config_js );
 	}
 
 	/**
@@ -457,8 +482,25 @@ class Calculatorr_Renderer {
 	 * hand rather than use the generated page.
 	 */
 	public function render_widget( $config ) {
+		$this->enqueue();
+
 		$slug = $config['slug'];
 		$result = isset( $config['default_result'] ) ? $config['default_result'] : array();
+
+		/*
+		 * A calculator defined in JSON carries its formula in the page beside
+		 * its own card rather than in the shared bundle. Two of them can then
+		 * sit on one page without either needing to know the other is there,
+		 * and a calculator dropped in as a widget works the same as one on its
+		 * generated page, which a single shared variable would not have
+		 * managed.
+		 *
+		 * It is never run here. The runtime posts it to the sandbox worker,
+		 * which has no DOM and no network.
+		 */
+		$formula = class_exists( 'Calculatorr_Json_Calculators' )
+			? Calculatorr_Json_Calculators::instance()->formula( $slug )
+			: '';
 
 		/*
 		 * With empty start on, the fields open blank, so the panel has nothing
@@ -493,6 +535,15 @@ class Calculatorr_Renderer {
 					. ' data-calcr-example="' . esc_attr( wp_json_encode( $result ) ) . '"'
 				: '';
 			?>>
+			<?php if ( '' !== $formula ) : ?>
+				<?php
+				/* JSON encoded with the angle brackets escaped, so a formula
+				   comparing two numbers with a less-than sign cannot close the
+				   script element it is sitting inside. */
+				?>
+				<script type="application/json" data-calcr-formula><?php echo wp_json_encode( $formula, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT ); ?></script>
+			<?php endif; ?>
+
 			<!--
 			 The card is one surface: the inputs and the answer sit side by side
 			 inside it and the actions run along its foot, rather than the actions

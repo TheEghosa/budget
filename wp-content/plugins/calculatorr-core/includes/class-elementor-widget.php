@@ -80,9 +80,10 @@ class Calculatorr_Elementor_Widget extends \Elementor\Widget_Base {
 			return;
 		}
 
-		wp_enqueue_style( 'calculatorr-app' );
-		wp_enqueue_script( 'calculatorr-app' );
-
+		/* The renderer loads the runtime and its configuration itself, which
+		   is what the widget used to do by hand and got half right: it
+		   enqueued the scripts and never passed the configuration, so a
+		   formula that threw inside a widget was never reported. */
 		$renderer = Calculatorr_Renderer::instance();
 
 		echo ( 'page' === $settings['mode'] )

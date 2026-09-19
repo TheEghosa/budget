@@ -81,6 +81,52 @@ class Calculatorr_Rest_Settings {
 			)
 		);
 
+		/*
+		 * A whole calculator, not just its copy.
+		 *
+		 * The content route above can rewrite the prose on a page that already
+		 * exists. This one creates the page: fields, formula, explainer,
+		 * questions and all. It is the difference between editing the site and
+		 * extending it, and it is what takes a new calculator off the path of
+		 * building a zip, uploading it and reactivating the plugin.
+		 *
+		 * The formula is stored as written and never runs on the server. It
+		 * runs in the browser inside the sandbox worker, which has no DOM and
+		 * no network, so what reaches a visitor is a function that can do
+		 * arithmetic and nothing else.
+		 */
+		register_rest_route(
+			'calculatorr/v1',
+			'/calculator/(?P<slug>[a-z0-9-]+)',
+			array(
+				array(
+					'methods'             => WP_REST_Server::READABLE,
+					'callback'            => array( $this, 'read_calculator' ),
+					'permission_callback' => array( $this, 'may_manage' ),
+				),
+				array(
+					'methods'             => WP_REST_Server::EDITABLE,
+					'callback'            => array( $this, 'write_calculator' ),
+					'permission_callback' => array( $this, 'may_manage' ),
+				),
+				array(
+					'methods'             => WP_REST_Server::DELETABLE,
+					'callback'            => array( $this, 'delete_calculator' ),
+					'permission_callback' => array( $this, 'may_manage' ),
+				),
+			)
+		);
+
+		register_rest_route(
+			'calculatorr/v1',
+			'/calculators',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'list_calculators' ),
+				'permission_callback' => array( $this, 'may_manage' ),
+			)
+		);
+
 		register_rest_route(
 			'calculatorr/v1',
 			'/status',
@@ -192,7 +238,7 @@ class Calculatorr_Rest_Settings {
 				'slug'      => $slug,
 				'explainer' => isset( $config['explainer'] ) ? $config['explainer'] : array(),
 				'faqs'      => isset( $config['faqs'] ) ? $config['faqs'] : array(),
-				'words'     => self::count_words( $config ),
+				'words'     => Calculatorr_Content::count_words( $config ),
 			)
 		);
 	}
@@ -233,7 +279,7 @@ class Calculatorr_Rest_Settings {
 		$override = array();
 
 		if ( isset( $body['explainer'] ) ) {
-			$clean = self::clean_explainer( $body['explainer'] );
+			$clean = Calculatorr_Content::clean_explainer( $body['explainer'] );
 
 			if ( is_wp_error( $clean ) ) {
 				return $clean;
@@ -243,7 +289,7 @@ class Calculatorr_Rest_Settings {
 		}
 
 		if ( isset( $body['faqs'] ) ) {
-			$clean = self::clean_faqs( $body['faqs'] );
+			$clean = Calculatorr_Content::clean_faqs( $body['faqs'] );
 
 			if ( is_wp_error( $clean ) ) {
 				return $clean;
@@ -269,149 +315,143 @@ class Calculatorr_Rest_Settings {
 				'slug'     => $slug,
 				'sections' => count( isset( $fresh['explainer'] ) ? $fresh['explainer'] : array() ),
 				'faqs'     => count( isset( $fresh['faqs'] ) ? $fresh['faqs'] : array() ),
-				'words'    => self::count_words( $fresh ),
+				'words'    => Calculatorr_Content::count_words( $fresh ),
 			)
 		);
 	}
 
-	private static function count_words( $config ) {
-		$text = '';
+	/* ---------- Whole calculators ---------- */
 
-		foreach ( (array) ( isset( $config['explainer'] ) ? $config['explainer'] : array() ) as $section ) {
-			$text .= ' ' . ( isset( $section['body'] ) ? $section['body'] : '' );
-			$text .= ' ' . ( isset( $section['example'] ) ? $section['example'] : '' );
+	public function read_calculator( WP_REST_Request $request ) {
+		$slug  = (string) $request->get_param( 'slug' );
+		$store = Calculatorr_Json_Calculators::instance();
+		$definition = $store->get( $slug );
 
-			foreach ( (array) ( isset( $section['steps'] ) ? $section['steps'] : array() ) as $step ) {
-				$text .= ' ' . $step;
-			}
+		if ( ! $definition ) {
+			return new WP_Error( 'calculatorr_unknown', 'No JSON calculator with that slug.', array( 'status' => 404 ) );
 		}
 
-		return str_word_count( wp_strip_all_tags( $text ) );
+		return rest_ensure_response( array_merge( $definition, array( 'stored_in' => $store->source_of( $slug ) ) ) );
 	}
 
-	/**
-	 * A section keeps a heading, a body, and whichever of the extras it
-	 * supplied. Anything else is dropped rather than stored, because an
-	 * unrecognised key is either a typo or a guess about a feature that does
-	 * not exist, and neither should reach the page.
-	 */
-	private static function clean_explainer( $sections ) {
-		if ( ! is_array( $sections ) ) {
-			return new WP_Error( 'calculatorr_bad_explainer', 'explainer must be a list of sections.', array( 'status' => 400 ) );
-		}
+	public function list_calculators() {
+		$store = Calculatorr_Json_Calculators::instance();
+		$out   = array();
 
-		$out = array();
-
-		foreach ( $sections as $i => $section ) {
-			if ( ! is_array( $section ) || empty( $section['heading'] ) || empty( $section['body'] ) ) {
-				return new WP_Error(
-					'calculatorr_bad_section',
-					sprintf( 'Section %d needs a heading and a body.', (int) $i + 1 ),
-					array( 'status' => 400 )
-				);
-			}
-
-			$clean = array(
-				'heading' => sanitize_text_field( $section['heading'] ),
-				'body'    => wp_kses_post( $section['body'] ),
+		foreach ( $store->all() as $slug => $definition ) {
+			$out[] = array(
+				'slug'      => $slug,
+				'title'     => $definition['title'],
+				'category'  => $definition['category'],
+				'fields'    => count( $definition['fields'] ),
+				'stored_in' => $store->source_of( $slug ),
 			);
-
-			foreach ( array( 'formula', 'example' ) as $key ) {
-				if ( ! empty( $section[ $key ] ) ) {
-					$clean[ $key ] = wp_kses_post( $section[ $key ] );
-				}
-			}
-
-			if ( ! empty( $section['steps'] ) && is_array( $section['steps'] ) ) {
-				$clean['steps'] = array_values( array_filter( array_map( 'wp_kses_post', $section['steps'] ) ) );
-			}
-
-			if ( ! empty( $section['table'] ) ) {
-				$table = self::clean_table( $section['table'], (int) $i + 1 );
-
-				if ( is_wp_error( $table ) ) {
-					return $table;
-				}
-
-				$clean['table'] = $table;
-			}
-
-			$out[] = $clean;
 		}
 
-		return $out;
+		return rest_ensure_response(
+			array(
+				'json'    => $out,
+				'shipped' => count( Calculatorr_Registry::instance()->all() ) - count( $out ),
+			)
+		);
 	}
 
 	/**
-	 * Every row has to be as wide as the header. A short row renders as a
-	 * table with a hole in it and a long one silently loses its last cell,
-	 * and both are the sort of thing nobody notices until somebody reads the
-	 * page.
+	 * Creates or replaces one calculator.
+	 *
+	 * Replaced rather than merged, unlike the content route. A definition is
+	 * one document describing one tool, and merging a partial one would leave
+	 * a calculator whose fields came from today and whose formula came from
+	 * last week, which is a worse failure than being asked to send the whole
+	 * thing again.
 	 */
-	private static function clean_table( $table, $where ) {
-		if ( ! is_array( $table ) || empty( $table['head'] ) || empty( $table['rows'] ) ) {
+	public function write_calculator( WP_REST_Request $request ) {
+		$slug = (string) $request->get_param( 'slug' );
+		$body = $request->get_json_params();
+
+		if ( ! is_array( $body ) ) {
+			return new WP_Error( 'calculatorr_bad_body', 'Expected a JSON object.', array( 'status' => 400 ) );
+		}
+
+		/* The slug in the URL is the one that counts, so a definition whose
+		   body disagrees with it is refused rather than quietly filed under
+		   whichever of the two happened to be read last. */
+		if ( ! empty( $body['slug'] ) && $body['slug'] !== $slug ) {
 			return new WP_Error(
-				'calculatorr_bad_table',
-				sprintf( 'The table in section %d needs a head and some rows.', $where ),
+				'calculatorr_slug_mismatch',
+				sprintf( 'The URL says %s and the body says %s.', $slug, $body['slug'] ),
 				array( 'status' => 400 )
 			);
 		}
 
-		$head  = array_values( array_map( 'sanitize_text_field', (array) $table['head'] ) );
-		$width = count( $head );
-		$rows  = array();
+		$body['slug'] = $slug;
 
-		foreach ( (array) $table['rows'] as $n => $row ) {
-			$cells = array_values( array_map( 'wp_kses_post', (array) $row ) );
+		$store  = Calculatorr_Json_Calculators::instance();
+		$stored = $store->save( $body );
 
-			if ( count( $cells ) !== $width ) {
-				return new WP_Error(
-					'calculatorr_ragged_table',
-					sprintf(
-						'Section %d, row %d has %d cells but the header has %d.',
-						$where,
-						(int) $n + 1,
-						count( $cells ),
-						$width
-					),
-					array( 'status' => 400 )
-				);
-			}
-
-			$rows[] = $cells;
+		if ( is_wp_error( $stored ) ) {
+			return $stored;
 		}
 
-		$clean = array( 'head' => $head, 'rows' => $rows );
+		Calculatorr_Registry::instance()->reload();
 
-		if ( ! empty( $table['caption'] ) ) {
-			$clean['caption'] = sanitize_text_field( $table['caption'] );
-		}
+		/* A definition with no page behind it is a calculator nobody can
+		   reach, so the page is created here rather than waiting for the next
+		   activation. sync() only ever adds what is missing, so a page
+		   somebody has since tuned by hand is left exactly as it is. */
+		Calculatorr_Pages::sync();
 
-		return $clean;
+		$config = Calculatorr_Registry::instance()->get( $slug );
+
+		/*
+		 * A file of the same name wins, so a write that lands behind one has
+		 * changed the database and changed nothing a visitor will see. Saying
+		 * so is the whole point: the alternative is an author who believes a
+		 * calculator has been updated for as long as it takes somebody to
+		 * notice that it has not.
+		 */
+		$live = $store->source_of( $slug );
+
+		return rest_ensure_response(
+			array(
+				'slug'      => $slug,
+				'title'     => $stored['title'],
+				'fields'    => count( $stored['fields'] ),
+				'sections'  => count( isset( $stored['explainer'] ) ? $stored['explainer'] : array() ),
+				'faqs'      => count( isset( $stored['faqs'] ) ? $stored['faqs'] : array() ),
+				'words'     => Calculatorr_Content::count_words( $stored ),
+				'url'       => $config ? Calculatorr_Pages::url_for( $config ) : '',
+				'stored_in' => $live,
+				'note'      => 'file' === $live
+					? 'Saved to the database, but this slug also ships as a file and the file is what the site serves.'
+					: '',
+			)
+		);
 	}
 
-	private static function clean_faqs( $faqs ) {
-		if ( ! is_array( $faqs ) ) {
-			return new WP_Error( 'calculatorr_bad_faqs', 'faqs must be a list.', array( 'status' => 400 ) );
-		}
+	public function delete_calculator( WP_REST_Request $request ) {
+		$slug  = (string) $request->get_param( 'slug' );
+		$store = Calculatorr_Json_Calculators::instance();
 
-		$out = array();
-
-		foreach ( $faqs as $i => $faq ) {
-			if ( ! is_array( $faq ) || empty( $faq['q'] ) || empty( $faq['a'] ) ) {
-				return new WP_Error(
-					'calculatorr_bad_faq',
-					sprintf( 'Question %d needs a q and an a.', (int) $i + 1 ),
-					array( 'status' => 400 )
-				);
-			}
-
-			$out[] = array(
-				'q' => sanitize_text_field( $faq['q'] ),
-				'a' => wp_kses_post( $faq['a'] ),
+		if ( ! $store->remove( $slug ) ) {
+			return new WP_Error(
+				'calculatorr_not_stored',
+				'There is no database copy of that calculator to remove.',
+				array( 'status' => 404 )
 			);
 		}
 
-		return $out;
+		Calculatorr_Registry::instance()->reload();
+
+		/* The page itself is left alone. Deleting a published URL is not
+		   something a calculator definition should be able to do on its own,
+		   and the page is where any hand editing would have gone. */
+		return rest_ensure_response(
+			array(
+				'slug'    => $slug,
+				'deleted' => true,
+				'note'    => 'The definition is gone. Its page is still published and will render nothing until a calculator of that slug exists again, so delete or unpublish it in WordPress if it is not coming back.',
+			)
+		);
 	}
 }

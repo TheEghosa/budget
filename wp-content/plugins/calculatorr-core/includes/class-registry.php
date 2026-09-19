@@ -29,7 +29,7 @@ class Calculatorr_Registry {
 	}
 
 	private function __construct() {
-		$this->categories = $this->default_categories();
+		$this->categories = self::default_categories();
 		$this->load_calculators();
 	}
 
@@ -37,7 +37,7 @@ class Calculatorr_Registry {
 	 * The ten use cases. Order here is the order they appear in navigation and
 	 * on the homepage grid, so it is deliberate rather than alphabetical.
 	 */
-	private function default_categories() {
+	private static function default_categories() {
 		$categories = array(
 			'finance'   => array(
 				'name'  => 'Finance & Retirement',
@@ -125,6 +125,17 @@ class Calculatorr_Registry {
 	}
 
 	/**
+	 * The category keys, without needing a registry.
+	 *
+	 * The JSON definitions are validated while the registry is still inside
+	 * its own constructor, so anything they need has to be reachable without
+	 * asking for the instance that does not exist yet.
+	 */
+	public static function category_keys() {
+		return array_keys( self::default_categories() );
+	}
+
+	/**
 	 * Category lookup by its public URL slug, which is what the rewrite and the
 	 * breadcrumb both resolve against.
 	 */
@@ -171,55 +182,82 @@ class Calculatorr_Registry {
 				continue;
 			}
 
-			$config = wp_parse_args(
-				$config,
-				array(
-					'category'    => 'math',
-					'title'       => '',
-					'description' => '',
-					'fields'      => array(),
-					'explainer'   => array(),
-					'faqs'        => array(),
-					'related'     => array(),
-					'disclaimer'  => '',
-					'meta_title'       => '',
-					'meta_description' => '',
-					'h1'               => '',
-					'keyword'          => '',
-					'sources'          => array(),
-				)
-			);
+			$this->adopt( $config, $defaults );
+		}
 
-			/* The exact keyword drives the H1 and the title tag, so it is
-			   derived from the title once here rather than repeated in every
-			   config file and eventually falling out of step with it. */
-			if ( '' === $config['keyword'] ) {
-				$config['keyword'] = $config['title'];
-			}
-			if ( '' === $config['h1'] ) {
-				$config['h1'] = $config['title'];
-			}
-			if ( '' === $config['meta_title'] ) {
-				$config['meta_title'] = $config['title'] . ' - Free Online Tool';
-			}
-			if ( '' === $config['meta_description'] ) {
-				$config['meta_description'] = $config['description'];
-			}
+		/*
+		 * JSON definitions come in behind the PHP files and skip any slug a
+		 * file already holds, which is how a calculator published to the
+		 * database today becomes an ordinary shipped file on the next build
+		 * without anybody having to remember to delete the database copy.
+		 *
+		 * They go through exactly the same defaults and the same admin
+		 * overrides below, so by the time anything else in the plugin sees a
+		 * config there is nothing left to tell the two apart.
+		 */
+		if ( class_exists( 'Calculatorr_Json_Calculators' ) ) {
+			foreach ( Calculatorr_Json_Calculators::instance()->all() as $slug => $definition ) {
+				if ( isset( $this->calculators[ $slug ] ) ) {
+					continue;
+				}
 
-			if ( isset( $defaults[ $config['slug'] ] ) ) {
-				$config['default_result'] = $defaults[ $config['slug'] ];
+				$this->adopt( $definition, $defaults );
 			}
-
-			/* Admin overrides are applied here so nothing downstream has to
-			   know they exist. */
-			if ( class_exists( 'Calculatorr_Settings' ) ) {
-				$config = Calculatorr_Settings::instance()->apply( $config );
-			}
-
-			$this->calculators[ $config['slug'] ] = $config;
 		}
 
 		ksort( $this->calculators );
+	}
+
+	/**
+	 * Fills one config out and files it, whichever source it arrived from.
+	 */
+	private function adopt( $config, $defaults ) {
+		$config = wp_parse_args(
+			$config,
+			array(
+				'category'    => 'math',
+				'title'       => '',
+				'description' => '',
+				'fields'      => array(),
+				'explainer'   => array(),
+				'faqs'        => array(),
+				'related'     => array(),
+				'disclaimer'  => '',
+				'meta_title'       => '',
+				'meta_description' => '',
+				'h1'               => '',
+				'keyword'          => '',
+				'sources'          => array(),
+			)
+		);
+
+		/* The exact keyword drives the H1 and the title tag, so it is
+		   derived from the title once here rather than repeated in every
+		   config file and eventually falling out of step with it. */
+		if ( '' === $config['keyword'] ) {
+			$config['keyword'] = $config['title'];
+		}
+		if ( '' === $config['h1'] ) {
+			$config['h1'] = $config['title'];
+		}
+		if ( '' === $config['meta_title'] ) {
+			$config['meta_title'] = $config['title'] . ' - Free Online Tool';
+		}
+		if ( '' === $config['meta_description'] ) {
+			$config['meta_description'] = $config['description'];
+		}
+
+		if ( isset( $defaults[ $config['slug'] ] ) ) {
+			$config['default_result'] = $defaults[ $config['slug'] ];
+		}
+
+		/* Admin overrides are applied here so nothing downstream has to
+		   know they exist. */
+		if ( class_exists( 'Calculatorr_Settings' ) ) {
+			$config = Calculatorr_Settings::instance()->apply( $config );
+		}
+
+		$this->calculators[ $config['slug'] ] = $config;
 	}
 
 	/**
