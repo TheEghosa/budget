@@ -4,7 +4,7 @@ Tags: calculator, tools, seo, elementor
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 1.8.0
+Stable tag: 1.8.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -65,6 +65,12 @@ In the visitor's browser. Nothing is sent to the server, so salaries, weights
 and health measurements never leave the device.
 
 == Changelog ==
+
+= 1.8.1 =
+Ten pages rewritten to the content standard, averaging just over a thousand
+words each with nineteen reference tables between them: mm to inches, feet to
+metres, inches to feet, Celsius to Fahrenheit, margin, percent change, percent
+off, circumference, GST and fractions.
 
 = 1.8.0 =
 Long-form content can now be published over the REST API, so rewriting a page

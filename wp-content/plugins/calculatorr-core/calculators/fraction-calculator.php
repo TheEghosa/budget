@@ -78,23 +78,134 @@ return array(
 		),
 		'explainer' => array(
 			array(
-				'heading' => 'Why addition needs a common denominator',
-				'body' => 'Halves and thirds are different sized pieces, so they cannot be counted together until both are expressed in the same size. Multiplying the denominators always gives a workable common one, which is what happens here, and the result is then reduced to its simplest form.',
-				'formula' => 'a/b + c/d = (ad + cb) / bd',
+				'heading' => 'Adding and subtracting needs a common denominator',
+				'body' => '<p>You cannot add halves to thirds any more than you can add metres to pounds, so the first job is always to rewrite both fractions over the same denominator. Once the bottoms match, you add the tops and leave the bottom alone.</p><p>The quickest common denominator is simply the two denominators multiplied together, and it always works. The lowest one is tidier and saves simplifying afterwards, but if you cannot see it immediately, multiply and simplify at the end. Both routes give the same answer.</p>',
+				'formula' => 'a/b + c/d = (a&times;d + c&times;b) &divide; (b&times;d)',
+				'steps' => array(
+					'Multiply the two denominators to get a common one.',
+					'Scale each numerator by the other fraction\'s denominator.',
+					'Add or subtract the numerators, keeping the denominator.',
+					'Simplify by dividing both parts by their highest common factor.',
+				),
+				'example' => '<p>1/2 + 1/3. The common denominator is 6. A half becomes 3/6 and a third becomes 2/6, so the answer is 5/6, which will not simplify further.</p>',
 			),
 			array(
-				'heading' => 'Multiplication is the easy one',
-				'body' => 'Multiplying fractions needs no common denominator at all: numerators across the top, denominators across the bottom. Division is the same operation after flipping the second fraction, which is why it is sometimes taught as multiplying by the reciprocal.',
+				'heading' => 'Multiplying and dividing are the easy ones',
+				'body' => '<p>Multiplication needs no common denominator at all. Multiply the tops, multiply the bottoms, simplify. It is the one fraction operation that behaves exactly as you would hope.</p><p>Division is multiplication with the second fraction turned upside down. Dividing by 2/3 is the same as multiplying by 3/2, which is worth understanding rather than memorising: dividing by two thirds asks how many two thirds fit into something, and the answer is naturally larger than what you started with.</p>',
+				'table' => array(
+					'caption' => 'The four operations on the same pair',
+					'head' => array(
+						'Operation',
+						'3/4 and 2/3',
+						'Working',
+						'Result',
+					),
+					'rows' => array(
+						array(
+							'Add',
+							'3/4 + 2/3',
+							'9/12 + 8/12',
+							'17/12 or 1 5/12',
+						),
+						array(
+							'Subtract',
+							'3/4 &minus; 2/3',
+							'9/12 &minus; 8/12',
+							'1/12',
+						),
+						array(
+							'Multiply',
+							'3/4 &times; 2/3',
+							'6/12',
+							'1/2',
+						),
+						array(
+							'Divide',
+							'3/4 &divide; 2/3',
+							'3/4 &times; 3/2 = 9/8',
+							'1 1/8',
+						),
+					),
+				),
+			),
+			array(
+				'heading' => 'Simplifying, and why the answer looks different',
+				'body' => '<p>A fraction is simplified by dividing the top and the bottom by their highest common factor. 6/12 becomes 1/2 because both divide by six, and the two are the same number written two ways.</p><p>This is why a correct answer can look unfamiliar. 8/12, 4/6 and 2/3 are all identical, and a textbook will usually want the last. If your answer disagrees with the back of the book, check whether it simplifies to the same thing before assuming you went wrong.</p>',
+			),
+			array(
+				'heading' => 'Mixed numbers and improper fractions',
+				'body' => '<p>An improper fraction has a top bigger than its bottom, like 17/12. A mixed number writes the same value as a whole part and a fraction, like 1 5/12. Neither is more correct and each suits a different job.</p><p>Do the arithmetic in improper fractions, because mixed numbers do not multiply or divide without being converted first anyway. Present the answer as a mixed number if somebody has to picture it, since one and five twelfths of a pizza is easier to hold in mind than seventeen twelfths of one.</p>',
+				'table' => array(
+					'caption' => 'The same values written both ways',
+					'head' => array(
+						'Improper',
+						'Mixed',
+						'Decimal',
+						'Conversion',
+					),
+					'rows' => array(
+						array(
+							'5/4',
+							'1 1/4',
+							'1.25',
+							'5 &divide; 4 = 1 r 1',
+						),
+						array(
+							'7/3',
+							'2 1/3',
+							'2.333',
+							'7 &divide; 3 = 2 r 1',
+						),
+						array(
+							'11/8',
+							'1 3/8',
+							'1.375',
+							'11 &divide; 8 = 1 r 3',
+						),
+						array(
+							'17/12',
+							'1 5/12',
+							'1.417',
+							'17 &divide; 12 = 1 r 5',
+						),
+						array(
+							'22/7',
+							'3 1/7',
+							'3.143',
+							'22 &divide; 7 = 3 r 1',
+						),
+					),
+				),
+			),
+			array(
+				'heading' => 'Why fractions survive at all',
+				'body' => '<p>Decimals are easier to compare and fractions are more exact, and that trade is the whole reason both exist. A third is 0.333 recurring, and any decimal you write down for it is wrong by a little. As a fraction it is exactly right.</p><p>That precision matters wherever errors compound. Three thirds written as decimals give 0.999, while three thirds written as fractions give exactly one. In a recipe or a cut list the difference is invisible; in anything iterative it is the difference between an answer and a drift.</p>',
+			),
+			array(
+				'heading' => 'What this calculator assumes',
+				'body' => '<p>It works with ordinary numerators and denominators and will tell you when a denominator is zero, which is undefined rather than infinite. A fraction is a division, and dividing by nothing is not a question with an answer.</p><p>It gives an exact fraction rather than a rounded decimal, so an answer like 1/3 stays as 1/3. If you need it as a decimal for a measurement, convert at the very end rather than partway through, because rounding early in a chain of fractions throws away the exactness that made them worth using.</p>',
 			),
 		),
 		'faqs' => array(
 			array(
-				'q' => 'How do I simplify a fraction?',
-				'a' => 'Divide the top and bottom by their greatest common factor. This calculator does it automatically, and the GCF calculator will show you the factor itself.',
+				'q' => 'How do I add fractions with different denominators?',
+				'a' => 'Rewrite both over a common denominator first, then add the numerators. Multiplying the two denominators always gives one that works, so 1/2 plus 1/3 becomes 3/6 plus 2/6, which is 5/6.',
 			),
 			array(
-				'q' => 'What is an improper fraction?',
-				'a' => 'One where the numerator is larger than the denominator, such as 7/4. It is perfectly valid and often easier to calculate with than the mixed number 1 3/4, which is why both forms are shown.',
+				'q' => 'Why do I flip the second fraction when dividing?',
+				'a' => 'Because dividing by a fraction asks how many of it fit into the first one, and that is the same as multiplying by its reciprocal. Dividing by 2/3 is multiplying by 3/2, which is why the answer comes out larger.',
+			),
+			array(
+				'q' => 'Is 2/4 the same as 1/2?',
+				'a' => 'Yes, they are the same number written differently. Simplifying divides the top and bottom by their highest common factor, which is why a correct answer can look different from the one in a book until you simplify it.',
+			),
+			array(
+				'q' => 'Should I give my answer as a mixed number or an improper fraction?',
+				'a' => 'Do the working in improper fractions, since mixed numbers have to be converted before they multiply or divide anyway. Present a mixed number if somebody needs to picture the quantity, because one and a quarter is easier to imagine than five quarters.',
+			),
+			array(
+				'q' => 'What happens if the denominator is zero?',
+				'a' => 'Nothing valid. A fraction is a division and dividing by zero is undefined rather than infinite, so there is no number the expression stands for.',
 			),
 		),
 		'related' => array(

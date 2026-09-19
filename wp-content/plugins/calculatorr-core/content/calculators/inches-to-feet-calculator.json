@@ -1,0 +1,163 @@
+{
+ "slug": "inches-to-feet-calculator",
+ "explainer": [
+  {
+   "heading": "Twelve inches to the foot, and what that means in practice",
+   "body": "<p>Divide by twelve. The complication is not the division but what you do with the remainder, because feet and inches is a mixed system and a decimal answer is rarely what you want at the point of use.</p><p>Seventy inches is 5.833 feet, which is a correct answer that helps nobody holding a tape measure. What you want is 5 feet 10 inches, and getting there means keeping the whole feet and turning the remainder back into inches rather than leaving it as a decimal.</p>",
+   "formula": "Feet = Inches &divide; 12 &nbsp;&middot;&nbsp; Remainder in inches = Inches &minus; (Whole feet &times; 12)",
+   "steps": [
+    "Divide the inches by 12 and keep the whole number, which is your feet.",
+    "Multiply those whole feet by 12.",
+    "Subtract that from your original inches to get the inches left over."
+   ],
+   "example": "<p>70 inches. 70 &divide; 12 = 5 remainder 10, so it is 5 feet 10 inches. Checking: 5 &times; 12 = 60, and 70 &minus; 60 = 10.</p>"
+  },
+  {
+   "heading": "Inches, feet and metric side by side",
+   "body": "<p>The measurements that come up most are human heights and the standard sizes of sheet materials and openings. Having them in all three forms saves converting the same handful of numbers repeatedly.</p>",
+   "table": {
+    "caption": "The conversions that come up most",
+    "head": [
+     "Inches",
+     "Feet (decimal)",
+     "Feet and inches",
+     "Centimetres"
+    ],
+    "rows": [
+     [
+      "12\"",
+      "1.00",
+      "1 ft 0 in",
+      "30.5 cm"
+     ],
+     [
+      "24\"",
+      "2.00",
+      "2 ft 0 in",
+      "61.0 cm"
+     ],
+     [
+      "36\"",
+      "3.00",
+      "3 ft 0 in",
+      "91.4 cm"
+     ],
+     [
+      "48\"",
+      "4.00",
+      "4 ft 0 in",
+      "121.9 cm"
+     ],
+     [
+      "60\"",
+      "5.00",
+      "5 ft 0 in",
+      "152.4 cm"
+     ],
+     [
+      "66\"",
+      "5.50",
+      "5 ft 6 in",
+      "167.6 cm"
+     ],
+     [
+      "70\"",
+      "5.83",
+      "5 ft 10 in",
+      "177.8 cm"
+     ],
+     [
+      "72\"",
+      "6.00",
+      "6 ft 0 in",
+      "182.9 cm"
+     ],
+     [
+      "96\"",
+      "8.00",
+      "8 ft 0 in",
+      "243.8 cm"
+     ]
+    ]
+   }
+  },
+  {
+   "heading": "Why the decimal and the inches look nothing alike",
+   "body": "<p>A tenth of a foot is 1.2 inches, so the decimal and the inch count never line up in a way that is easy to read off. 5.5 feet is five foot six, because half of twelve is six. 5.25 feet is five foot three. And 5.9 feet, which looks like it ought to be five foot nine, is actually five foot eleven.</p><p>That last one is the trap. Writing a height as 5.9 when you mean five foot nine is an error of two inches, and it is common enough that it is worth pausing whenever a height appears as a decimal at all.</p>",
+   "table": {
+    "caption": "Decimal feet against the inches they really mean",
+    "head": [
+     "Decimal feet",
+     "Inches part",
+     "Reads as"
+    ],
+    "rows": [
+     [
+      "0.25 ft",
+      "3 in",
+      "a quarter foot"
+     ],
+     [
+      "0.33 ft",
+      "4 in",
+      "a third"
+     ],
+     [
+      "0.50 ft",
+      "6 in",
+      "a half"
+     ],
+     [
+      "0.75 ft",
+      "9 in",
+      "three quarters"
+     ],
+     [
+      "0.83 ft",
+      "10 in",
+      "not 8 inches"
+     ],
+     [
+      "0.90 ft",
+      "10.8 in",
+      "not 9 inches"
+     ]
+    ]
+   }
+  },
+  {
+   "heading": "When to keep the decimal instead",
+   "body": "<p>Anything you are going to multiply should stay decimal. Area, volume and pricing by the linear foot all break if you try to carry feet and inches through the arithmetic, because the mixed system does not multiply cleanly.</p><p>Work in decimal feet, do the sum, and convert back at the end only if somebody has to measure the result. That way the arithmetic stays simple and the conversion happens once rather than at every step.</p>"
+  },
+  {
+   "heading": "Where sheet sizes come from",
+   "body": "<p>Four by eight feet is 48 by 96 inches, and the reason it is the standard sheet almost everywhere that uses imperial measurements is that it divides neatly by the 16 inch stud spacing used in timber framing. Ninety six divided by sixteen is six, so a sheet lands on a stud at both ends without cutting.</p><p>That is also why 16 inches, 24 inches and 48 inches recur throughout building materials. They are not arbitrary: they are the numbers that let sheets, joists and studs agree with each other, and a job that respects them wastes far less material than one that does not.</p>"
+  },
+  {
+   "heading": "What it will not tell you",
+   "body": "<p>It converts a number and leaves the decisions alone. For anything being fitted, measure the opening rather than the thing coming out of it, and measure it at both ends and the middle, because an opening that is 36 inches at the top and 35 and a half at the bottom will accept a 35 and a half inch panel and nothing wider.</p><p>It also handles length only. Square inches to square feet divides by 144 rather than 12, because area scales with the square. Using 12 on an area leaves you out by a factor of twelve, which is the kind of error that gets noticed only after the material arrives.</p>"
+  }
+ ],
+ "faqs": [
+  {
+   "q": "How many feet is 70 inches?",
+   "a": "5 feet 10 inches, or 5.83 feet as a decimal. Divide 70 by 12 to get 5 with 10 left over, and the 10 is your inches."
+  },
+  {
+   "q": "Is 5.9 feet the same as 5 foot 9?",
+   "a": "No, and this is the most common mistake with decimal feet. 5.9 feet is 5 feet 10.8 inches, because a tenth of a foot is 1.2 inches rather than one. Five foot nine as a decimal is 5.75 feet."
+  },
+  {
+   "q": "Should I use decimal feet or feet and inches?",
+   "a": "Decimal for any arithmetic, feet and inches for anything somebody has to measure. Mixed units do not multiply cleanly, so work in decimals and convert back once at the end."
+  },
+  {
+   "q": "How do I convert square inches to square feet?",
+   "a": "Divide by 144, not by 12. A square foot is 12 inches by 12 inches, so the area conversion is the square of the length one, and using 12 leaves you out by a factor of twelve."
+  },
+  {
+   "q": "Why is plywood 4 feet by 8 feet?",
+   "a": "Because 96 inches divides evenly by the 16 inch stud spacing used in timber framing, so a sheet reaches a stud at both ends without being cut. The same reasoning is why 16, 24 and 48 inches turn up throughout building materials."
+  }
+ ]
+}
