@@ -407,6 +407,83 @@ $early = ob_get_clean();
 check( 'a stored choice is applied before paint', (bool) strpos( $early, 'calcr-theme' ), true );
 check( 'storage access is guarded', (bool) strpos( $early, 'try' ), true );
 
+/* --- the design layer ----------------------------------------------------- */
+
+/*
+ * The point of this layer is that a look-and-feel change is a saved value
+ * rather than an edited file, so it reaches every page with no packaging step.
+ * These checks cover the three things that makes or breaks: an untouched
+ * install must emit nothing, a changed value must reach both palettes
+ * correctly, and a value that is not the shape it claims to be must be dropped
+ * rather than written into a stylesheet where it would break the rule around
+ * it silently.
+ */
+$design = Calculatorr_Design::instance();
+
+$values = $settings->all();
+$values['design'] = array();
+$settings->save( $values );
+
+$clean_install = $design->overrides();
+check( 'an untouched install overrides nothing', $clean_install['light'] + $clean_install['dark'] + $clean_install['root'], array() );
+
+ob_start();
+$design->output();
+check( 'and prints no style block', ob_get_clean(), '' );
+
+$values['design'] = array(
+	'light_accent'   => '#7A2FF2',
+	'dark_accent'    => 'rgb(160 120 255)',
+	'type_container' => '1440px',
+	'light_ink'      => 'javascript:alert(1)',
+	'type_font_body' => 'url(evil)',
+	'type_header'    => '90',
+	'fonts_url'      => 'http://fonts.example.com/x.css',
+	'custom_css'     => '.x{color:red}</style><script>bad()</script>',
+);
+$settings->save( $values );
+
+$stored = (array) $settings->get( 'design' );
+
+check( 'a hex colour is kept', $stored['light_accent'], '#7A2FF2' );
+check( 'an rgb colour in space syntax is kept', $stored['dark_accent'], 'rgb(160 120 255)' );
+check( 'a length with a unit is kept', $stored['type_container'], '1440px' );
+check( 'a script url is not a colour', isset( $stored['light_ink'] ), false );
+check( 'a css function is not a font stack', isset( $stored['type_font_body'] ), false );
+check( 'a length with no unit is rejected', isset( $stored['type_header'] ), false );
+check( 'the webfont must be served over https', $stored['fonts_url'], '' );
+
+/* A stylesheet that can close its own tag stops being a stylesheet. */
+check( 'custom css cannot escape the style element', false !== strpos( $stored['custom_css'], '<' ), false );
+check( 'and cannot open a script', false !== strpos( $stored['custom_css'], '<script' ), false );
+check( 'but keeps the rule that was written', false !== strpos( $stored['custom_css'], '.x{color:red}' ), true );
+
+ob_start();
+$design->output();
+$printed = ob_get_clean();
+
+check( 'the changed accent reaches light mode', false !== strpos( $printed, '--calcr-accent:#7A2FF2' ), true );
+check( 'the dark accent is written for the system preference', false !== strpos( $printed, 'prefers-color-scheme:dark' ), true );
+check( 'and for the visitor who pressed the switch', false !== strpos( $printed, ':root[data-calcr-theme="dark"]' ), true );
+check( 'the container width is not palette specific', false !== strpos( $printed, '--calcr-container:1440px' ), true );
+check( 'an untouched colour is left to the stylesheet', false !== strpos( $printed, '--calcr-paper' ), false );
+
+/* The layout tokens only do anything if the chrome actually reads them. */
+check(
+	'the chrome reads the container token',
+	(bool) preg_match( '/max-width:\s*var\(--calcr-container\)/', $chrome_css ),
+	true
+);
+check(
+	'the chrome reads the header height token',
+	(bool) preg_match( '/min-height:\s*var\(--calcr-header-height\)/', $chrome_css ),
+	true
+);
+
+$values['design'] = array();
+$settings->save( $values );
+check( 'clearing it returns to the shipped design', Calculatorr_Design::get( 'light_accent' ), '#0E6E63' );
+
 /* --- results -------------------------------------------------------------- */
 printf( "%d checks\n\n", $checks );
 foreach ( $failures as $failure ) { echo "  FAIL $failure\n"; }

@@ -52,6 +52,7 @@ class Calculatorr_Settings {
 			'log_enabled'         => 1,
 			'render_heading'      => 0,
 			'log_limit'           => 200,
+			'design'              => array(),
 			'disabled'            => array(),
 		);
 	}
@@ -77,6 +78,12 @@ class Calculatorr_Settings {
 		}
 
 		$clean['log_limit'] = max( 20, min( 2000, (int) $clean['log_limit'] ) );
+
+		/* The design values are written straight into a stylesheet, so they are
+		   checked against the shape each one is meant to be rather than merely
+		   escaped: a malformed colour does not fail loudly, it quietly breaks the
+		   rule it sits in and takes the rest of the block with it. */
+		$clean['design'] = Calculatorr_Design::sanitise( (array) $clean['design'] );
 
 		update_option( self::OPTION, $clean );
 		$this->settings = $clean;

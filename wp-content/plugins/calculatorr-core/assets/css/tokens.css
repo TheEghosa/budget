@@ -44,6 +44,11 @@
 	--calcr-footer-quiet: #8D96A0;
 	--calcr-footer-line: rgba( 255, 255, 255, 0.12 );
 	--calcr-logo-filter: none;
+
+	/* Layout values are tokens too, so the content width and the header height
+	   can be changed from the control panel rather than from this file. */
+	--calcr-container: 1280px;
+	--calcr-header-height: 70px;
 	--calcr-shadow: rgba( 20, 24, 29, 0.13 );
 
 	--calcr-font-display: 'Space Grotesk', ui-sans-serif, system-ui, sans-serif;

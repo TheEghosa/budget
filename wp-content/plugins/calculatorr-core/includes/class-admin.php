@@ -18,6 +18,7 @@ class Calculatorr_Admin {
 	private $tabs = array(
 		'dashboard'   => 'Dashboard',
 		'calculators' => 'Calculators',
+		'design'      => 'Design',
 		'ads'         => 'Advertising',
 		'code'        => 'Header &amp; footer',
 		'settings'    => 'Settings',
@@ -376,6 +377,107 @@ class Calculatorr_Admin {
 
 	/* ---------------------------------------------------------------- */
 
+	/**
+	 * The design screen.
+	 *
+	 * Everything on it is a stored value that is written into the page as a
+	 * custom property override, which is why a change here reaches all 118
+	 * pages on the next request with no packaging step and no upload. Fields
+	 * left at their default emit nothing at all, so an untouched install runs
+	 * exactly as the stylesheet ships.
+	 */
+	private function render_design() {
+		$design = Calculatorr_Design::get();
+		$defaults = Calculatorr_Design::defaults();
+		?>
+		<div class="calcr-panel">
+			<h2>Design</h2>
+			<p>
+				The palette, the type and the spacing, as settings rather than as lines in a stylesheet. Every
+				colour on the site comes from one named property, so changing it here changes it everywhere:
+				the calculators, the category hubs, the homepage, the header and the footer, in one save.
+			</p>
+			<p>
+				Only the values that define the brand are here, because the rest of the palette is derived from
+				them. Anything this screen does not cover belongs in the custom CSS box at the bottom, which is
+				loaded after everything else and therefore wins.
+			</p>
+
+			<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
+				<input type="hidden" name="action" value="calculatorr_save_settings">
+				<input type="hidden" name="section" value="design">
+				<?php wp_nonce_field( 'calculatorr_save_settings' ); ?>
+
+				<?php foreach ( Calculatorr_Design::schema() as $group => $spec ) : ?>
+					<h3><?php echo esc_html( $spec['label'] ); ?></h3>
+					<table class="form-table calcr-design__table" role="presentation">
+						<tbody>
+						<?php foreach ( $spec['fields'] as $key => $field ) : ?>
+							<?php
+							$name    = $group . '_' . $key;
+							$value   = isset( $design[ $name ] ) ? $design[ $name ] : $field[3];
+							$changed = $value !== $defaults[ $name ];
+							?>
+							<tr>
+								<th scope="row"><label for="calcr-design-<?php echo esc_attr( $name ); ?>"><?php echo esc_html( $field[0] ); ?></label></th>
+								<td>
+									<?php if ( 'color' === $field[2] ) : ?>
+										<input type="color" value="<?php echo esc_attr( preg_match( '/^#[0-9a-f]{6}$/i', $value ) ? $value : '#000000' ); ?>"
+											data-calcr-colour-for="calcr-design-<?php echo esc_attr( $name ); ?>" aria-hidden="true" tabindex="-1">
+									<?php endif; ?>
+									<input type="text" id="calcr-design-<?php echo esc_attr( $name ); ?>"
+										name="design[<?php echo esc_attr( $name ); ?>]"
+										value="<?php echo esc_attr( $value ); ?>"
+										class="regular-text code" spellcheck="false">
+									<?php if ( $changed ) : ?>
+										<span class="description">Default <code><?php echo esc_html( $defaults[ $name ] ); ?></code></span>
+									<?php endif; ?>
+								</td>
+							</tr>
+						<?php endforeach; ?>
+						</tbody>
+					</table>
+				<?php endforeach; ?>
+
+				<h3>Webfont</h3>
+				<p class="description">
+					The stylesheet the fonts are loaded from. Changing the font names above without changing this
+					gives you a font the browser has not been sent, so the two move together. Leave it empty to
+					load no webfont at all and use whatever the visitor already has.
+				</p>
+				<input type="url" name="design[fonts_url]" value="<?php echo esc_attr( $design['fonts_url'] ); ?>" class="large-text code" spellcheck="false">
+
+				<h3>Custom CSS</h3>
+				<p class="description">
+					Loaded after every other stylesheet, so it wins without needing !important. Use it for anything
+					this screen does not cover. It is stored as written apart from angle brackets, which are
+					removed because a stylesheet that can close its own tag stops being a stylesheet.
+				</p>
+				<textarea name="design[custom_css]" rows="10" class="large-text code" spellcheck="false"><?php echo esc_textarea( $design['custom_css'] ); ?></textarea>
+
+				<p class="submit">
+					<button type="submit" class="button button-primary">Save design</button>
+					<button type="submit" name="reset_design" value="1" class="button">Reset to defaults</button>
+				</p>
+			</form>
+		</div>
+
+		<script>
+		/* The colour swatch is a convenience beside the text field rather than
+		   a replacement for it, because the text field also accepts rgb() and
+		   hsl(), which a native colour input cannot express. */
+		document.querySelectorAll( '[data-calcr-colour-for]' ).forEach( function ( swatch ) {
+			var field = document.getElementById( swatch.getAttribute( 'data-calcr-colour-for' ) );
+			if ( ! field ) { return; }
+			swatch.addEventListener( 'input', function () { field.value = swatch.value; } );
+			field.addEventListener( 'input', function () {
+				if ( /^#[0-9a-f]{6}$/i.test( field.value.trim() ) ) { swatch.value = field.value.trim(); }
+			} );
+		} );
+		</script>
+		<?php
+	}
+
 	private function render_ads() {
 		$settings = Calculatorr_Settings::instance();
 		$slots = array(
@@ -621,6 +723,22 @@ class Calculatorr_Admin {
 			}
 			$settings->save( $values );
 			$this->finish( 'Header and footer code saved.', 'code' );
+		}
+
+		if ( 'design' === $section ) {
+			if ( isset( $_POST['reset_design'] ) ) {
+				$values['design'] = array();
+				$settings->save( $values );
+				$this->finish( 'Design reset to the shipped defaults.', 'design' );
+			}
+
+			/* Sanitising happens in Calculatorr_Settings::save via
+			   Calculatorr_Design::sanitise, so a value that is not the shape it
+			   claims to be is dropped rather than written into a stylesheet. */
+			$submitted = isset( $_POST['design'] ) ? (array) wp_unslash( $_POST['design'] ) : array();
+			$values['design'] = $submitted;
+			$settings->save( $values );
+			$this->finish( 'Design saved.', 'design' );
 		}
 
 		if ( 'ads' === $section ) {

@@ -4,7 +4,7 @@ Tags: calculator, tools, seo, elementor
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 1.2.1
+Stable tag: 1.3.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -65,6 +65,13 @@ In the visitor's browser. Nothing is sent to the server, so salaries, weights
 and health measurements never leave the device.
 
 == Changelog ==
+
+= 1.3.0 =
+* A Design tab holding the palette, the fonts, the content width and a custom CSS box. Everything on it is a stored value written into the page as a custom property override, so a look-and-feel change reaches all 118 pages on the next request with no upload.
+* The same values can be read and written over the REST API, one at a time, so the design can be adjusted without opening the admin at all.
+* The webfont stylesheet is a setting too, so changing the fonts no longer means changing code.
+* Values are checked against the shape they claim to be. A colour that is not a colour is dropped rather than written into a stylesheet where it would silently break the rule around it.
+* Fields left at their default emit nothing, so an untouched install runs exactly as the stylesheet ships.
 
 = 1.2.1 =
 * Reset now starts disabled and switches on the moment anything changes, because with blank fields there was nothing to reset on a fresh page and a live-looking button that did nothing read as broken.

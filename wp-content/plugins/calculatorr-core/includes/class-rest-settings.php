@@ -92,6 +92,13 @@ class Calculatorr_Rest_Settings {
 			);
 		}
 
+		/* Design is a nested set, so a request naming one colour means change
+		   that colour, not replace the palette with a single entry. Sending an
+		   empty object for it is the way to clear the lot back to defaults. */
+		if ( isset( $body['design'] ) && is_array( $body['design'] ) && $body['design'] ) {
+			$body['design'] = array_merge( (array) $current['design'], $body['design'] );
+		}
+
 		$settings->save( array_merge( $current, $body ) );
 
 		return rest_ensure_response( $settings->all() );

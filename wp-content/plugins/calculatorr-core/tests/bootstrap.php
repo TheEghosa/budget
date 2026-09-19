@@ -48,6 +48,9 @@ function shortcode_atts( $pairs, $atts, $shortcode = '' ) {
 	return $out;
 }
 
+function esc_url_raw( $u, $p = array() ) { return preg_match( '#^https://#', (string) $u ) ? $u : ''; }
+function esc_textarea( $t ) { return htmlspecialchars( (string) $t, ENT_QUOTES, 'UTF-8' ); }
+function wp_unslash( $v ) { return is_string( $v ) ? stripslashes( $v ) : $v; }
 function esc_html__( $t, $d = '' ) { return $t; }
 function __( $t, $d = '' ) { return $t; }
 function esc_html( $t )  { return htmlspecialchars( (string) $t, ENT_QUOTES, 'UTF-8' ); }
@@ -101,6 +104,7 @@ function mb_substr_compat( $s, $a, $b ) { return substr( $s, $a, $b ); }
 
 $GLOBALS['calcr_options'] = array();
 
+require_once CALCULATORR_PATH . 'includes/class-design.php';
 require_once CALCULATORR_PATH . 'includes/class-settings.php';
 require_once CALCULATORR_PATH . 'includes/class-error-log.php';
 require_once CALCULATORR_PATH . 'includes/class-registry.php';

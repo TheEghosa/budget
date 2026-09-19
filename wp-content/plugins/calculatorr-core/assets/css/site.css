@@ -28,7 +28,7 @@ body {
 body:not([class*="elementor-page-"]) .site-main,
 .site-header .header-inner,
 .site-footer .footer-inner {
-	max-width: 1280px;
+	max-width: var(--calcr-container);
 	padding-inline: clamp( 16px, 4vw, 64px );
 }
 
@@ -44,7 +44,7 @@ body:not([class*="elementor-page-"]) .site-main,
 	display: flex;
 	align-items: center;
 	gap: clamp( 16px, 3vw, 40px );
-	min-height: 70px;
+	min-height: var(--calcr-header-height);
 	flex-wrap: wrap;
 	padding-block: 10px;
 }
