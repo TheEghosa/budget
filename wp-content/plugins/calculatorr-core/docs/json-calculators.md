@@ -186,5 +186,19 @@ starts a worker, and the worker is where a JSON calculator actually computes.
 It also probes the sandbox directly, driving the worker the way a compromised
 page would, and reports anything a formula can still reach.
 
+A new calculator appears on its category hub straight away, because the hub
+renders from the registry, and on the homepage and the all-calculators index
+only after those two generated blocks are rebuilt:
+
+```
+php tools/build-inventory.php > /tmp/inventory.json
+python3 tools/build-home.py /tmp/inventory.json content
+```
+
+Then publish `content/home.html` and `content/all-calculators.html` to their
+pages. Doing this before the plugin build that ships the definition has landed
+would put a link to a page that does not exist yet on the busiest page on the
+site, so it goes after.
+
 The content still has to meet `docs/content-standard.md`. A calculator that is
 quicker to publish is not a licence to publish a thinner one.
