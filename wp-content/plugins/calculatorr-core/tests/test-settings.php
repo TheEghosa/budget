@@ -19,6 +19,14 @@ function check( $label, $actual, $expected ) {
 	}
 }
 
+function check_quiet( $label, $actual, $expected ) {
+	global $failures, $checks;
+	$checks++;
+	if ( $actual !== $expected ) {
+		$failures[] = $label;
+	}
+}
+
 $settings = Calculatorr_Settings::instance();
 $registry = Calculatorr_Registry::instance();
 $renderer = Calculatorr_Renderer::instance();
@@ -690,6 +698,42 @@ check( 'typing does not rewrite the address bar', (bool) strpos( $runtime_js, 'r
 check( 'a shared link still fills the form in', (bool) strpos( $runtime_js, 'restoreFromHash' ), true );
 check( 'the share link skips blanks', (bool) preg_match( "/if \( '' === value \) \{/", $share_runtime ), true );
 check( 'the share link skips hidden fields', (bool) preg_match( '/if \( field && field\.hidden \) \{/', $share_runtime ), true );
+
+/*
+ * No calculator is a dead end.
+ *
+ * Thirty-one configs name fewer than three related calculators, and a page
+ * that emits two internal links tends to be one that receives two, which is
+ * how a tool ends up reachable only from its category page. The list is
+ * topped up from the calculator's own category, walking from its own position
+ * and wrapping round, so the incoming links spread evenly instead of every
+ * page in a category pointing at the same two.
+ */
+$related_method = new ReflectionMethod( 'Calculatorr_Renderer', 'related_slugs' );
+$related_method->setAccessible( true );
+
+$short_lists = 0;
+$incoming    = array();
+
+foreach ( $registry->all() as $one ) {
+	$slugs = $related_method->invoke( $renderer, $one, 4 );
+
+	if ( count( $slugs ) < 3 ) {
+		$short_lists++;
+	}
+
+	check_quiet( 'never lists itself: ' . $one['slug'], in_array( $one['slug'], $slugs, true ), false );
+
+	foreach ( $slugs as $target ) {
+		$incoming[ $target ] = isset( $incoming[ $target ] ) ? $incoming[ $target ] + 1 : 1;
+	}
+}
+
+/* Only the four-calculator category can fall short, and only to three. */
+check( 'every calculator offers at least three onward links', $short_lists <= 4, true );
+
+$unlinked = array_values( array_diff( array_map( function ( $c ) { return $c['slug']; }, $registry->all() ), array_keys( $incoming ) ) );
+check( 'every calculator is linked from somewhere', $unlinked, array() );
 
 /* Reset has to put repeater rows back as well. It used to clear the ordinary
    fields and leave every added row sitting there with its figures in it,

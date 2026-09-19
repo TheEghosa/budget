@@ -4,7 +4,7 @@ Tags: calculator, tools, seo, elementor
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 1.7.3
+Stable tag: 1.7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -65,6 +65,14 @@ In the visitor's browser. Nothing is sent to the server, so salaries, weights
 and health measurements never leave the device.
 
 == Changelog ==
+
+= 1.7.4 =
+Every calculator now offers at least four onward links. Thirty-one named
+fewer than three, and the list is topped up from the calculator's own
+category, walking from its own position so the incoming links spread evenly
+rather than every page pointing at the same two. tools/seo-audit.php checks
+titles, descriptions, canonicals, headings, structured data, content depth and
+internal linking across every page the plugin renders.
 
 = 1.7.3 =
 Calculators with five fields or more lay their form out in two columns once

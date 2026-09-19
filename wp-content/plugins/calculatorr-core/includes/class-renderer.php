@@ -889,8 +889,61 @@ class Calculatorr_Renderer {
 		return ob_get_clean();
 	}
 
+	/**
+	 * The related list, topped up so no calculator is a dead end.
+	 *
+	 * Thirty-one configs name fewer than three, and a page that emits two
+	 * internal links also tends to be one that receives two, which is how a
+	 * calculator ends up reachable only from its category page. The gap is
+	 * filled from the calculator's own category, walking the list from the
+	 * current one and wrapping round.
+	 *
+	 * Walking cyclically rather than taking the first few alphabetically is
+	 * the whole point: taking the first few would point every page in a
+	 * category at the same two or three calculators and leave the rest exactly
+	 * as unlinked as before. Starting from each page's own position spreads
+	 * the incoming links evenly around the category by construction.
+	 */
+	private function related_slugs( $config, $wanted = 4 ) {
+		$registry = Calculatorr_Registry::instance();
+		$self     = isset( $config['slug'] ) ? $config['slug'] : '';
+		$out      = array();
+
+		foreach ( (array) ( isset( $config['related'] ) ? $config['related'] : array() ) as $slug ) {
+			if ( $slug !== $self && ! in_array( $slug, $out, true ) && $registry->get_live( $slug ) ) {
+				$out[] = $slug;
+			}
+		}
+
+		if ( count( $out ) >= $wanted ) {
+			return array_slice( $out, 0, $wanted );
+		}
+
+		$siblings = array_values(
+			array_map(
+				function ( $one ) { return $one['slug']; },
+				$registry->in_category( isset( $config['category'] ) ? $config['category'] : '' )
+			)
+		);
+
+		$at = array_search( $self, $siblings, true );
+		$at = ( false === $at ) ? -1 : $at;
+
+		for ( $step = 1; $step <= count( $siblings ) && count( $out ) < $wanted; $step++ ) {
+			$slug = $siblings[ ( $at + $step ) % count( $siblings ) ];
+
+			if ( $slug !== $self && ! in_array( $slug, $out, true ) ) {
+				$out[] = $slug;
+			}
+		}
+
+		return $out;
+	}
+
 	private function render_related( $config ) {
-		if ( empty( $config['related'] ) ) {
+		$slugs = $this->related_slugs( $config );
+
+		if ( ! $slugs ) {
 			return '';
 		}
 
@@ -902,7 +955,7 @@ class Calculatorr_Renderer {
 			<h2>Related calculators</h2>
 			<div class="calcr-related__grid">
 				<?php
-				foreach ( $config['related'] as $slug ) :
+				foreach ( $slugs as $slug ) :
 					$related = $registry->get( $slug );
 					if ( ! $related ) {
 						continue;
