@@ -1091,6 +1091,73 @@ select.calcr-field__select {
 	}
 }
 
+/*
+ * Long forms.
+ *
+ * A two-field calculator and a seven-field one cannot share a layout and both
+ * put the answer and the buttons on the first screen. The fix is not to shrink
+ * anything: it is to stop stacking seven rows in a column half the card wide
+ * when the answer panel beside them is two-thirds empty. Paired up, seven
+ * fields become four rows, which is about 310px of height back.
+ *
+ * The question is whether the form has room, and the form's room depends on
+ * the card, not the window: the same 1440px window gives the card 828px with
+ * the sidebar beside it and 1200px without. So the card is asked, through the
+ * container it already sits in, and 1180px is where two 36px-padded columns
+ * still leave about 250px per field, which is wider than any figure these
+ * calculators take.
+ *
+ * For the forty-four calculators with five fields or more, the sidebar is what
+ * stands between the form and that width, so it waits until the window can
+ * afford both. Below that it sits under the card, where it is still one scroll
+ * away rather than squeezing the thing people came to use.
+ */
+@media (min-width: 1840px) {
+	.calcr-page--dense .calcr-layout {
+		grid-template-columns: minmax(0, 1fr) 340px;
+	}
+}
+
+@media (max-width: 1839px) {
+	.calcr-page--dense .calcr-layout {
+		grid-template-columns: minmax(0, 1fr);
+	}
+
+	.calcr-page--dense .calcr-layout__side {
+		position: static;
+	}
+}
+
+@container (min-width: 1040px) {
+	.calcr-page--dense .calcr__form {
+		display: grid;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: 20px;
+		align-content: start;
+	}
+
+	/*
+	 * Controls that need a full row keep one. A repeater lays out its own grid
+	 * inside itself, a select is as wide as its longest option, and a
+	 * segmented control with four or more choices puts them on two lines if it
+	 * is squeezed into half a column. Two or three choices fit beside
+	 * something else, and on a form like the paint calculator, which has two
+	 * of them, that is a row saved rather than a row wasted.
+	 */
+	.calcr-page--dense .calcr__form > .calcr-field--select,
+	.calcr-page--dense .calcr__form > .calcr-rep,
+	.calcr-page--dense .calcr__form > .calcr-field--wide,
+	.calcr-page--dense .calcr__form > .calcr-field--segmented:has( .calcr-seg > :nth-child(4) ) {
+		grid-column: 1 / -1;
+	}
+
+	/* A field hidden by its condition must not hold a cell open, or the grid
+	   grows a gap where the imperial inputs would have been. */
+	.calcr-page--dense .calcr__form > [hidden] {
+		display: none;
+	}
+}
+
 .calcr-layout__side {
 	position: sticky;
 	top: 24px;

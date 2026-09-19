@@ -208,7 +208,22 @@ class Calculatorr_Renderer {
 
 		ob_start();
 		?>
-		<div class="calcr-page">
+		<?php
+		/*
+		 * A long form is a different layout problem from a short one.
+		 *
+		 * A two-field calculator and a twelve-field one cannot both be laid out
+		 * the same way and both end up with the answer and the buttons on the
+		 * first screen. Forty-four of the hundred and five carry five fields or
+		 * more, and for those the sidebar is what is costing the form the width
+		 * it needs to pair its fields up, so it waits until the window is wide
+		 * enough to give both. The number is counted here rather than guessed
+		 * at in CSS, because the server already knows it.
+		 */
+		$field_count = self::visible_field_count( $config );
+		$page_class  = 'calcr-page' . ( $field_count >= 5 ? ' calcr-page--dense' : '' );
+		?>
+		<div class="<?php echo esc_attr( $page_class ); ?>" data-calcr-fields="<?php echo (int) $field_count; ?>">
 			<?php
 			/*
 			 * The title band. The tile beside the heading is the same drawing
@@ -273,6 +288,36 @@ class Calculatorr_Renderer {
 	 * there is nothing for a visitor to climb back up, and Google has said it
 	 * uses the visible trail as well as the markup.
 	 */
+	/**
+	 * How many fields are actually on screen at once.
+	 *
+	 * Counting the config's fields overstates it for anything that offers the
+	 * same measurement two ways. BMI carries height and weight in both metric
+	 * and imperial, five entries for three visible controls, and laying it out
+	 * as though it were a five-field form would give it a second column with
+	 * nothing to put in it.
+	 *
+	 * So the unconditional fields are counted outright, and the conditional
+	 * ones are grouped by the condition they share: only one group can be
+	 * showing, so the largest of them is what the form has to make room for.
+	 */
+	public static function visible_field_count( $config ) {
+		$always = 0;
+		$groups = array();
+
+		foreach ( ( isset( $config['fields'] ) ? $config['fields'] : array() ) as $field ) {
+			if ( empty( $field['show_when'] ) ) {
+				$always++;
+				continue;
+			}
+
+			$key = wp_json_encode( $field['show_when'] );
+			$groups[ $key ] = isset( $groups[ $key ] ) ? $groups[ $key ] + 1 : 1;
+		}
+
+		return $always + ( $groups ? max( $groups ) : 0 );
+	}
+
 	public function render_breadcrumbs( $config ) {
 		$category = Calculatorr_Registry::instance()->category( $config['category'] );
 
@@ -458,8 +503,10 @@ class Calculatorr_Renderer {
 			<div class="calcr__split">
 				<form class="calcr__form" novalidate>
 					<?php
+					$field_index = 0;
+
 					foreach ( $config['fields'] as $field ) {
-						echo $this->render_field( $slug, $field );
+						echo $this->render_field( $slug, $field, $field_index++ );
 					}
 					?>
 				</form>
@@ -573,7 +620,7 @@ class Calculatorr_Renderer {
 		return ob_get_clean();
 	}
 
-	private function render_field( $slug, $field ) {
+	private function render_field( $slug, $field, $index = 0 ) {
 		$field = wp_parse_args(
 			$field,
 			array(
@@ -593,7 +640,21 @@ class Calculatorr_Renderer {
 			)
 		);
 
-		$input_id = 'calcr-' . $slug . '-' . $field['id'];
+		/*
+		 * Unique per element, not per logical field.
+		 *
+		 * A couple of calculators offer the same measurement two ways and give
+		 * both entries the same id on purpose, so that whichever one is
+		 * showing feeds the same name into the formula. That is right for
+		 * data-calcr-input and wrong for an HTML id: the document ended up with
+		 * two elements called calcr-body-fat-calculator-heightVal, and a label
+		 * pointing at a duplicate id binds to the first one, so clicking the
+		 * imperial label focused the hidden metric input.
+		 *
+		 * The position makes the id unique while data-calcr-input below keeps
+		 * carrying the shared name the formula reads.
+		 */
+		$input_id = 'calcr-' . $slug . '-' . $field['id'] . '-' . (int) $index;
 
 		/*
 		 * With empty start switched on, a field opens blank and shows its usual
@@ -629,7 +690,7 @@ class Calculatorr_Renderer {
 
 		if ( 'segmented' === $field['type'] ) {
 			?>
-			<div class="calcr-field"<?php echo $when_attr; ?>>
+			<div class="calcr-field calcr-field--segmented"<?php echo $when_attr; ?>>
 				<span class="calcr-field__label"><?php echo esc_html( $field['label'] ); ?></span>
 				<div class="calcr-seg" role="group" aria-label="<?php echo esc_attr( $field['label'] ); ?>" data-calcr-seg="<?php echo esc_attr( $field['id'] ); ?>">
 					<?php foreach ( $field['options'] as $value => $label ) : ?>
@@ -648,7 +709,7 @@ class Calculatorr_Renderer {
 
 		if ( 'select' === $field['type'] ) {
 			?>
-			<div class="calcr-field"<?php echo $when_attr; ?>>
+			<div class="calcr-field calcr-field--select"<?php echo $when_attr; ?>>
 				<label class="calcr-field__label" for="<?php echo esc_attr( $input_id ); ?>"><?php echo esc_html( $field['label'] ); ?></label>
 				<select id="<?php echo esc_attr( $input_id ); ?>" class="calcr-field__select" data-calcr-input="<?php echo esc_attr( $field['id'] ); ?>">
 					<?php foreach ( $field['options'] as $value => $label ) : ?>
@@ -680,7 +741,7 @@ class Calculatorr_Renderer {
 		// Everything else is a single-line input: number, text or date.
 		$type = in_array( $field['type'], array( 'number', 'text', 'date' ), true ) ? $field['type'] : 'text';
 		?>
-		<div class="calcr-field"<?php echo $when_attr; ?>>
+		<div class="calcr-field calcr-field--input"<?php echo $when_attr; ?>>
 			<label class="calcr-field__label" for="<?php echo esc_attr( $input_id ); ?>"><?php echo esc_html( $field['label'] ); ?></label>
 			<div class="calcr-input">
 				<?php if ( $field['prefix'] ) : ?><span class="calcr-input__affix"><?php echo esc_html( $field['prefix'] ); ?></span><?php endif; ?>

@@ -767,22 +767,76 @@
 			return false;
 		}
 
-		var restored = false;
+		var values = {};
+		var order = [];
 
 		hash.split( '&' ).forEach( function ( pair ) {
-			var parts = pair.split( '=' );
+			var at = pair.indexOf( '=' );
 
-			if ( parts.length !== 2 ) {
+			if ( at < 1 ) {
 				return;
 			}
 
-			var key = decodeURIComponent( parts[ 0 ] );
-			var value = decodeURIComponent( parts[ 1 ] );
-			var field = root.querySelector( '[data-calcr-input="' + key.replace( /"/g, '' ) + '"]' );
+			var key = decodeURIComponent( pair.slice( 0, at ) );
 
-			if ( field ) {
-				field.value = value;
-				restored = true;
+			if ( ! Object.prototype.hasOwnProperty.call( values, key ) ) {
+				order.push( key );
+			}
+
+			values[ key ] = decodeURIComponent( pair.slice( at + 1 ) );
+		} );
+
+		var restored = false;
+
+		/*
+		 * Two passes, because a calculator that offers the same measurement in
+		 * metric and imperial has two elements answering to the same name and
+		 * only one of them on screen. Writing to the first match put 189 into
+		 * whichever came first in the markup, which was often the hidden one,
+		 * so a shared link opened with the units right and the numbers gone.
+		 *
+		 * The first pass fills the names only one element answers to, which is
+		 * where the unit switch itself lives. Visibility is then recomputed, so
+		 * the second pass can put each remaining number into the element the
+		 * visitor is actually looking at.
+		 */
+		function put( key, value, onlyVisible ) {
+			var matches = Array.prototype.slice.call(
+				root.querySelectorAll( '[data-calcr-input="' + key.replace( /["\\]/g, '' ) + '"]' )
+			);
+
+			if ( ! matches.length ) {
+				return;
+			}
+
+			var target = matches[ 0 ];
+
+			if ( onlyVisible ) {
+				for ( var i = 0; i < matches.length; i++ ) {
+					var field = matches[ i ].closest ? matches[ i ].closest( '[data-calcr-when]' ) : null;
+
+					if ( ! field || ! field.hidden ) {
+						target = matches[ i ];
+						break;
+					}
+				}
+			}
+
+			target.value = value;
+			restored = true;
+		}
+
+		order.forEach( function ( key ) {
+			if ( root.querySelectorAll( '[data-calcr-input="' + key.replace( /["\\]/g, '' ) + '"]' ).length === 1 ) {
+				put( key, values[ key ], false );
+			}
+		} );
+
+		applyVisibility( root );
+
+		order.forEach( function ( key ) {
+			if ( root.querySelectorAll( '[data-calcr-input="' + key.replace( /["\\]/g, '' ) + '"]' ).length > 1 ) {
+				put( key, values[ key ], true );
 			}
 		} );
 
@@ -801,39 +855,25 @@
 		} );
 	}
 
-	/**
-	 * Keeps the address bar in step with the form, debounced so a person
-	 * typing a number does not generate one history entry per keystroke.
-	 * replaceState is used rather than pushState for the same reason: the back
-	 * button should leave the page, not walk back through every digit.
+	/*
+	 * The address bar is left alone.
+	 *
+	 * It used to be rewritten as you typed, so that a refresh kept your
+	 * figures. What it actually produced was a long fragment of every field on
+	 * the page, blanks and hidden metric-or-imperial twins included, sitting
+	 * in the address bar of a page nobody had asked to share.
+	 *
+	 * Nothing about it was a search problem, and it is worth being exact about
+	 * why: a fragment is never sent to the server and never indexed, which is
+	 * the reason the state was put there rather than in a query string. It was
+	 * simply ugly, and it made the one place the link genuinely matters, the
+	 * link somebody copies, look like something was wrong.
+	 *
+	 * So the link is built when it is asked for, by Copy link and by Share,
+	 * and only from the fields that are visible and filled. A URL arriving
+	 * with a fragment still fills the form in, so every link already shared
+	 * keeps working.
 	 */
-	function bindUrlState( root ) {
-		if ( ! window.history || ! window.history.replaceState || ! window.CalculatorrShare ) {
-			return;
-		}
-
-		var timer = null;
-
-		var update = function () {
-			window.clearTimeout( timer );
-			timer = window.setTimeout( function () {
-				try {
-					window.history.replaceState( null, '', window.CalculatorrShare.url( root ) );
-				} catch ( error ) {
-					/* Some embedded contexts forbid history writes. The
-					   calculator still works; only the address bar is stale. */
-				}
-			}, 600 );
-		};
-
-		root.addEventListener( 'input', update );
-		root.addEventListener( 'change', update );
-		root.addEventListener( 'click', function ( event ) {
-			if ( event.target.closest( '.calcr-seg__btn, [data-calcr-reset]' ) ) {
-				update();
-			}
-		} );
-	}
 
 	function init( root ) {
 		if ( root.hasAttribute( 'data-calcr-ready' ) ) {
@@ -898,7 +938,6 @@
 		bindRepeaters( root );
 		bindCopy( root );
 		bindSticky( root );
-		bindUrlState( root );
 
 		if ( window.CalculatorrShare && window.CalculatorrShare.bind ) {
 			window.CalculatorrShare.bind( root );

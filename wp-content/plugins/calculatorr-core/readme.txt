@@ -4,7 +4,7 @@ Tags: calculator, tools, seo, elementor
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 1.7.2
+Stable tag: 1.7.3
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -65,6 +65,15 @@ In the visitor's browser. Nothing is sent to the server, so salaries, weights
 and health measurements never leave the device.
 
 == Changelog ==
+
+= 1.7.3 =
+Calculators with five fields or more lay their form out in two columns once
+the card has room, which takes about 300px off the page and brings the answer
+and the buttons into the first screen on a laptop. The address bar is no
+longer rewritten as you type, and the link Copy link produces now carries only
+the fields you filled in rather than every field on the page including the
+blank and hidden ones. Two calculators were giving two elements the same HTML
+id, which made their imperial labels focus the hidden metric inputs.
 
 = 1.7.2 =
 The share panel is no longer cut off at the card's edge, and opens away from

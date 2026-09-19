@@ -649,6 +649,48 @@ check(
 	true
 );
 
+/*
+ * Long forms get a second column, and the count that decides it has to be the
+ * number of fields on screen rather than the number in the config. BMI carries
+ * height and weight twice, metric and imperial, so counting the config would
+ * call a three-field form dense and give it a column with nothing in it.
+ */
+check( 'BMI counts what is on screen, not what is configured', Calculatorr_Renderer::visible_field_count( $registry->get( 'bmi-calculator' ) ), 4 );
+check( 'a genuinely long form is counted long', Calculatorr_Renderer::visible_field_count( $registry->get( 'mortgage-payment-calculator' ) ), 6 );
+check( 'a short one is not', Calculatorr_Renderer::visible_field_count( $registry->get( 'percentage-calculator' ) ) < 5, true );
+
+$dense_page = $renderer->render_page( $registry->get( 'mortgage-payment-calculator' ) );
+$plain_page = $renderer->render_page( $registry->get( 'percentage-calculator' ) );
+check( 'the long form is marked dense', (bool) strpos( $dense_page, 'calcr-page--dense' ), true );
+check( 'the short one is not', (bool) strpos( $plain_page, 'calcr-page--dense' ), false );
+
+/*
+ * A couple of calculators give their metric and imperial entries the same id
+ * deliberately, so whichever is showing feeds the same name to the formula.
+ * That is right for data-calcr-input and wrong for an HTML id: a label
+ * pointing at a duplicate binds to the first one, so the imperial label used
+ * to focus the hidden metric input.
+ */
+$body_fat = $renderer->shortcode( array( 'slug' => 'body-fat-calculator' ) );
+preg_match_all( '/id="(calcr-[^"]+)"/', $body_fat, $id_matches );
+$repeated = array_keys( array_filter( array_count_values( $id_matches[1] ), function ( $n ) { return $n > 1; } ) );
+check( 'no two elements share an id', $repeated, array() );
+check( 'the shared name is still carried for the formula', substr_count( $body_fat, 'data-calcr-input="heightVal"' ), 2 );
+
+/*
+ * The address bar is left alone while somebody types. It used to be rewritten
+ * with every field on the page, blanks and hidden twins included. Nothing
+ * about that was a search problem, since a fragment is never sent to the
+ * server, but it put a long string in front of somebody who had not asked to
+ * share anything, and made the copied link look broken.
+ */
+$runtime_js = file_get_contents( CALCULATORR_PATH . 'assets/js/calculator.js' );
+$share_runtime = file_get_contents( CALCULATORR_PATH . 'assets/js/share.js' );
+check( 'typing does not rewrite the address bar', (bool) strpos( $runtime_js, 'replaceState' ), false );
+check( 'a shared link still fills the form in', (bool) strpos( $runtime_js, 'restoreFromHash' ), true );
+check( 'the share link skips blanks', (bool) preg_match( "/if \( '' === value \) \{/", $share_runtime ), true );
+check( 'the share link skips hidden fields', (bool) preg_match( '/if \( field && field\.hidden \) \{/', $share_runtime ), true );
+
 /* Reset has to put repeater rows back as well. It used to clear the ordinary
    fields and leave every added row sitting there with its figures in it,
    which on a GPA or a timesheet is most of what needed clearing. */

@@ -259,12 +259,48 @@
 
 	var Share = window.CalculatorrShare;
 
+	/**
+	 * The link that reopens this calculator with these figures in it.
+	 *
+	 * Only what somebody actually filled in. It used to take every element
+	 * carrying data-calcr-input, which on a calculator offering metric and
+	 * imperial meant both sets: the hidden one contributed empty values and
+	 * the visible one repeated the same keys, so a body fat link read
+	 * heightVal=&neck=&waist=&hip=&pounds=&heightVal=189&neck=33 and was
+	 * mostly punctuation.
+	 *
+	 * Hidden fields are skipped because they are not part of what is being
+	 * shared, blanks are skipped because a blank is the default, and a repeated
+	 * key keeps its last visible value, which is the one on screen.
+	 */
 	function shareUrl( root ) {
-		var params = [];
+		var seen = {};
+		var order = [];
 
 		root.querySelectorAll( '[data-calcr-input]' ).forEach( function ( el ) {
+			var field = el.closest ? el.closest( '[data-calcr-when]' ) : null;
+
+			if ( field && field.hidden ) {
+				return;
+			}
+
+			var value = String( el.value ).trim();
+
+			if ( '' === value ) {
+				return;
+			}
+
 			var key = el.getAttribute( 'data-calcr-input' );
-			params.push( encodeURIComponent( key ) + '=' + encodeURIComponent( el.value ) );
+
+			if ( ! Object.prototype.hasOwnProperty.call( seen, key ) ) {
+				order.push( key );
+			}
+
+			seen[ key ] = value;
+		} );
+
+		var params = order.map( function ( key ) {
+			return encodeURIComponent( key ) + '=' + encodeURIComponent( seen[ key ] );
 		} );
 
 		var base = window.location.origin + window.location.pathname;
