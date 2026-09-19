@@ -133,7 +133,7 @@ CSS = """
  --ch-result:var(--c-result-bg,#152320);--ch-result-line:var(--c-result-border,#244039);
  --ch-display:var(--calcr-font-display,'Space Grotesk',ui-sans-serif,system-ui,sans-serif);
  --ch-body:var(--calcr-font-body,'Source Sans 3',ui-sans-serif,system-ui,sans-serif);
- --ch-gutter:clamp(20px,6vw,120px);
+ --ch-gutter:clamp(24px,8.34vw,120px);
  font-family:var(--ch-body);color:var(--ch-ink);background:var(--ch-page);
  width:100%;max-width:100%;box-sizing:border-box;overflow-x:clip;
  -webkit-font-smoothing:antialiased}
@@ -141,6 +141,16 @@ CSS = """
 .ch a{color:var(--ch-brand);text-decoration:none}
 .ch a.ch-cat,.ch a.ch-tool{color:var(--ch-ink)}
 body:has(.ch) .page-header{display:none}
+/* These pages paint their own edge-to-edge bands, so the theme's content
+   container is released for them rather than escaped with width:100vw. The
+   viewport unit is the thing worth avoiding: it counts the scrollbar where the
+   companion percentage margin does not, and the resulting gap compounds into a
+   sideways shift. The same rule lives in the plugin's site.css, and is repeated
+   here so the page is right on its own, before any plugin update reaches the
+   server. Whichever arrives first, the declarations are identical, so there is
+   nothing for them to disagree about. */
+body:has(.ch) .site-main,
+body:has(.ch) .page-content{max-width:none;width:100%;margin-inline:0;padding-inline:0}
 .ch h1,.ch h2,.ch h3{color:var(--ch-ink);font-family:var(--ch-display);letter-spacing:-.025em}
 
 /* The tile: a rounded teal square with a half-size glyph in it. */
@@ -269,6 +279,7 @@ body:has(.ch) .page-header{display:none}
  .ch-tools{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
 @media (max-width:767px){
+ .ch{--ch-gutter:clamp(18px,6vw,28px)}
  .ch-cats{grid-template-columns:repeat(2,minmax(0,1fr))}
  .ch-cat{min-height:148px;padding:16px;border-radius:18px;gap:10px}
  .ch-cat__blurb{display:none}
