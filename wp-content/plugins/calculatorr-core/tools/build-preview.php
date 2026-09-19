@@ -36,7 +36,7 @@ $renderer = Calculatorr_Renderer::instance();
 $schema   = Calculatorr_Schema::instance();
 $seo      = Calculatorr_SEO::instance();
 
-foreach ( array( 'css/tokens.css', 'css/calculator.css', 'js/formulas.js', 'js/share.js', 'js/calculator.js' ) as $asset ) {
+foreach ( array( 'css/tokens.css', 'css/calculator.css', 'css/site.css', 'js/formulas.js', 'js/share.js', 'js/calculator.js', 'js/site.js' ) as $asset ) {
 	@mkdir( dirname( $out . '/assets/' . $asset ), 0777, true );
 	copy( CALCULATORR_PATH . 'assets/' . $asset, $out . '/assets/' . $asset );
 }
@@ -80,10 +80,11 @@ function preview_shell( $title, $description, $body, $head, $json, $nav ) {
 		. $head . $json
 		. '<link rel="stylesheet" href="assets/css/tokens.css">'
 		. '<link rel="stylesheet" href="assets/css/calculator.css">'
+		. '<link rel="stylesheet" href="assets/css/site.css">'
 		. '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Source+Sans+3:wght@400;600&display=swap">'
 		. '<style>' . preview_chrome_css() . '</style>'
 		. '</head><body>' . $nav
-		. '<main class="site-main">' . $body . '</main>'
+		. '<main id="content" class="site-main page"><div class="page-content">' . $body . '</div></main>'
 		. preview_footer()
 		. '<script src="assets/js/formulas.js"></script>'
 		. '<script src="assets/js/share.js"></script>'
@@ -93,13 +94,9 @@ function preview_shell( $title, $description, $body, $head, $json, $nav ) {
 
 function preview_chrome_css() {
 	return 'body{margin:0;background:var(--calcr-paper);color:var(--calcr-ink);font-family:var(--calcr-font-body)}'
-		. '.site-head{position:sticky;top:0;z-index:30;background:var(--calcr-surface);border-bottom:1px solid var(--calcr-line);padding:0 24px;height:66px;display:flex;align-items:center;gap:28px}'
-		. '.site-head__logo{display:flex;align-items:baseline;font-family:var(--calcr-font-display);font-size:21px;font-weight:700;letter-spacing:-.02em;text-decoration:none;color:var(--calcr-ink)}'
-		. '.site-head__logo span{color:var(--calcr-accent)}'
-		. '.site-head nav{display:flex;gap:18px;flex-wrap:wrap;overflow:auto}'
-		. '.site-head nav a{font-size:14px;font-weight:600;text-decoration:none;color:var(--calcr-ink);white-space:nowrap}'
-		. '.site-main{max-width:1180px;margin:0 auto;padding:26px 24px 60px}'
-		. '.site-foot{background:var(--calcr-ink);color:#C9CDCB;padding:28px 24px;font-size:14px;text-align:center}'
+		. '.preview-wordmark{font-family:var(--calcr-font-display);font-size:26px;font-weight:700;letter-spacing:-.02em;color:var(--calcr-ink)}'
+		. '.preview-wordmark span{color:var(--calcr-accent)}'
+				. '.site-foot{background:var(--calcr-ink);color:#C9CDCB;padding:28px 24px;font-size:14px;text-align:center}'
 		. '.calcr-demo-ad{width:100%;height:100%;min-height:88px;display:flex;align-items:center;justify-content:center;border:2px dashed var(--calcr-line-strong);border-radius:10px;background:var(--calcr-sunken);color:var(--calcr-muted);font-family:var(--calcr-font-display);font-size:13px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;text-align:center;padding:10px}'
 		. '.calcr-demo-ad--tall{min-height:600px}'
 		. '.preview-banner{background:#FDF3E6;border-bottom:1px solid #F0DFC5;color:#6B4413;padding:9px 24px;font-size:13px;text-align:center}'
@@ -115,13 +112,23 @@ function preview_footer() {
 }
 
 function preview_nav( $registry ) {
+	/* The real theme's class names, so site.css styles this header the way it
+	   styles the live one and the preview stops flattering itself. The lockup
+	   stands in for the uploaded logo plus the injected mark, which needs
+	   WordPress to assemble. */
 	$nav = '<div class="preview-banner">Preview build. The calculators are live, so type into them. Only the surrounding theme is a stand-in.</div>'
-		. '<header class="site-head"><a class="site-head__logo" href="index.html">calculato<span>rr</span></a><nav>';
-	$nav .= '<a href="index.html">All calculators</a>';
+		. '<header id="site-header" class="site-header dynamic-header"><div class="header-inner">'
+		. '<div class="site-branding show-logo"><div class="site-logo show">'
+		. '<a href="index.html" class="custom-logo-link" rel="home">'
+		. '<span class="calcr-brand__mark">' . Calculatorr_Art::mark( 36 ) . '</span>'
+		. '<span class="preview-wordmark">calculato<span>rr</span></span>'
+		. '</a></div></div>'
+		. '<nav class="site-navigation show" aria-label="Main menu"><ul id="menu-primary" class="menu">';
+	$nav .= '<li class="menu-item"><a href="index.html">All calculators</a></li>';
 	foreach ( $registry->categories() as $key => $category ) {
-		$nav .= '<a href="' . esc_attr( preview_file( 'hub-' . $key ) ) . '">' . esc_html( $category['name'] ) . '</a>';
+		$nav .= '<li class="menu-item"><a href="' . esc_attr( preview_file( 'hub-' . $key ) ) . '">' . esc_html( $category['name'] ) . '</a></li>';
 	}
-	return $nav . '</nav></header>';
+	return $nav . '</ul></nav></div></header>';
 }
 
 $nav = preview_nav( $registry );
@@ -149,10 +156,10 @@ foreach ( $registry->categories() as $key => $category ) {
 	ob_start(); $seo->head_tags(); $head = ob_get_clean();
 	ob_start(); $schema->output(); $json = ob_get_clean();
 
-	$body = '<nav class="calcr-breadcrumb" aria-label="Breadcrumb"><ol><li><a href="index.html">Home</a></li><li><span aria-current="page">'
-		. esc_html( $category['h1'] ) . '</span></li></ol></nav>'
-		. '<h1 class="calcr-page__title">' . esc_html( $category['h1'] ) . '</h1>'
-		. $renderer->category_shortcode( array( 'key' => $key ) );
+	/* The category block prints its own breadcrumb and heading now, exactly as
+	   it does on the server once the theme's title is handed over, so adding
+	   them here would show every hub page two of each. */
+	$body = $renderer->category_shortcode( array( 'key' => $key ) );
 
 	$page = preview_shell( $category['meta_title'], $category['meta_description'], $body, $head, $json, $nav );
 	file_put_contents( $out . '/' . preview_file( 'hub-' . $key ), preview_localise( $page, $registry ) );

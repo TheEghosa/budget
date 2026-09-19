@@ -105,19 +105,91 @@ class Calculatorr_Renderer {
 
 		$calculators = $registry->in_category( $atts['key'], false );
 
+		$key    = $atts['key'];
+		$count  = count( $calculators );
+		$others = $registry->categories();
+		unset( $others[ $key ] );
+
 		ob_start();
 		?>
 		<div class="calcr-hub">
-			<p class="calcr-hub__intro"><?php echo esc_html( $category['meta_description'] ); ?></p>
+			<section class="calcr-hub__head">
+				<nav class="calcr-breadcrumb" aria-label="Breadcrumb">
+					<a href="<?php echo esc_url( home_url( '/' ) ); ?>">Home</a>
+					<span aria-hidden="true">/</span>
+					<span aria-current="page"><?php echo esc_html( $category['h1'] ); ?></span>
+				</nav>
 
-			<div class="calcr-hub__grid">
-				<?php foreach ( $calculators as $config ) : ?>
-					<a class="calcr-hub__card" href="<?php echo esc_url( Calculatorr_Pages::url_for( $config ) ); ?>">
-						<span class="calcr-hub__name"><?php echo esc_html( $config['h1'] ); ?></span>
-						<span class="calcr-hub__blurb"><?php echo esc_html( $config['description'] ); ?></span>
-					</a>
-				<?php endforeach; ?>
-			</div>
+				<div class="calcr-hub__lockup">
+					<div class="calcr-hub__titles">
+						<span class="calcr-hub__pill">
+							<?php
+							/* translators: %d: how many calculators the category holds. */
+							printf( esc_html( _n( '%d calculator', '%d calculators', $count, 'calculatorr' ) ), (int) $count );
+							?>
+						</span>
+						<h1 class="calcr-hub__title"><?php echo esc_html( $category["h1"] ); ?></h1>
+						<p class="calcr-hub__intro"><?php echo esc_html( $category['meta_description'] ); ?></p>
+					</div>
+
+					<?php
+					/*
+					 * The banner. Only a few categories have a drawing of their
+					 * own, so the rest show their icon large on the same tinted
+					 * panel: the same shape and weight either way, which is what
+					 * stops the ones without artwork looking unfinished.
+					 */
+					$banner = Calculatorr_Art::motif( $key . '-category-banner' );
+					?>
+					<div class="calcr-hub__banner" aria-hidden="true">
+						<?php
+						echo $banner
+							? $banner
+							: Calculatorr_Art::tile( Calculatorr_Art::category_icon( $key ), 96, 'calcr-tile calcr-hub__banner-tile' );
+						?>
+					</div>
+				</div>
+			</section>
+
+			<section class="calcr-hub__body">
+				<div class="calcr-hub__bar">
+					<h2 class="calcr-hub__h2">All <?php echo esc_html( strtolower( $category['h1'] ) ); ?></h2>
+					<span class="calcr-hub__sort">Sorted A to Z</span>
+				</div>
+
+				<div class="calcr-hub__grid">
+					<?php foreach ( $calculators as $config ) : ?>
+						<a class="calcr-hub__card" href="<?php echo esc_url( Calculatorr_Pages::url_for( $config ) ); ?>">
+							<span class="calcr-hub__thumb">
+								<?php
+								echo Calculatorr_Art::tile( Calculatorr_Art::icon_for( $config ), 52 );
+								echo Calculatorr_Art::motif_for( $config );
+								?>
+							</span>
+							<span class="calcr-hub__cardbody">
+								<span class="calcr-hub__name"><?php echo esc_html( $config['h1'] ); ?></span>
+								<span class="calcr-hub__blurb"><?php echo esc_html( $config['description'] ); ?></span>
+							</span>
+						</a>
+					<?php endforeach; ?>
+				</div>
+			</section>
+
+			<?php if ( $others ) : ?>
+				<section class="calcr-hub__panels">
+					<div class="calcr-hub__panel">
+						<h2 class="calcr-hub__panel-title">Other use cases</h2>
+						<div class="calcr-hub__chips">
+							<?php foreach ( $others as $other_key => $other ) : ?>
+								<a class="calcr-hub__chip" href="<?php echo esc_url( Calculatorr_Pages::url_for_category( $other ) ); ?>">
+									<?php echo Calculatorr_Art::tile( Calculatorr_Art::category_icon( $other_key ), 28 ); ?>
+									<?php echo esc_html( $other['name'] ); ?>
+								</a>
+							<?php endforeach; ?>
+						</div>
+					</div>
+				</section>
+			<?php endif; ?>
 
 			<?php echo Calculatorr_Ads::instance()->slot( 'after_calculator' ); ?>
 		</div>
@@ -137,12 +209,28 @@ class Calculatorr_Renderer {
 		ob_start();
 		?>
 		<div class="calcr-page">
-			<?php echo $this->render_breadcrumbs( $config ); ?>
+			<?php
+			/*
+			 * The title band. The tile beside the heading is the same drawing
+			 * the calculator wears on every card that links to it, so arriving
+			 * from a category page or from search lands on something already
+			 * recognisable rather than on a wall of text.
+			 */
+			$heading_is_ours = $settings->get( 'render_heading' ) || Calculatorr_Site_Chrome::heading_is_ours();
+			?>
+			<div class="calcr-page__head">
+				<?php echo $this->render_breadcrumbs( $config ); ?>
 
-			<?php if ( $settings->get( 'render_heading' ) || Calculatorr_Site_Chrome::heading_is_ours() ) : ?>
-				<h1 class="calcr-page__title"><?php echo esc_html( $config['h1'] ); ?></h1>
-				<p class="calcr-page__intro"><?php echo esc_html( $config['description'] ); ?></p>
-			<?php endif; ?>
+				<?php if ( $heading_is_ours ) : ?>
+					<div class="calcr-page__lockup">
+						<?php echo Calculatorr_Art::tile( Calculatorr_Art::icon_for( $config ), 76, 'calcr-tile calcr-page__tile' ); ?>
+						<div class="calcr-page__titles">
+							<h1 class="calcr-page__title"><?php echo esc_html( $config['h1'] ); ?></h1>
+							<p class="calcr-page__intro"><?php echo esc_html( $config['description'] ); ?></p>
+						</div>
+					</div>
+				<?php endif; ?>
+			</div>
 
 			<div class="calcr-layout">
 				<div class="calcr-layout__main">
@@ -341,96 +429,107 @@ class Calculatorr_Renderer {
 		ob_start();
 		?>
 		<div class="calcr<?php echo $empty_start ? ' calcr--awaiting' : ''; ?>" data-calcr-slug="<?php echo esc_attr( $slug ); ?>"<?php echo $empty_start ? ' data-calcr-empty-start="1" data-calcr-prompt="' . esc_attr( $prompt ) . '"' : ''; ?>>
-			<form class="calcr__form" novalidate>
-				<?php
-				foreach ( $config['fields'] as $field ) {
-					echo $this->render_field( $slug, $field );
-				}
-				?>
-				<div class="calcr__actions">
-					<button type="button" class="calcr__btn calcr__btn--ghost" data-calcr-reset disabled>
-						<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><path d="M3 12a9 9 0 1 0 3-6.7"></path><polyline points="3 4 3 10 9 10"></polyline></svg>
-						Reset
+			<!--
+			 The card is one surface: the inputs and the answer sit side by side
+			 inside it and the actions run along its foot, rather than the actions
+			 hanging off the bottom of the form. That is what the design calls for,
+			 and it also puts Reset at the far end from Share, so the destructive
+			 button is not the one next to the one people mean to press.
+			-->
+			<div class="calcr__split">
+				<form class="calcr__form" novalidate>
+					<?php
+					foreach ( $config['fields'] as $field ) {
+						echo $this->render_field( $slug, $field );
+					}
+					?>
+				</form>
+
+
+				<output class="calcr__result" data-calcr-result aria-live="polite">
+					<div class="calcr__primary">
+						<span class="calcr__primary-label" data-calcr-primary-label><?php echo esc_html( isset( $shown['label'] ) ? $shown['label'] : 'Result' ); ?></span>
+						<span class="calcr__primary-value" data-calcr-primary-value><?php echo esc_html( isset( $shown['value'] ) ? $shown['value'] : '—' ); ?></span>
+						<?php
+						/* The line under the number that says what it is an answer
+						   to: "for 180 months on a $48,000 loan". Hidden until a
+						   formula supplies one, because most do not. */
+						$sub = isset( $shown['sub'] ) ? $shown['sub'] : '';
+						?>
+						<span class="calcr__primary-sub" data-calcr-primary-sub<?php echo '' === $sub ? ' hidden' : ''; ?>><?php echo esc_html( $sub ); ?></span>
+					</div>
+
+					<div class="calcr__bar" data-calcr-bar hidden></div>
+
+					<ul class="calcr__rows" data-calcr-rows>
+						<?php if ( ! empty( $shown['rows'] ) ) : ?>
+							<?php foreach ( $shown['rows'] as $row ) : ?>
+								<li class="calcr__row">
+									<span class="calcr__row-label"><?php echo esc_html( $row['label'] ); ?></span>
+									<span class="calcr__row-value"><?php echo esc_html( $row['value'] ); ?></span>
+								</li>
+							<?php endforeach; ?>
+						<?php endif; ?>
+					</ul>
+
+					<?php $note = $empty_start ? $prompt : ( isset( $shown['note'] ) ? $shown['note'] : '' ); ?>
+					<p class="calcr__note<?php echo $empty_start ? ' calcr__note--prompt' : ''; ?>" data-calcr-note<?php echo '' === $note ? ' hidden' : ''; ?>><?php echo esc_html( $note ); ?></p>
+				</output>
+			</div>
+
+			<div class="calcr__actions">
+				<button type="button" class="calcr__btn calcr__btn--ghost" data-calcr-reset disabled>
+					<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><path d="M3 12a9 9 0 1 0 3-6.7"></path><polyline points="3 4 3 10 9 10"></polyline></svg>
+					Reset
+				</button>
+
+				<button type="button" class="calcr__btn calcr__btn--ghost" data-calcr-copy<?php echo $empty_start ? ' disabled' : ''; ?>>
+					<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="9" y="9" width="12" height="12" rx="2"></rect><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"></path></svg>
+					<span data-calcr-copy-label>Copy result</span>
+				</button>
+
+				<?php if ( Calculatorr_Settings::instance()->get( 'share_enabled' ) ) : ?>
+				<div class="calcr__share">
+					<button type="button" class="calcr__btn calcr__btn--primary" data-calcr-share-toggle aria-expanded="false" aria-haspopup="true"<?php echo $empty_start ? ' disabled' : ''; ?>>
+						<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.6" y1="10.5" x2="15.4" y2="6.5"></line><line x1="8.6" y1="13.5" x2="15.4" y2="17.5"></line></svg>
+						Share
 					</button>
 
-					<button type="button" class="calcr__btn calcr__btn--ghost" data-calcr-copy<?php echo $empty_start ? ' disabled' : ''; ?>>
-						<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="9" y="9" width="12" height="12" rx="2"></rect><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"></path></svg>
-						<span data-calcr-copy-label>Copy result</span>
-					</button>
+					<div class="calcr__share-panel" data-calcr-share-panel hidden>
+						<p class="calcr__share-title">Share this result</p>
 
-					<?php if ( Calculatorr_Settings::instance()->get( 'share_enabled' ) ) : ?>
-					<div class="calcr__share">
-						<button type="button" class="calcr__btn calcr__btn--primary" data-calcr-share-toggle aria-expanded="false" aria-haspopup="true"<?php echo $empty_start ? ' disabled' : ''; ?>>
-							<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.6" y1="10.5" x2="15.4" y2="6.5"></line><line x1="8.6" y1="13.5" x2="15.4" y2="17.5"></line></svg>
-							Share
+						<div class="calcr__share-formats" role="group" aria-label="Image shape">
+							<button type="button" class="calcr__share-format is-active" data-calcr-format="square" aria-pressed="true">Square</button>
+							<button type="button" class="calcr__share-format" data-calcr-format="landscape" aria-pressed="false">Wide</button>
+						</div>
+
+						<div class="calcr__share-preview" data-calcr-preview></div>
+
+						<button type="button" class="calcr__share-option" data-calcr-share-native>
+							<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7"></path><polyline points="8 8 12 4 16 8"></polyline><line x1="12" y1="4" x2="12" y2="15"></line></svg>
+							<span data-calcr-label>Share with the image</span>
 						</button>
 
-						<div class="calcr__share-panel" data-calcr-share-panel hidden>
-							<p class="calcr__share-title">Share this result</p>
+						<button type="button" class="calcr__share-option" data-calcr-share-tweet>
+							<svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false"><path d="M17.53 3h3.05l-6.66 7.61L21.75 21h-6.13l-4.8-6.28L5.32 21H2.27l7.12-8.14L2.25 3h6.29l4.34 5.74zm-1.07 16.17h1.69L7.62 4.73H5.81z"></path></svg>
+							<span data-calcr-label>Post on X</span>
+						</button>
 
-							<div class="calcr__share-formats" role="group" aria-label="Image shape">
-								<button type="button" class="calcr__share-format is-active" data-calcr-format="square" aria-pressed="true">Square</button>
-								<button type="button" class="calcr__share-format" data-calcr-format="landscape" aria-pressed="false">Wide</button>
-							</div>
+						<button type="button" class="calcr__share-option" data-calcr-share-link>
+							<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><path d="M10 13a5 5 0 0 0 7.07 0l2.12-2.12a5 5 0 0 0-7.07-7.07L10.7 5.2"></path><path d="M14 11a5 5 0 0 0-7.07 0L4.8 13.12a5 5 0 0 0 7.07 7.07l1.4-1.4"></path></svg>
+							<span data-calcr-label>Copy link</span>
+						</button>
 
-							<div class="calcr__share-preview" data-calcr-preview></div>
+						<button type="button" class="calcr__share-option" data-calcr-share-download>
+							<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="3" y="4" width="18" height="16" rx="2"></rect><circle cx="9" cy="10" r="2"></circle><path d="m3 17 5-4 4 3 3-2 6 5"></path></svg>
+							<span data-calcr-label>Download image</span>
+						</button>
 
-							<button type="button" class="calcr__share-option" data-calcr-share-native>
-								<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7"></path><polyline points="8 8 12 4 16 8"></polyline><line x1="12" y1="4" x2="12" y2="15"></line></svg>
-								<span data-calcr-label>Share with the image</span>
-							</button>
-
-							<button type="button" class="calcr__share-option" data-calcr-share-tweet>
-								<svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false"><path d="M17.53 3h3.05l-6.66 7.61L21.75 21h-6.13l-4.8-6.28L5.32 21H2.27l7.12-8.14L2.25 3h6.29l4.34 5.74zm-1.07 16.17h1.69L7.62 4.73H5.81z"></path></svg>
-								<span data-calcr-label>Post on X</span>
-							</button>
-
-							<button type="button" class="calcr__share-option" data-calcr-share-link>
-								<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><path d="M10 13a5 5 0 0 0 7.07 0l2.12-2.12a5 5 0 0 0-7.07-7.07L10.7 5.2"></path><path d="M14 11a5 5 0 0 0-7.07 0L4.8 13.12a5 5 0 0 0 7.07 7.07l1.4-1.4"></path></svg>
-								<span data-calcr-label>Copy link</span>
-							</button>
-
-							<button type="button" class="calcr__share-option" data-calcr-share-download>
-								<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="3" y="4" width="18" height="16" rx="2"></rect><circle cx="9" cy="10" r="2"></circle><path d="m3 17 5-4 4 3 3-2 6 5"></path></svg>
-								<span data-calcr-label>Download image</span>
-							</button>
-
-							<p class="calcr__share-note">The link reopens this calculator with your figures already filled in.</p>
-						</div>
+						<p class="calcr__share-note">The link reopens this calculator with your figures already filled in.</p>
 					</div>
-					<?php endif; ?>
 				</div>
-			</form>
-
-			<output class="calcr__result" data-calcr-result aria-live="polite">
-				<div class="calcr__primary">
-					<span class="calcr__primary-label" data-calcr-primary-label><?php echo esc_html( isset( $shown['label'] ) ? $shown['label'] : 'Result' ); ?></span>
-					<span class="calcr__primary-value" data-calcr-primary-value><?php echo esc_html( isset( $shown['value'] ) ? $shown['value'] : '—' ); ?></span>
-					<?php
-					/* The line under the number that says what it is an answer
-					   to: "for 180 months on a $48,000 loan". Hidden until a
-					   formula supplies one, because most do not. */
-					$sub = isset( $shown['sub'] ) ? $shown['sub'] : '';
-					?>
-					<span class="calcr__primary-sub" data-calcr-primary-sub<?php echo '' === $sub ? ' hidden' : ''; ?>><?php echo esc_html( $sub ); ?></span>
-				</div>
-
-				<div class="calcr__bar" data-calcr-bar hidden></div>
-
-				<ul class="calcr__rows" data-calcr-rows>
-					<?php if ( ! empty( $shown['rows'] ) ) : ?>
-						<?php foreach ( $shown['rows'] as $row ) : ?>
-							<li class="calcr__row">
-								<span class="calcr__row-label"><?php echo esc_html( $row['label'] ); ?></span>
-								<span class="calcr__row-value"><?php echo esc_html( $row['value'] ); ?></span>
-							</li>
-						<?php endforeach; ?>
-					<?php endif; ?>
-				</ul>
-
-				<?php $note = $empty_start ? $prompt : ( isset( $shown['note'] ) ? $shown['note'] : '' ); ?>
-				<p class="calcr__note<?php echo $empty_start ? ' calcr__note--prompt' : ''; ?>" data-calcr-note<?php echo '' === $note ? ' hidden' : ''; ?>><?php echo esc_html( $note ); ?></p>
-			</output>
+				<?php endif; ?>
+			</div>
 
 			<?php if ( ! empty( $config['disclaimer'] ) ) : ?>
 				<p class="calcr__disclaimer"><?php echo esc_html( $config['disclaimer'] ); ?></p>

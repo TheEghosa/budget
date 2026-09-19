@@ -280,7 +280,27 @@ foreach ( array( 'tokens.css', 'site.css', 'calculator.css' ) as $sheet ) {
 	$referenced = array_merge( $referenced, $found[1] );
 }
 
-$dangling = array_values( array_unique( array_diff( $referenced, $declared ) ) );
+/*
+ * Three of these are not design tokens and never will be. A tile is drawn at
+ * 28, 40, 52, 76 and 96 on different pages, so its size, radius and glyph come
+ * from the element that asks for it rather than from the palette. They are
+ * exempt here, but the exemption is earned rather than asserted: the check
+ * below proves the helper really does set all three, so deleting that code
+ * turns the exemption back into a failure instead of hiding one.
+ */
+$per_element = array( '--tile', '--tile-radius', '--tile-glyph' );
+
+$tile = Calculatorr_Art::tile( '<svg></svg>', 52 );
+
+foreach ( $per_element as $property ) {
+	check(
+		'the tile helper supplies ' . $property . ' itself',
+		false !== strpos( $tile, $property . ':' ),
+		true
+	);
+}
+
+$dangling = array_values( array_unique( array_diff( $referenced, $declared, $per_element ) ) );
 
 check( 'every token the stylesheets read is defined', $dangling, array() );
 check( 'the design system palette is present', in_array( '--c-brand', $declared, true ), true );

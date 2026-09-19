@@ -137,6 +137,7 @@
 	--calcr-ink: var(--c-text-primary);
 	--calcr-ink-soft: var(--c-text-secondary);
 	--calcr-muted: var(--c-text-muted);
+	--calcr-subtle: var(--c-text-subtle);
 	--calcr-line: var(--c-border-default);
 	--calcr-line-strong: var(--c-border-strong);
 	--calcr-sunken: var(--c-surface-sunken);
@@ -162,6 +163,21 @@
 	--calcr-radius-xl: var(--radius-category-card-desktop);
 	--calcr-touch: var(--size-touch-target-min);
 	--calcr-container: 1200px;
+
+	/*
+	 * The page gutter, and the only one on the site.
+	 *
+	 * The artboards are drawn on a 1440 canvas with 120px either side, which
+	 * is 8.34vw, so this lands on the design's figure at the width it was
+	 * designed at and scales from there. Every page type uses it, because a
+	 * homepage that runs to the edge and a calculator page that stops short
+	 * of it read as two different sites however well each one is drawn.
+	 *
+	 * It stops growing at 120px so the content does not drift apart on a very
+	 * wide screen, and the phone figure is capped separately below, since a
+	 * gutter that tracks the viewport this steeply eats a 390px screen.
+	 */
+	--calcr-gutter: clamp(24px, 8.34vw, 120px);
 	--calcr-header-height: var(--size-header-height-desktop);
 	--calcr-gap-xs: var(--space-stack-xs);
 	--calcr-gap-sm: var(--space-stack-s);

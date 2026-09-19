@@ -4,7 +4,7 @@ Tags: calculator, tools, seo, elementor
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 1.6.0
+Stable tag: 1.7.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -65,6 +65,13 @@ In the visitor's browser. Nothing is sent to the server, so salaries, weights
 and health measurements never leave the device.
 
 == Changelog ==
+
+= 1.7.0 =
+One design across the whole site. The category pages are rebuilt to the same
+grammar as the homepage, every page type now shares one gutter rather than the
+homepage running to the edge while the calculator pages stopped short of it,
+the logo carries its mark again, and the input fields are a single box instead
+of the two the theme's own form styling was drawing inside them.
 
 = 1.6.0 =
 * The answer follows you up the page on a phone: a sticky bar carrying the live figure and a Breakdown button that scrolls to the full result.

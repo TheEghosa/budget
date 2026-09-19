@@ -133,7 +133,7 @@ CSS = """
  --ch-result:var(--c-result-bg,#152320);--ch-result-line:var(--c-result-border,#244039);
  --ch-display:var(--calcr-font-display,'Space Grotesk',ui-sans-serif,system-ui,sans-serif);
  --ch-body:var(--calcr-font-body,'Source Sans 3',ui-sans-serif,system-ui,sans-serif);
- --ch-gutter:clamp(24px,8.34vw,120px);
+ --ch-gutter:var(--calcr-gutter,clamp(24px,8.34vw,120px));
  font-family:var(--ch-body);color:var(--ch-ink);background:var(--ch-page);
  width:100%;max-width:100%;box-sizing:border-box;overflow-x:clip;
  -webkit-font-smoothing:antialiased}
@@ -279,7 +279,6 @@ body:has(.ch) .page-content{max-width:none;width:100%;margin-inline:0;padding-in
  .ch-tools{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
 @media (max-width:767px){
- .ch{--ch-gutter:clamp(18px,6vw,28px)}
  .ch-cats{grid-template-columns:repeat(2,minmax(0,1fr))}
  .ch-cat{min-height:148px;padding:16px;border-radius:18px;gap:10px}
  .ch-cat__blurb{display:none}

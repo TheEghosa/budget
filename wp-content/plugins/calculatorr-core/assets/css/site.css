@@ -23,31 +23,56 @@ body {
 	-webkit-font-smoothing: antialiased;
 }
 
-/* The design works to a 1280 grid; the theme defaults to 1140, which leaves
-   the header narrower than the content bands on the calculator pages. */
-body:not([class*="elementor-page-"]) .site-main,
+/*
+ * One gutter, every page.
+ *
+ * The design has no centred container: each page runs to the edge of the
+ * window and holds its content in by a gutter, 120px on the 1440 canvas the
+ * artboards are drawn at. A homepage that reaches the edge beside a
+ * calculator page that stops short of it reads as two different sites however
+ * well each one is drawn, so the header, the footer and all three page types
+ * take the same figure from the same token.
+ *
+ * On a phone the gutter is capped well below what the viewport formula would
+ * give, because 8vw of a 390px screen is most of the room a number field
+ * needs.
+ */
+@media (max-width: 767px) {
+	:root {
+		--calcr-gutter: clamp( 18px, 6vw, 28px );
+	}
+}
+
 .site-header .header-inner,
 .site-footer .footer-inner {
+	box-sizing: border-box;
+	max-width: none;
+	padding-inline: var(--calcr-gutter);
+}
+
+/*
+ * Our pages paint their own bands and hold their own gutter, so the theme's
+ * container is released for them rather than escaped with the usual
+ * width:100vw trick. That distinction matters: 100vw counts the scrollbar and
+ * the percentage margin that goes with it does not, so the two disagree by the
+ * scrollbar's width, and on a page whose wrapper then grows to fit the
+ * overflow the error compounds and shifts the whole layout sideways. Nothing
+ * here uses a viewport unit, so there is nothing for a scrollbar to throw off.
+ *
+ * A page that is none of ours, a privacy policy say, keeps the container,
+ * because a single column of prose at full window width is unreadable.
+ */
+body:not([class*="elementor-page-"]) .site-main {
 	max-width: var(--calcr-container);
 	padding-inline: clamp( 16px, 4vw, 64px );
 }
 
-/*
- * The full-bleed pages are the exception to the rule above.
- *
- * The home and hub pages paint their own edge-to-edge bands, so rather than
- * letting them escape the container with the usual width:100vw trick, the
- * container is released for them. That matters because 100vw counts the
- * scrollbar and a percentage margin does not, so the two disagree by the
- * scrollbar's width, and on a page whose wrapper then grows to fit the
- * overflow the error compounds and shifts the whole layout sideways. Nothing
- * here uses viewport units, so there is nothing for a scrollbar to throw off.
- *
- * If this stylesheet fails to load the pages simply render inside the normal
- * container: narrower than intended, but never shifted or clipped.
- */
 body:has( .ch ) .site-main,
-body:has( .ch ) .page-content {
+body:has( .ch ) .page-content,
+body:has( .calcr-page ) .site-main,
+body:has( .calcr-page ) .page-content,
+body:has( .calcr-hub ) .site-main,
+body:has( .calcr-hub ) .page-content {
 	max-width: none;
 	width: 100%;
 	margin-inline: 0;
@@ -89,9 +114,33 @@ body:has( .ch ) .page-content {
 	line-height: 0;
 }
 
-.site-header .custom-logo-link {
+.site-header .custom-logo-link,
+.site-footer .custom-logo-link {
 	display: inline-flex;
 	align-items: center;
+	gap: 12px;
+}
+
+/* The mark. It keeps its size while the wordmark beside it scales, because a
+   square that shrinks with the type stops reading as a mark and starts reading
+   as a bullet. */
+.calcr-brand__mark {
+	display: inline-flex;
+	flex: 0 0 auto;
+	line-height: 0;
+}
+
+.calcr-brand__mark .calcr-mark {
+	width: 36px;
+	height: 36px;
+	display: block;
+}
+
+@media (max-width: 599px) {
+	.calcr-brand__mark .calcr-mark {
+		width: 30px;
+		height: 30px;
+	}
 }
 
 /* Without an explicit height the logo renders at its intrinsic 926px. */

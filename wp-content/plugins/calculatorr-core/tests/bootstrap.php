@@ -63,6 +63,7 @@ function do_shortcode( $c ) { return preg_replace_callback( '/\[calculatorr slug
 function wp_editor( $content, $id, $settings = array() ) { echo '<textarea name="' . ( $settings['textarea_name'] ?? $id ) . '">' . htmlspecialchars( (string) $content ) . '</textarea>'; }
 function esc_html__( $t, $d = '' ) { return $t; }
 function __( $t, $d = '' ) { return $t; }
+function _n( $single, $plural, $n, $d = '' ) { return 1 === (int) $n ? $single : $plural; }
 function esc_html( $t )  { return htmlspecialchars( (string) $t, ENT_QUOTES, 'UTF-8' ); }
 function esc_attr( $t )  { return htmlspecialchars( (string) $t, ENT_QUOTES, 'UTF-8' ); }
 function esc_url( $t )   { return htmlspecialchars( (string) $t, ENT_QUOTES, 'UTF-8' ); }
@@ -120,6 +121,7 @@ require_once CALCULATORR_PATH . 'includes/class-design.php';
 require_once CALCULATORR_PATH . 'includes/class-settings.php';
 require_once CALCULATORR_PATH . 'includes/class-error-log.php';
 require_once CALCULATORR_PATH . 'includes/class-registry.php';
+require_once CALCULATORR_PATH . 'includes/class-art.php';
 require_once CALCULATORR_PATH . 'includes/class-renderer.php';
 require_once CALCULATORR_PATH . 'includes/class-schema.php';
 require_once CALCULATORR_PATH . 'includes/class-ads.php';

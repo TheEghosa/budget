@@ -45,6 +45,7 @@ class Calculatorr_Site_Chrome {
 
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue' ), 20 );
 		add_filter( 'hello_elementor_page_title', array( $this, 'page_title' ) );
+		add_filter( 'get_custom_logo', array( $this, 'add_mark' ) );
 		add_action( 'template_redirect', array( $this, 'drop_duplicate_canonical' ) );
 
 		if ( Calculatorr_Settings::instance()->get( 'theme_switch' ) ) {
@@ -198,5 +199,45 @@ class Calculatorr_Site_Chrome {
 		}
 
 		remove_action( 'wp_head', 'rel_canonical' );
+	}
+
+	/**
+	 * Puts the mark back beside the wordmark.
+	 *
+	 * The uploaded logo is the word on its own, but the design pairs it with
+	 * the rounded square, and the square is what people recognise at a glance
+	 * in a tab or a favourites list. Drawing it here rather than baking it into
+	 * the upload means it answers to the theme like everything else, and that
+	 * replacing the wordmark later does not also mean re-exporting the mark.
+	 *
+	 * It is injected inside the existing link so the pair stays one click
+	 * target, and it is marked decorative because the link already carries the
+	 * site name through the image's alt text: announcing it twice is worse than
+	 * not announcing it at all.
+	 *
+	 * The filter runs for the header and the footer, since Hello Elementor
+	 * prints the same markup in both.
+	 */
+	public function add_mark( $html ) {
+		if ( ! is_string( $html ) || false === strpos( $html, 'custom-logo-link' ) ) {
+			return $html;
+		}
+
+		/* Already carrying one, which happens because the footer calls this
+		   on markup the header's pass may have cached. */
+		if ( false !== strpos( $html, 'calcr-mark' ) ) {
+			return $html;
+		}
+
+		$mark = '<span class="calcr-brand__mark">' . Calculatorr_Art::mark( 36 ) . '</span>';
+
+		/* After the opening tag of the link, wherever its attributes end. */
+		$at = strpos( $html, '>' );
+
+		if ( false === $at ) {
+			return $html;
+		}
+
+		return substr( $html, 0, $at + 1 ) . $mark . substr( $html, $at + 1 );
 	}
 }

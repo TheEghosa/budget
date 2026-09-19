@@ -6,34 +6,78 @@
  * design change stays in one file.
  */
 
-.calcr-page {
+.calcr-page,
+.calcr-hub {
 	font-family: var(--calcr-font-body);
 	color: var(--calcr-ink);
+	padding-inline: var(--calcr-gutter);
+	padding-block: 36px 72px;
 }
 
 /* ---------- The calculator itself ---------- */
 
+/*
+ * The calculator card.
+ *
+ * One surface with no padding of its own: the inputs and the answer are two
+ * halves of its inside, divided by a border rather than by a gap, and the
+ * actions run along its foot. The card clips its children, which is what lets
+ * the answer panel carry its own fill right into the rounded corner instead of
+ * floating as a second card inside the first.
+ */
 .calcr {
-	display: grid;
-	grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
-	gap: var(--calcr-gap-lg);
-	padding: var(--calcr-gap-lg);
+	display: flex;
+	flex-direction: column;
 	background: var(--calcr-surface);
 	border: 1px solid var(--calcr-line);
-	border-radius: var(--calcr-radius-xl);
+	border-radius: 28px;
+	overflow: hidden;
+}
+
+.calcr__split {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+/*
+ * When to stack is a question about the card, not the window: the same 1200px
+ * window gives the card 828px with a sidebar beside it and 1200px without, and
+ * a media query cannot tell those apart. A container query asks the card how
+ * much room it actually has, so the answer stays right however the page around
+ * it changes. 760px is where two 36px-padded columns stop leaving a number
+ * field wide enough to read a five-figure sum in.
+ */
+.calcr-layout__main {
+	container-type: inline-size;
+	min-width: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 32px;
 }
 
 .calcr__form {
 	display: flex;
 	flex-direction: column;
-	gap: 17px;
+	gap: 20px;
 	margin: 0;
+	padding: 36px;
+	min-width: 0;
 }
 
 .calcr__actions {
 	display: flex;
-	gap: var(--calcr-gap-sm);
-	padding-top: 2px;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 10px;
+	padding: 20px 36px;
+	border-top: 1px solid var(--calcr-line);
+}
+
+/* Reset sits alone at one end and everything else at the other, so the button
+   that throws the visitor's numbers away is never the one beside the button
+   they were reaching for. */
+.calcr__actions > [data-calcr-copy] {
+	margin-left: auto;
 }
 
 /* ---------- Fields ---------- */
@@ -66,15 +110,36 @@
 	color: var(--calcr-muted);
 }
 
+/*
+ * One box, not two.
+ *
+ * Hello Elementor styles every text-like input at specificity (0,1,1):
+ *
+ *   input[type=number], input[type=text], … , select, textarea {
+ *     border: 1px solid #666; border-radius: 3px; padding: .5rem 1rem }
+ *
+ * A single class sits at (0,1,0) and loses to that, so the control kept its
+ * own border and padding and the field read as a bordered box inside a
+ * bordered box. Every rule below that has to beat the theme is therefore
+ * written as .calcr-input <element>.<class>, which is (0,2,1) and wins on
+ * specificity rather than on load order, since load order is not ours to
+ * guarantee once a cache plugin starts combining stylesheets.
+ *
+ * The field sits on the page colour rather than the card colour, which is what
+ * makes it read as something to type into: on a card it is recessed in both
+ * themes, because bg-page is darker than the card in dark and lighter than
+ * white in light.
+ */
 .calcr-input {
 	display: flex;
 	align-items: center;
-	gap: 8px;
-	min-height: 48px;
-	padding: 0 14px;
-	background: var(--calcr-surface);
+	gap: 10px;
+	box-sizing: border-box;
+	min-height: 56px;
+	padding: 0 16px;
+	background: var(--calcr-paper);
 	border: 1px solid var(--calcr-line-strong);
-	border-radius: var(--calcr-radius);
+	border-radius: 14px;
 }
 
 .calcr-input:focus-within {
@@ -84,31 +149,52 @@
 
 .calcr-input__affix {
 	flex-shrink: 0;
-	font-size: 16px;
-	color: var(--calcr-muted);
+	font-size: 18px;
+	line-height: 1;
+	color: var(--calcr-subtle);
 }
 
-.calcr-input__control {
+.calcr-input .calcr-input__control {
 	flex-grow: 1;
 	width: 100%;
 	min-width: 0;
-	border: none;
+	height: 52px;
+	border: 0;
 	outline: none;
+	box-shadow: none;
 	background: transparent;
 	font-family: var(--calcr-font-display);
-	font-size: 17px;
-	font-weight: 500;
+	font-size: 20px;
+	font-weight: 600;
 	color: var(--calcr-ink);
 	font-variant-numeric: tabular-nums;
 	padding: 0;
+	border-radius: 0;
 }
 
-.calcr-field__select {
-	min-height: 48px;
-	padding: 0 12px;
-	background: var(--calcr-surface);
+/* Chrome and Safari draw spinners on a number input that overlap the suffix
+   and give a second thing to click that nobody wants on a calculator. The
+   value is still typed, pasted and stepped with the arrow keys. */
+.calcr-input .calcr-input__control::-webkit-outer-spin-button,
+.calcr-input .calcr-input__control::-webkit-inner-spin-button {
+	-webkit-appearance: none;
+	margin: 0;
+}
+
+.calcr-input .calcr-input__control[type="number"] {
+	-moz-appearance: textfield;
+	appearance: textfield;
+}
+
+/* The theme's selector list covers select and textarea too, so these carry the
+   same element-plus-class weight for the same reason. */
+select.calcr-field__select {
+	min-height: 56px;
+	width: 100%;
+	padding: 0 14px;
+	background: var(--calcr-paper);
 	border: 1px solid var(--calcr-line-strong);
-	border-radius: var(--calcr-radius);
+	border-radius: 14px;
 	font-family: var(--calcr-font-body);
 	font-size: 16px;
 	color: var(--calcr-ink);
@@ -213,13 +299,35 @@
 .calcr__result {
 	display: flex;
 	flex-direction: column;
-	gap: var(--calcr-gap);
-	padding: 24px;
-	background: var(--calcr-accent-soft);
-	border: 1px solid var(--calcr-accent-line);
-	border-radius: var(--calcr-radius-lg);
-	align-self: start;
+	gap: 24px;
+	padding: 36px;
+	min-width: 0;
+	background: var(--c-result-bg);
+	border: 0;
+	border-left: 1px solid var(--c-result-border);
+	border-radius: 0;
 }
+
+@container (max-width: 760px) {
+	.calcr__split {
+		grid-template-columns: minmax(0, 1fr);
+	}
+
+	.calcr__result {
+		border-left: 0;
+		border-top: 1px solid var(--c-result-border);
+	}
+}
+
+/* Browsers without container queries keep a usable card: the viewport figure
+   is the narrow case, where the card fills the page anyway. */
+@supports not (container-type: inline-size) {
+	@media (max-width: 860px) {
+		.calcr__split { grid-template-columns: minmax(0, 1fr); }
+		.calcr__result { border-left: 0; border-top: 1px solid var(--c-result-border); }
+	}
+}
+
 
 .calcr__primary {
 	display: flex;
@@ -235,10 +343,10 @@
 
 .calcr__primary-value {
 	font-family: var(--calcr-font-display);
-	font-size: 50px;
+	font-size: clamp(38px, 4.4vw, 64px);
 	font-weight: 700;
 	line-height: 1.05;
-	letter-spacing: -0.03em;
+	letter-spacing: -0.04em;
 	font-variant-numeric: tabular-nums;
 	color: var(--calcr-ink);
 	word-break: break-word;
@@ -299,15 +407,21 @@
 }
 
 .calcr__disclaimer {
-	grid-column: 1 / -1;
-	margin: 0;
+	margin: 0 36px 28px;
 	padding: 16px 18px;
 	background: var(--calcr-warn-soft);
 	border: 1px solid var(--calcr-warn-line);
-	border-radius: var(--calcr-radius-lg);
+	border-radius: 14px;
 	font-size: 14px;
 	line-height: 1.6;
 	color: var(--calcr-warn-ink);
+}
+
+@media (max-width: 599px) {
+	.calcr__form,
+	.calcr__result { padding: 22px; }
+	.calcr__actions { padding: 16px 22px; }
+	.calcr__disclaimer { margin: 0 22px 20px; }
 }
 
 /* ---------- Prose, FAQ, related ---------- */
@@ -443,20 +557,19 @@
 /* ---------- Narrow screens ---------- */
 
 @media (max-width: 860px) {
-	.calcr {
-		grid-template-columns: minmax(0, 1fr);
-		padding: 20px;
-		gap: var(--calcr-gap);
-	}
-
-	/* The answer comes first on a phone, because scrolling past a form to find
-	   out whether the tool even works is what makes people leave. */
-	.calcr__result {
-		order: -1;
-	}
+	/*
+	 * The answer used to be pulled above the form here, back when the only way
+	 * to see it on a phone was to scroll past every field. The sticky bar does
+	 * that job now and does it better, because it follows the visitor while
+	 * they type instead of sitting at a fixed point they have to scroll back
+	 * to. Leaving the inversion in place would also make the panel contradict
+	 * itself: with the fields starting empty it reads "fill in the fields
+	 * above" while pointing at fields below it. Both mobile artboards put the
+	 * form first, which is also the order the page is read in.
+	 */
 
 	.calcr__primary-value {
-		font-size: 42px;
+		font-size: clamp(34px, 9vw, 42px);
 	}
 
 	.calcr-prose h2,
@@ -466,51 +579,9 @@
 	}
 }
 
-/* ---------- Category hub ---------- */
-
-.calcr-hub__intro {
-	margin: 0 0 var(--calcr-gap-lg);
-	font-size: 18px;
-	line-height: 1.6;
-	color: var(--calcr-muted);
-	max-width: 68ch;
-}
-
-.calcr-hub__grid {
-	display: grid;
-	grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-	gap: 16px;
-}
-
-.calcr-hub__card {
-	display: flex;
-	flex-direction: column;
-	gap: 6px;
-	padding: 20px 22px;
-	min-height: 92px;
-	box-sizing: border-box;
-	background: var(--calcr-surface);
-	border: 1px solid var(--calcr-line);
-	border-radius: var(--calcr-radius-lg);
-	text-decoration: none;
-}
-
 .calcr-hub__card:hover,
 .calcr-hub__card:focus-visible {
 	border-color: var(--calcr-accent);
-}
-
-.calcr-hub__name {
-	font-family: var(--calcr-font-display);
-	font-size: 17px;
-	font-weight: 600;
-	color: var(--calcr-ink);
-}
-
-.calcr-hub__blurb {
-	font-size: 14px;
-	line-height: 1.5;
-	color: var(--calcr-muted);
 }
 
 /* ---------- Responsive, from large desktop down to small phones ---------- */
@@ -946,28 +1017,87 @@
 	color: var(--calcr-ink);
 }
 
+/* The rounded brand square that carries an icon. The three numbers come from
+   the caller as custom properties, because the same shape appears at 40, 52
+   and 76 and the ratios between them are fixed. */
+.calcr-tile {
+	width: var(--tile, 52px);
+	height: var(--tile, 52px);
+	flex: 0 0 auto;
+	border-radius: var(--tile-radius, 15px);
+	background: var(--calcr-accent);
+	color: var(--c-tile-glyph);
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.calcr-tile svg {
+	width: var(--tile-glyph, 26px);
+	height: var(--tile-glyph, 26px);
+}
+
+.calcr-page__head {
+	display: flex;
+	flex-direction: column;
+	gap: 28px;
+	padding-bottom: 44px;
+}
+
+.calcr-page__lockup {
+	display: flex;
+	align-items: center;
+	gap: 24px;
+}
+
+.calcr-page__titles {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	min-width: 0;
+}
+
 .calcr-page__title {
-	margin: 0 0 8px;
+	margin: 0;
 	font-family: var(--calcr-font-display);
-	font-size: clamp(28px, 5vw, 40px);
+	font-size: clamp(30px, 4.2vw, 52px);
 	font-weight: 700;
-	line-height: 1.15;
-	letter-spacing: -0.02em;
+	line-height: 1.02;
+	letter-spacing: -0.035em;
 }
 
 .calcr-page__intro {
-	margin: 0 0 24px;
-	font-size: 18px;
-	line-height: 1.6;
+	margin: 0;
+	font-size: 19px;
+	line-height: 1.55;
 	color: var(--calcr-muted);
 	max-width: 68ch;
 }
 
+/* The tile is decoration, and on a phone it costs a line of the heading's
+   width for no information, so it stands down rather than shrinking. */
+@media (max-width: 599px) {
+	.calcr-page__tile { display: none; }
+	.calcr-page__head { gap: 20px; padding-bottom: 28px; }
+}
+
+/*
+ * The sidebar only earns its place when the card beside it still has room to
+ * be two columns. Below that the sidebar drops underneath, because a squeezed
+ * card and a squeezed sidebar is worse than a full-width card and a sidebar
+ * you scroll to. 1360px is where the 120px gutters leave the card its 760px.
+ */
 .calcr-layout {
 	display: grid;
-	grid-template-columns: minmax(0, 1fr) 300px;
-	gap: 40px;
+	grid-template-columns: minmax(0, 1fr);
+	gap: 32px;
 	align-items: start;
+}
+
+@media (min-width: 1400px) {
+	.calcr-layout {
+		grid-template-columns: minmax(0, 1fr) 340px;
+	}
 }
 
 .calcr-layout__side {
@@ -975,7 +1105,14 @@
 	top: 24px;
 	display: flex;
 	flex-direction: column;
-	gap: 22px;
+	gap: 14px;
+}
+
+/* Once the sidebar is under the card rather than beside it there is nothing
+   left to stick to, and a sticky element in normal flow only confuses the
+   scroll. */
+@media (max-width: 1399px) {
+	.calcr-layout__side { position: static; }
 }
 
 /* ---------- Table of contents ---------- */
@@ -1332,4 +1469,264 @@
 .calcr-input__control::placeholder {
 	color: var(--calcr-muted);
 	opacity: 0.7;
+}
+
+/* ------------------------------------------------------- category page -- */
+
+/*
+ * The category page is the homepage's grammar applied to one shelf: a raised
+ * title band, then the tools as cards with the same thumbnail, tile and blurb
+ * they wear everywhere else, then a way out to the other categories. Arriving
+ * from the homepage should feel like moving down a level, not like landing on
+ * a different site.
+ */
+.calcr-hub__head {
+	margin-inline: calc( -1 * var(--calcr-gutter) );
+	padding: 4px var(--calcr-gutter) 64px;
+	display: flex;
+	flex-direction: column;
+	gap: 32px;
+}
+
+.calcr-hub__lockup {
+	display: flex;
+	align-items: center;
+	gap: 48px;
+}
+
+.calcr-hub__titles {
+	flex: 1 1 auto;
+	min-width: 0;
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 20px;
+}
+
+.calcr-hub__pill {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	padding: 6px 14px;
+	border-radius: 999px;
+	background: var(--calcr-accent-soft);
+	color: var(--c-brand-soft-text);
+	font-weight: 600;
+	font-size: 14px;
+}
+
+.calcr-hub__pill::before {
+	content: "";
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	background: var(--calcr-warn);
+}
+
+.calcr-hub__title {
+	margin: 0;
+	font-family: var(--calcr-font-display);
+	font-size: clamp(32px, 5vw, 60px);
+	font-weight: 700;
+	line-height: 1.02;
+	letter-spacing: -0.035em;
+}
+
+.calcr-hub__intro {
+	margin: 0;
+	max-width: 640px;
+	font-size: 20px;
+	line-height: 1.55;
+	color: var(--calcr-muted);
+}
+
+.calcr-hub__banner {
+	width: 360px;
+	height: 220px;
+	flex: 0 0 auto;
+	border-radius: 28px;
+	background: var(--calcr-accent-soft);
+	border: 1px solid var(--calcr-accent-line);
+	position: relative;
+	overflow: hidden;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.calcr-hub__banner svg { display: block; }
+
+.calcr-hub__body {
+	padding-block: 64px 0;
+	display: flex;
+	flex-direction: column;
+	gap: 32px;
+}
+
+.calcr-hub__bar {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 16px;
+	flex-wrap: wrap;
+}
+
+.calcr-hub__h2 {
+	margin: 0;
+	font-family: var(--calcr-font-display);
+	font-size: clamp(24px, 3vw, 32px);
+	font-weight: 700;
+	letter-spacing: -0.02em;
+}
+
+.calcr-hub__sort {
+	font-size: 15px;
+	color: var(--calcr-subtle);
+}
+
+.calcr-hub__grid {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: 24px;
+}
+
+/* Written as two classes plus the element so it outweighs the theme's and
+   site.css's link colours, both of which sit at (0,1,1). A card whose title
+   comes out teal is the same bug the homepage had, and it comes back the
+   moment this is written as a single class. */
+.calcr-hub a.calcr-hub__card,
+.calcr-hub a.calcr-hub__chip {
+	color: var(--calcr-ink);
+	text-decoration: none;
+}
+
+.calcr-hub__card {
+	display: flex;
+	flex-direction: column;
+	border-radius: 22px;
+	background: var(--calcr-surface);
+	border: 1px solid var(--calcr-line);
+	color: var(--calcr-ink);
+	text-decoration: none;
+	overflow: hidden;
+	transition: transform 180ms ease, border-color 180ms ease;
+}
+
+.calcr-hub__card:hover {
+	transform: translateY(-4px);
+	border-color: var(--c-border-hover);
+	color: var(--calcr-ink);
+}
+
+.calcr-hub__thumb {
+	position: relative;
+	height: 160px;
+	background: var(--calcr-accent-soft);
+	border-bottom: 1px solid var(--calcr-line);
+	overflow: hidden;
+	display: block;
+}
+
+.calcr-hub__thumb .calcr-tile {
+	position: absolute;
+	left: 22px;
+	top: 22px;
+	z-index: 1;
+}
+
+.calcr-hub__thumb svg {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+}
+
+.calcr-hub__cardbody {
+	padding: 22px 24px 26px;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.calcr-hub__name {
+	font-family: var(--calcr-font-display);
+	font-size: 21px;
+	font-weight: 600;
+	line-height: 1.25;
+}
+
+.calcr-hub__blurb {
+	font-size: 16px;
+	line-height: 1.45;
+	color: var(--calcr-muted);
+}
+
+.calcr-hub__panels {
+	padding-block: 64px 0;
+}
+
+.calcr-hub__panel {
+	padding: 32px;
+	border-radius: 24px;
+	background: var(--calcr-surface);
+	border: 1px solid var(--calcr-line);
+	display: flex;
+	flex-direction: column;
+	gap: 18px;
+}
+
+.calcr-hub__panel-title {
+	margin: 0;
+	font-family: var(--calcr-font-display);
+	font-size: 24px;
+	font-weight: 700;
+}
+
+.calcr-hub__chips {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: 10px;
+}
+
+.calcr-hub__chip {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 12px;
+	border-radius: 14px;
+	background: var(--calcr-sunken);
+	color: var(--calcr-ink);
+	text-decoration: none;
+	font-weight: 600;
+	font-size: 15px;
+}
+
+.calcr-hub__chip:hover {
+	background: var(--c-surface-hover);
+	color: var(--calcr-ink);
+}
+
+@media (max-width: 1099px) {
+	.calcr-hub__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+	.calcr-hub__chips { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+/* The banner is decoration, and on a narrow screen it would push the heading
+   it is meant to accompany off the first screenful. */
+@media (max-width: 899px) {
+	.calcr-hub__banner { display: none; }
+	.calcr-hub__lockup { gap: 0; }
+}
+
+@media (max-width: 699px) {
+	.calcr-hub__grid { grid-template-columns: minmax(0, 1fr); }
+	.calcr-hub__chips { grid-template-columns: minmax(0, 1fr); }
+	.calcr-hub__head { padding-bottom: 36px; gap: 20px; }
+	.calcr-hub__body,
+	.calcr-hub__panels { padding-block: 36px 0; }
+	.calcr-hub__panel { padding: 22px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.calcr-hub__card:hover { transform: none; }
 }

@@ -108,6 +108,7 @@ COMPAT = """
 \t--calcr-ink: var(--c-text-primary);
 \t--calcr-ink-soft: var(--c-text-secondary);
 \t--calcr-muted: var(--c-text-muted);
+\t--calcr-subtle: var(--c-text-subtle);
 \t--calcr-line: var(--c-border-default);
 \t--calcr-line-strong: var(--c-border-strong);
 \t--calcr-sunken: var(--c-surface-sunken);
@@ -133,6 +134,21 @@ COMPAT = """
 \t--calcr-radius-xl: var(--radius-category-card-desktop);
 \t--calcr-touch: var(--size-touch-target-min);
 \t--calcr-container: 1200px;
+
+\t/*
+\t * The page gutter, and the only one on the site.
+\t *
+\t * The artboards are drawn on a 1440 canvas with 120px either side, which
+\t * is 8.34vw, so this lands on the design's figure at the width it was
+\t * designed at and scales from there. Every page type uses it, because a
+\t * homepage that runs to the edge and a calculator page that stops short
+\t * of it read as two different sites however well each one is drawn.
+\t *
+\t * It stops growing at 120px so the content does not drift apart on a very
+\t * wide screen, and the phone figure is capped separately below, since a
+\t * gutter that tracks the viewport this steeply eats a 390px screen.
+\t */
+\t--calcr-gutter: clamp(24px, 8.34vw, 120px);
 \t--calcr-header-height: var(--size-header-height-desktop);
 \t--calcr-gap-xs: var(--space-stack-xs);
 \t--calcr-gap-sm: var(--space-stack-s);
