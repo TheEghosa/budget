@@ -107,7 +107,7 @@ class Calculatorr_Renderer {
 		<div class="calcr-page">
 			<?php echo $this->render_breadcrumbs( $config ); ?>
 
-			<?php if ( $settings->get( 'render_heading' ) ) : ?>
+			<?php if ( $settings->get( 'render_heading' ) || Calculatorr_Site_Chrome::heading_is_ours() ) : ?>
 				<h1 class="calcr-page__title"><?php echo esc_html( $config['h1'] ); ?></h1>
 				<p class="calcr-page__intro"><?php echo esc_html( $config['description'] ); ?></p>
 			<?php endif; ?>

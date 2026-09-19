@@ -216,6 +216,63 @@ check( 'log is capped', $log->count(), 20 );
 $log->clear();
 check( 'log clears', $log->count(), 0 );
 
+/* --- site chrome ---------------------------------------------------------- */
+
+/*
+ * The chrome stylesheet is what makes the theme header carry the design, and
+ * the heading handover is what stops the page ending up with two H1s or none.
+ * Both are easy to break from the outside, so both are pinned here.
+ */
+check( 'site chrome is on by default', (int) $settings->get( 'site_chrome' ), 1 );
+check( 'chrome stylesheet ships', file_exists( CALCULATORR_PATH . 'assets/css/site.css' ), true );
+
+$chrome_css = file_get_contents( CALCULATORR_PATH . 'assets/css/site.css' );
+check(
+	'chrome constrains the logo height',
+	(bool) preg_match( '/img\.custom-logo\s*\{[^}]*height:/', $chrome_css ),
+	true
+);
+check(
+	'chrome colours the navigation',
+	(bool) preg_match( '/site-navigation a\s*\{[^}]*color:\s*var\(--calcr-ink\)/', $chrome_css ),
+	true
+);
+check(
+	'chrome darkens the footer',
+	(bool) preg_match( '/site-footer\.dynamic-footer\s*\{[^}]*background:\s*var\(--calcr-ink\)/', $chrome_css ),
+	true
+);
+
+/* The heading is the renderer's only when the theme has handed it over. */
+$GLOBALS['calcr_test_state']['current_slug'] = 'gpa-calculator';
+$chrome = Calculatorr_Site_Chrome::instance();
+check( 'theme heading not claimed before the filter runs', Calculatorr_Site_Chrome::heading_is_ours(), false );
+check( 'chrome declines the theme title on a calculator page', $chrome->page_title( true ), false );
+check( 'renderer now owns the heading', Calculatorr_Site_Chrome::heading_is_ours(), true );
+
+$html = $renderer->shortcode( array( 'slug' => 'gpa-calculator' ) );
+check( 'exactly one H1 is rendered', substr_count( $html, '<h1' ), 1 );
+check(
+	'the H1 sits after the breadcrumb',
+	strpos( $html, 'calcr-breadcrumb' ) < strpos( $html, '<h1' ),
+	true
+);
+
+check( 'a theme that prints nothing is left alone', $chrome->page_title( false ), false );
+
+$GLOBALS['calcr_test_state']['current_slug'] = null;
+
+/* --- homepage metadata ---------------------------------------------------- */
+
+$seo = Calculatorr_SEO::instance();
+$reflect = new ReflectionMethod( 'Calculatorr_SEO', 'home_description' );
+$reflect->setAccessible( true );
+$home_description = $reflect->invoke( $seo );
+check( 'homepage description is written', '' !== trim( $home_description ), true );
+check( 'homepage description fits a snippet', strlen( $home_description ) <= 158, true );
+check( 'homepage description counts the calculators', (bool) strpos( $home_description, (string) count( $registry->all( false ) ) ), true );
+check( 'social card ships for og:image', file_exists( CALCULATORR_PATH . 'assets/images/social-card.png' ), true );
+
 /* --- results -------------------------------------------------------------- */
 printf( "%d checks\n\n", $checks );
 foreach ( $failures as $failure ) { echo "  FAIL $failure\n"; }

@@ -4,7 +4,7 @@ Tags: calculator, tools, seo, elementor
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 1.0.0
+Stable tag: 1.1.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -65,6 +65,13 @@ In the visitor's browser. Nothing is sent to the server, so salaries, weights
 and health measurements never leave the device.
 
 == Changelog ==
+
+= 1.1.0 =
+* The site header, navigation and footer now carry the calculatorr design, so the pages no longer sit inside an unstyled theme shell.
+* The page heading moved below the breadcrumb where the design puts it, and the theme's duplicate heading is suppressed rather than hidden.
+* WordPress core's second canonical tag is removed on calculator pages, leaving one.
+* The homepage gets its own meta description, Open Graph tags and a social card image, which were missing entirely.
+* Settings can be read and written over the REST API, and a status route reports what the install actually has.
 
 = 1.0.0 =
 * First release. 105 calculators, the SEO layer, sharing, and the admin panel.

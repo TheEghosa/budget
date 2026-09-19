@@ -41,6 +41,8 @@ class Calculatorr_Settings {
 			'code_head'           => '',
 			'code_body'           => '',
 			'code_footer'         => '',
+			'site_chrome'         => 1,
+			'home_description'    => '',
 			'load_fonts'          => 1,
 			'seo_enabled'         => 1,
 			'schema_enabled'      => 1,
@@ -68,7 +70,7 @@ class Calculatorr_Settings {
 		$clean = wp_parse_args( $values, $this->all() );
 		$clean['disabled'] = array_values( array_unique( array_map( 'sanitize_key', (array) $clean['disabled'] ) ) );
 
-		foreach ( array( 'ads_enabled', 'house_ads_enabled', 'head_footer_enabled', 'load_fonts', 'seo_enabled', 'schema_enabled', 'share_enabled', 'log_enabled', 'render_heading' ) as $flag ) {
+		foreach ( array( 'ads_enabled', 'house_ads_enabled', 'head_footer_enabled', 'site_chrome', 'load_fonts', 'seo_enabled', 'schema_enabled', 'share_enabled', 'log_enabled', 'render_heading' ) as $flag ) {
 			$clean[ $flag ] = empty( $clean[ $flag ] ) ? 0 : 1;
 		}
 

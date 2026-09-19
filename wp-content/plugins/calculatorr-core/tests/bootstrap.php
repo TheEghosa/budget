@@ -58,7 +58,7 @@ function selected( $a, $b, $echo = true ) { $r = ( (string) $a === (string) $b )
 function wp_json_encode( $d, $f = 0 ) { return json_encode( $d, $f ); }
 
 function home_url( $path = '/' ) { return 'https://calculatorr.org' . $path; }
-function get_bloginfo( $what = 'name' ) { return 'name' === $what ? 'calculatorr.org' : 'en-US'; }
+function get_bloginfo( $what = 'name', $filter = 'raw' ) { return 'name' === $what ? 'calculatorr.org' : 'en-US'; }
 function get_locale() { return 'en_US'; }
 function is_front_page() { return false; }
 function is_feed() { return false; }
@@ -87,6 +87,12 @@ function update_option( $k, $v, $a = true ) { $GLOBALS['calcr_options'][ $k ] = 
 function sanitize_key( $k ) { return preg_replace( '/[^a-z0-9_\-]/', '', strtolower( (string) $k ) ); }
 function sanitize_text_field( $t ) { return trim( strip_tags( (string) $t ) ); }
 function register_rest_route() {}
+function remove_action( $h, $c, $p = 10 ) {}
+function remove_filter( $h, $c, $p = 10 ) {}
+function wp_style_is( $h, $l = 'enqueued' ) { return true; }
+function get_stylesheet() { return 'hello-elementor'; }
+function get_post( $p = null ) { return null; }
+function get_the_title( $p = 0 ) { return 'Free Online Calculators for Everything'; }
 function rest_url( $p = '' ) { return home_url( '/wp-json/' . $p ); }
 function wp_localize_script() {}
 function mb_substr_compat( $s, $a, $b ) { return substr( $s, $a, $b ); }
@@ -102,3 +108,4 @@ require_once CALCULATORR_PATH . 'includes/class-ads.php';
 require_once CALCULATORR_PATH . 'includes/class-pages.php';
 require_once CALCULATORR_PATH . 'includes/class-seo.php';
 require_once CALCULATORR_PATH . 'includes/class-head-footer.php';
+require_once CALCULATORR_PATH . 'includes/class-site-chrome.php';

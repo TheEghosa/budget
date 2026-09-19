@@ -48,6 +48,7 @@ rm -f "$ZIP"
 ( cd "$PLUGIN_DIR/.." && zip -qr "$ZIP" "$SLUG" \
 	-x "$SLUG/tests/*" \
 	-x "$SLUG/tools/*" \
+	-x "$SLUG/content/*" \
 	-x "$SLUG/.git*" \
 	-x "$SLUG/node_modules/*" \
 	-x "$SLUG/*.zip" \

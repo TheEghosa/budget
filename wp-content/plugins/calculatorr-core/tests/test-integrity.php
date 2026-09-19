@@ -86,6 +86,34 @@ foreach ( $formulas as $slug ) {
 	}
 }
 
+/*
+ * The version is declared twice: in the plugin header, which is what WordPress
+ * reads, and as a constant, which is what cache-busts the stylesheets. If they
+ * drift apart an update ships without the browser refetching the CSS, so the
+ * new design simply does not appear.
+ */
+$bootstrap = file_get_contents( $root . '/calculatorr-core.php' );
+preg_match( '/^ \* Version:\s+(\S+)/m', $bootstrap, $header_version );
+preg_match( "/define\(\s*'CALCULATORR_VERSION',\s*'([^']+)'/", $bootstrap, $constant_version );
+
+if ( empty( $header_version[1] ) || empty( $constant_version[1] ) ) {
+	$errors[] = 'Could not read both version declarations from the plugin bootstrap.';
+} elseif ( $header_version[1] !== $constant_version[1] ) {
+	$errors[] = sprintf(
+		'Version mismatch: plugin header says %s, CALCULATORR_VERSION says %s.',
+		$header_version[1],
+		$constant_version[1]
+	);
+}
+
+/* Every stylesheet the plugin enqueues has to exist, since a 404 on site.css
+   is invisible in PHP and very visible on the page. */
+foreach ( array( 'tokens.css', 'calculator.css', 'site.css' ) as $sheet ) {
+	if ( ! file_exists( $root . '/assets/css/' . $sheet ) ) {
+		$errors[] = 'Missing stylesheet: assets/css/' . $sheet;
+	}
+}
+
 printf( "%d configs, %d formulas\n", count( $configs ), count( $formulas ) );
 
 foreach ( $warnings as $warning ) {

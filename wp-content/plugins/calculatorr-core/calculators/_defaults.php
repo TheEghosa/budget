@@ -29,8 +29,8 @@ return array(
 		'value' => '36 years',
 		'note'  => '',
 		'rows'  => array(
-			array( 'label' => 'Exactly', 'value' => '36y 8m 17d' ),
-			array( 'label' => 'Total days', 'value' => '13,409' ),
+			array( 'label' => 'Exactly', 'value' => '36y 8m 18d' ),
+			array( 'label' => 'Total days', 'value' => '13,410' ),
 			array( 'label' => 'Total weeks', 'value' => '1,915' ),
 			array( 'label' => 'Total months', 'value' => '440' ),
 		),
@@ -195,8 +195,8 @@ return array(
 		'value' => '36 years',
 		'note'  => '',
 		'rows'  => array(
-			array( 'label' => 'Exactly', 'value' => '36y 8m 17d' ),
-			array( 'label' => 'Total days', 'value' => '13,409' ),
+			array( 'label' => 'Exactly', 'value' => '36y 8m 18d' ),
+			array( 'label' => 'Total days', 'value' => '13,410' ),
 			array( 'label' => 'Total weeks', 'value' => '1,915' ),
 			array( 'label' => 'Total months', 'value' => '440' ),
 		),
@@ -814,9 +814,9 @@ return array(
 		'value' => 'Wed, Jan 6, 2027',
 		'note'  => 'Only about one birth in twenty happens on the due date itself. A dating scan in the first trimester is considerably more accurate than any calculation from a period date.',
 		'rows'  => array(
-			array( 'label' => 'How far along today', 'value' => '24 weeks 2 days' ),
+			array( 'label' => 'How far along today', 'value' => '24 weeks 3 days' ),
 			array( 'label' => 'Trimester', 'value' => 'Second' ),
-			array( 'label' => 'Days remaining', 'value' => '110' ),
+			array( 'label' => 'Days remaining', 'value' => '109' ),
 			array( 'label' => 'Conception, approximately', 'value' => 'Wed, Apr 15, 2026' ),
 			array( 'label' => 'Full term from', 'value' => 'Wed, Dec 16, 2026' ),
 		),

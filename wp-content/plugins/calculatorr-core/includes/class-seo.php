@@ -90,17 +90,72 @@ class Calculatorr_SEO {
 			);
 		}
 
+		/*
+		 * The front page is somebody's editable page rather than one of ours,
+		 * so the title it already produces is left alone. What it does not
+		 * produce is a description or a social card, and a homepage sharing as
+		 * a blank rectangle with no summary is the one page where that is most
+		 * expensive.
+		 */
+		if ( is_front_page() ) {
+			$front = (int) get_option( 'page_on_front' );
+
+			return array(
+				'type'        => 'home',
+				/* Built from the page rather than read back from
+				   wp_get_document_title(), because this method runs inside the
+				   pre_get_document_title filter and asking for the title from
+				   in there calls straight back into itself. */
+				'title'       => $front ? get_the_title( $front ) : get_bloginfo( 'name', 'display' ),
+				'description' => $this->home_description(),
+				'url'         => home_url( '/' ),
+			);
+		}
+
 		return null;
+	}
+
+	/**
+	 * The homepage summary, from settings when one has been written and from
+	 * the live calculator count when it has not, so the count in the sentence
+	 * cannot drift away from the number of calculators actually installed.
+	 */
+	private function home_description() {
+		$written = trim( (string) Calculatorr_Settings::instance()->get( 'home_description' ) );
+
+		if ( '' !== $written ) {
+			return self::trim_description( $written );
+		}
+
+		$count = count( Calculatorr_Registry::instance()->all( false ) );
+
+		return self::trim_description(
+			sprintf(
+				/* translators: %d: number of calculators on the site. */
+				'Free online calculators for money, health, maths, DIY and more. %d tools that show the formula they used, run in your browser and need no sign-up.',
+				$count
+			)
+		);
 	}
 
 	public function document_title( $title ) {
 		$context = $this->context();
-		return $context ? $context['title'] : $title;
+
+		if ( ! $context || 'home' === $context['type'] ) {
+			return $title;
+		}
+
+		return $context['title'];
 	}
 
 	public function filter_title_string( $title ) {
 		$context = $this->context();
-		return $context ? $context['title'] : $title;
+
+		if ( ! $context || 'home' === $context['type'] ) {
+			return $title;
+		}
+
+		return $context['title'];
 	}
 
 	public function filter_description_string( $description ) {
