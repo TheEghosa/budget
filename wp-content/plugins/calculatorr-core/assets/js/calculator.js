@@ -290,6 +290,20 @@
 				return false;
 			}
 
+			/*
+			 * Nothing to follow up the page yet.
+			 *
+			 * Before anything is entered the panel holds a worked example, and
+			 * a bar pinned to the bottom of the screen is the worst place to
+			 * repeat one: it is the most result-shaped part of the interface,
+			 * it carries no room for the caption that marks it as an example,
+			 * and it would be the first thing somebody saw on landing. The
+			 * example stays in the panel, where it is labelled.
+			 */
+			if ( root.classList.contains( 'calcr--awaiting' ) ) {
+				return false;
+			}
+
 			/* Live feedback while typing is the bar's main job, so a focused
 			   field keeps it up even if the number happens to be on screen. */
 			return typing || ! numberVisible;
@@ -342,6 +356,13 @@
 				sync();
 			}
 		} );
+
+		/* The example standing down is a change of state the bar has to notice,
+		   and nothing else would tell it: the observer only fires when the
+		   number crosses the fold, and focus has not moved. Without this the
+		   bar stays away for the whole of the first answer. */
+		root.addEventListener( 'input', sync );
+		root.addEventListener( 'change', sync );
 
 		root.addEventListener( 'focusout', function () {
 			/* Deferred, because moving between two fields fires focusout

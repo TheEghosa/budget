@@ -89,6 +89,7 @@ function preview_shell( $title, $description, $body, $head, $json, $nav ) {
 		. '<script src="assets/js/formulas.js"></script>'
 		. '<script src="assets/js/share.js"></script>'
 		. '<script src="assets/js/calculator.js"></script>'
+		. '<script src="assets/js/site.js"></script>'
 		. '</body></html>';
 }
 

@@ -305,6 +305,28 @@ check(
 	(bool) preg_match( '/\.calcr-hub\s+a\.calcr-hub__card/', $app_rules ),
 	true
 );
+
+/*
+ * The card must not clip its own children.
+ *
+ * The answer panel carries its own fill and has to reach the card's rounded
+ * corner, which needs something to clip it. Putting that on the card clipped
+ * the share popover too, which opens upward out of the actions row and so was
+ * sliced off at the card's edge. Only the top half needs clipping, so the rule
+ * belongs on .calcr__split and nowhere above it.
+ */
+$calcr_rule = preg_match( '/(?<![\w-])\.calcr\s*\{([^}]*)\}/', $app_rules, $m ) ? $m[1] : '';
+$split_rule = preg_match( '/\.calcr__split\s*\{([^}]*)\}/', $app_rules, $m2 ) ? $m2[1] : '';
+
+check( 'the card does not clip its own popovers', (bool) preg_match( '/overflow:\s*hidden/', $calcr_rule ), false );
+check( 'the split clips the answer panel to the corner', (bool) preg_match( '/overflow:\s*hidden/', $split_rule ), true );
+
+/* Share is the last control in the row and sits against the card's right
+   edge, so a panel anchored to its left runs off the page. */
+$panel_rule = preg_match( '/\.calcr__share-panel\s*\{([^}]*)\}/', $app_rules, $m3 ) ? $m3[1] : '';
+check( 'the share panel opens away from the edge', (bool) preg_match( '/right:\s*0/', $panel_rule ), true );
+check( 'the share panel counts its padding in its width', (bool) preg_match( '/box-sizing:\s*border-box/', $panel_rule ), true );
+
 check(
 	'chrome constrains the logo height',
 	(bool) preg_match( '/img\.custom-logo\s*\{[^}]*height:/', $chrome_css ),
@@ -603,16 +625,27 @@ check( 'share starts disabled', (bool) preg_match( '/data-calcr-share-toggle[^>]
  */
 check( 'reset starts disabled', (bool) preg_match( '/data-calcr-reset\s+disabled/', $amort ), true );
 
-/* The shareable image is square first: that is the shape Instagram, LinkedIn
-   and a phone screenshot all accept without recropping. */
+/*
+ * The shareable image is square, and only square.
+ *
+ * The shape used to be a choice, and the choice was broken: the panel marked
+ * square as selected while the drawing code defaulted to wide, so the picture
+ * somebody got was not the one they had been shown. Rather than fix the
+ * default, the option went: square is the shape a share sheet, a feed and a
+ * screenshot all take without recropping, so there was nothing for the second
+ * one to be better at.
+ */
+$share_js = file_get_contents( CALCULATORR_PATH . 'assets/js/share.js' );
+
+check( 'no shape toggle is rendered', (bool) strpos( $amort, 'data-calcr-format' ), false );
+check( 'the wide card is gone from the drawing code', (bool) strpos( $share_js, 'landscape' ), false );
+check( 'the card is drawn square', (bool) preg_match( '/w:\s*1080,\s*h:\s*1080/', $share_js ), true );
+
+/* The frame the preview draws into has to be the shape of the card, or the
+   picture sits letterboxed inside its own border. */
 check(
-	'square is the default share shape',
-	(bool) preg_match( '/class="calcr__share-format is-active" data-calcr-format="square"/', $amort ),
-	true
-);
-check(
-	'wide is offered second',
-	(bool) preg_match( '/data-calcr-format="landscape" aria-pressed="false"/', $amort ),
+	'the preview frame is square too',
+	(bool) preg_match( '/\.calcr__share-preview\s*\{[^}]*aspect-ratio:\s*1\s*;/', $app_rules ),
 	true
 );
 

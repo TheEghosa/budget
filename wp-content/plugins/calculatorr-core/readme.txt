@@ -4,7 +4,7 @@ Tags: calculator, tools, seo, elementor
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 1.7.1
+Stable tag: 1.7.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -65,6 +65,16 @@ In the visitor's browser. Nothing is sent to the server, so salaries, weights
 and health measurements never leave the device.
 
 == Changelog ==
+
+= 1.7.2 =
+The share panel is no longer cut off at the card's edge, and opens away from
+the side of the screen rather than off it. The homepage search can be worked
+with the arrow keys and announces how many calculators matched. The sticky
+answer bar stays away while the panel is showing its example, since there is
+nothing yet to follow up the page. Reduced motion now covers the category and
+home pages as well as the calculator itself. The shareable image is square
+and only square: the wide one had to be chosen, and the code drew it by
+default while the panel said square was selected.
 
 = 1.7.1 =
 The logo mark sits beside the wordmark rather than above it, in the header and

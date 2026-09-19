@@ -187,6 +187,9 @@ body:has(.ch) .page-content{max-width:none;width:100%;margin-inline:0;padding-in
 .ch-results a:hover{background:var(--ch-hover)}
 .ch-results small{display:block;color:var(--ch-muted);font-size:13px}
 .ch-results__empty{padding:12px;color:var(--ch-muted);font-size:15px}
+.ch-results a:focus-visible{background:var(--ch-hover);outline:2px solid var(--ch-brand);outline-offset:-2px}
+.ch-sr{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;
+ clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap;border:0}
 
 .ch-chips{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .ch-chips>span{font-size:15px;color:var(--ch-subtle)}
@@ -268,7 +271,8 @@ body:has(.ch) .page-content{max-width:none;width:100%;margin-inline:0;padding-in
 
 
 @media (prefers-reduced-motion:reduce){
- .ch-cat:hover,.ch-tool:hover{transform:none}
+ .ch,.ch *{transition:none !important;animation:none !important;scroll-behavior:auto !important}
+ .ch-cat:hover,.ch-tool:hover{transform:none !important}
 }
 
 @media (max-width:1199px){
@@ -327,8 +331,20 @@ SCRIPT = """
     return -1;
   }
 
+  var status = root.querySelector('#ch-status');
+
+  function say(message) {
+    if (status && status.textContent !== message) { status.textContent = message; }
+  }
+
+  function close() {
+    list.hidden = true;
+    input.setAttribute('aria-expanded', 'false');
+    say('');
+  }
+
   function render(term) {
-    if (term.length < 2) { list.hidden = true; list.innerHTML = ''; return; }
+    if (term.length < 2) { list.innerHTML = ''; close(); return; }
     var hits = [];
     for (var i = 0; i < data.length; i++) {
       var s = score(data[i].n, term);
@@ -338,6 +354,8 @@ SCRIPT = """
     if (!hits.length) {
       list.innerHTML = '<li class="ch-results__empty">Nothing matches that yet.</li>';
       list.hidden = false;
+      input.setAttribute('aria-expanded', 'true');
+      say('Nothing matches that yet.');
       return;
     }
     var out = '';
@@ -347,10 +365,38 @@ SCRIPT = """
     }
     list.innerHTML = out;
     list.hidden = false;
+    input.setAttribute('aria-expanded', 'true');
+    var shown = Math.min(hits.length, 8);
+    say(shown === 1 ? '1 calculator matches.' : shown + ' calculators match.');
   }
 
   input.addEventListener('input', function () { render(input.value.trim().toLowerCase()); });
   input.addEventListener('focus', function () { render(input.value.trim().toLowerCase()); });
+
+  /* Arrow keys walk the results, and they move real focus to real links rather
+     than painting a fake cursor with aria-activedescendant. That keeps every
+     link a link: a screen reader announces it the way it announces any other,
+     and middle-click and open-in-new-tab keep working, which a listbox of
+     div-options would have taken away. */
+  function options() {
+    return Array.prototype.slice.call(list.querySelectorAll('a'));
+  }
+
+  function step(from, delta) {
+    var items = options();
+    if (!items.length) { return; }
+    var at = items.indexOf(from);
+    var next = at < 0 ? (delta > 0 ? 0 : items.length - 1) : at + delta;
+    if (next < 0) { input.focus(); input.select(); return; }
+    if (next >= items.length) { next = items.length - 1; }
+    items[next].focus();
+  }
+
+  list.addEventListener('keydown', function (e) {
+    if (e.key === 'ArrowDown') { e.preventDefault(); step(document.activeElement, 1); }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); step(document.activeElement, -1); }
+    else if (e.key === 'Escape') { e.preventDefault(); close(); input.focus(); }
+  });
 
   form.addEventListener('submit', function (e) {
     e.preventDefault();
@@ -359,10 +405,11 @@ SCRIPT = """
   });
 
   document.addEventListener('click', function (e) {
-    if (!root.contains(e.target)) { list.hidden = true; }
+    if (!root.contains(e.target)) { close(); }
   });
   input.addEventListener('keydown', function (e) {
-    if (e.key === 'Escape') { list.hidden = true; }
+    if (e.key === 'Escape') { close(); }
+    else if (e.key === 'ArrowDown') { e.preventDefault(); step(null, 1); }
   });
 }());
 """
@@ -401,9 +448,18 @@ def build(inventory, base='/'):
         '<div class="ch-search__box">%s'
         '<label class="screen-reader-text" for="ch-q" style="position:absolute;width:1px;height:1px;'
         'overflow:hidden;clip:rect(0 0 0 0)">Search calculators</label>'
-        '<input id="ch-q" type="search" placeholder="Try mortgage, BMI, percentage, tip">'
+        '<input id="ch-q" type="search" autocomplete="off" aria-expanded="false" aria-controls="ch-results" '
+        'aria-describedby="ch-hint" placeholder="Try mortgage, BMI, percentage, tip">'
         '<button type="submit">Search</button></div>'
-        '<ul class="ch-results" id="ch-results" hidden></ul></form>' % icon('ui-search'))
+        '<ul class="ch-results" id="ch-results" hidden></ul>'
+        # Two hidden lines. The hint is read once when the field takes focus,
+        # so somebody who cannot see the list still learns the arrow keys
+        # exist. The status is a live region reporting how many matched, which
+        # is the one thing the visual list gives away for free and a screen
+        # reader otherwise never hears.
+        '<p id="ch-hint" class="ch-sr">Results appear as you type. Use the down arrow to step through them.</p>'
+        '<p class="ch-sr" role="status" aria-live="polite" id="ch-status"></p>'
+        '</form>' % icon('ui-search'))
 
     chips = ['<span>Most used today</span>']
     for slug, label in POPULAR:

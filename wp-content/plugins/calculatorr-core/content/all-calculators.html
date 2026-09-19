@@ -68,6 +68,9 @@ body:has(.ch) .page-content{max-width:none;width:100%;margin-inline:0;padding-in
 .ch-results a:hover{background:var(--ch-hover)}
 .ch-results small{display:block;color:var(--ch-muted);font-size:13px}
 .ch-results__empty{padding:12px;color:var(--ch-muted);font-size:15px}
+.ch-results a:focus-visible{background:var(--ch-hover);outline:2px solid var(--ch-brand);outline-offset:-2px}
+.ch-sr{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;
+ clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap;border:0}
 
 .ch-chips{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .ch-chips>span{font-size:15px;color:var(--ch-subtle)}
@@ -149,7 +152,8 @@ body:has(.ch) .page-content{max-width:none;width:100%;margin-inline:0;padding-in
 
 
 @media (prefers-reduced-motion:reduce){
- .ch-cat:hover,.ch-tool:hover{transform:none}
+ .ch,.ch *{transition:none !important;animation:none !important;scroll-behavior:auto !important}
+ .ch-cat:hover,.ch-tool:hover{transform:none !important}
 }
 
 @media (max-width:1199px){

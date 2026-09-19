@@ -11,8 +11,6 @@
 ( function () {
 	'use strict';
 
-	var CARD_W = 1200;
-	var CARD_H = 630;
 
 	var INK = '#14181D';
 	var MUTED = '#5A6472';
@@ -104,20 +102,24 @@
 	}
 
 	/**
-	 * Two formats, because the platforms genuinely want different shapes.
-	 * Landscape is the universal link-preview ratio that Twitter, LinkedIn,
-	 * Facebook, Slack and WhatsApp all render. Square is for Instagram and
-	 * anywhere else a feed crops to 1:1, and it exists as its own layout
-	 * rather than as a crop of the landscape one, because cropping a
-	 * left-aligned card slices the number in half.
+	 * One shape.
+	 *
+	 * A square card is the only one that survives every destination it is
+	 * likely to reach: it is what a phone's share sheet passes to a messaging
+	 * app, it is the shape a feed crops to, and it is the one that does not
+	 * get letterboxed. The wide card existed alongside it and had to be
+	 * chosen, which meant most people never did, and the code defaulted to
+	 * wide while the interface marked square as selected, so the picture you
+	 * got was not the one the panel showed.
+	 *
+	 * It is laid out as its own card rather than cropped down from a wider
+	 * one, because a left-aligned card cropped to a square slices the number
+	 * in half, and the number is the only reason anybody shares it.
 	 */
-	var FORMATS = {
-		landscape: { w: 1200, h: 630, accent: 10, band: 88, mark: 44, gap: 80, value: 76, rowGap: 42 },
-		square:    { w: 1080, h: 1080, accent: 12, band: 112, mark: 48, gap: 210, value: 104, rowGap: 58 }
-	};
+	var SPEC = { w: 1080, h: 1080, accent: 12, band: 112, mark: 48, gap: 210, value: 104, rowGap: 58 };
 
-	function drawCard( result, heading, format ) {
-		var spec = FORMATS[ format ] || FORMATS.square;
+	function drawCard( result, heading ) {
+		var spec = SPEC;
 		var W = spec.w;
 		var H = spec.h;
 		var pad = 64;
@@ -275,8 +277,7 @@
 	}
 
 	function filename( root ) {
-		var shape = 'square' === root.__calcrFormat ? '-square' : '';
-		return ( root.getAttribute( 'data-calcr-slug' ) || 'calculatorr' ) + shape + '.jpg';
+		return ( root.getAttribute( 'data-calcr-slug' ) || 'calculatorr' ) + '.jpg';
 	}
 
 	function heading( root ) {
@@ -285,7 +286,7 @@
 	}
 
 	function currentCanvas( root ) {
-		return Share.drawCard( root.__calcrResult || {}, heading( root ), root.__calcrFormat || 'landscape' );
+		return Share.drawCard( root.__calcrResult || {}, heading( root ) );
 	}
 
 	/**
@@ -457,19 +458,6 @@
 			var button = event.target.closest( 'button' );
 
 			if ( ! button ) {
-				return;
-			}
-
-			if ( button.hasAttribute( 'data-calcr-format' ) ) {
-				root.__calcrFormat = button.getAttribute( 'data-calcr-format' );
-
-				panel.querySelectorAll( '[data-calcr-format]' ).forEach( function ( sibling ) {
-					var active = sibling === button;
-					sibling.classList.toggle( 'is-active', active );
-					sibling.setAttribute( 'aria-pressed', active ? 'true' : 'false' );
-				} );
-
-				renderPreview( root, panel );
 				return;
 			}
 
