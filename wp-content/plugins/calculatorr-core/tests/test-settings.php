@@ -227,6 +227,84 @@ check( 'site chrome is on by default', (int) $settings->get( 'site_chrome' ), 1 
 check( 'chrome stylesheet ships', file_exists( CALCULATORR_PATH . 'assets/css/site.css' ), true );
 
 $chrome_css = file_get_contents( CALCULATORR_PATH . 'assets/css/site.css' );
+
+/*
+ * Out-specifying the theme, on purpose.
+ *
+ * Hello Elementor ships three rules that have each already broken this design
+ * once, all by the same mechanism: the theme's selector is longer than ours,
+ * so it wins no matter how obviously our rule is the one that was meant.
+ *
+ *   .site-header .header-inner .custom-logo-link { display: block }
+ *     put the logo mark above the wordmark instead of beside it
+ *   input[type=number], … { border: 1px solid #666; border-radius: 3px }
+ *     drew a second bordered box inside every field
+ *   .site-main a { color: … }
+ *     turned the card titles on the home and category pages teal
+ *
+ * Each of ours has to stay at least as specific as the theme's, and none of
+ * them may be rewritten shorter "for tidiness", which is exactly how this
+ * would come back. Load order is not an acceptable answer either: a cache
+ * plugin that combines stylesheets can change it without warning.
+ */
+$app_css = file_get_contents( CALCULATORR_PATH . 'assets/css/calculator.css' );
+
+/* Comments are stripped before any selector is measured. The comments here
+   quote the very rules being guarded against, so leaving them in means the
+   check reads prose as CSS and counts the commas in a sentence as selector
+   boundaries. */
+$chrome_rules = preg_replace( '#/\*.*?\*/#s', '', $chrome_css );
+$app_rules    = preg_replace( '#/\*.*?\*/#s', '', $app_css );
+
+/* Counts the classes, elements and attributes in a selector, which is enough
+   to compare against the theme's when neither side uses an id. */
+function calcr_weight( $selector ) {
+	$classes = preg_match_all( '/\.[a-zA-Z0-9_-]+/', $selector );
+	$attrs   = preg_match_all( '/\[[^\]]+\]/', $selector );
+	$elems   = preg_match_all( '/(?:^|\s|>|\+|~)([a-zA-Z][a-zA-Z0-9]*)/', $selector );
+
+	return array( $classes + $attrs, $elems );
+}
+
+$logo_rule = preg_match( '/([^{}]*custom-logo-link[^{}]*)\{[^}]*display:\s*flex/', $chrome_rules, $m ) ? $m[1] : '';
+
+/*
+ * Every selector in the list, not the list as a whole. The header and the
+ * footer are separate selectors and the theme overrides both, so one of them
+ * being specific enough says nothing about the other, and measuring the pair
+ * together hides exactly the case worth catching.
+ */
+$logo_weakest = $logo_rule ? PHP_INT_MAX : 0;
+
+foreach ( explode( ',', $logo_rule ) as $one ) {
+	if ( '' === trim( $one ) ) {
+		continue;
+	}
+
+	list( $one_classes ) = calcr_weight( $one );
+	$logo_weakest = min( $logo_weakest, $one_classes );
+}
+
+/* The theme's is .site-header .header-inner .custom-logo-link: three classes. */
+check( 'the logo lockup out-specifies the theme', $logo_weakest >= 3, true );
+
+check(
+	'the field control out-specifies the theme',
+	(bool) preg_match( '/\.calcr-input\s+\.calcr-input__control\s*\{/', $app_rules ),
+	true
+);
+
+check(
+	'the select out-specifies the theme',
+	(bool) preg_match( '/select\.calcr-field__select\s*\{/', $app_rules ),
+	true
+);
+
+check(
+	'the category card title out-specifies the link colour',
+	(bool) preg_match( '/\.calcr-hub\s+a\.calcr-hub__card/', $app_rules ),
+	true
+);
 check(
 	'chrome constrains the logo height',
 	(bool) preg_match( '/img\.custom-logo\s*\{[^}]*height:/', $chrome_css ),
@@ -466,8 +544,50 @@ check(
 );
 check( 'the usual figure survives as a hint', (bool) strpos( $amort, 'placeholder="300000"' ), true );
 check( 'a field the answer needs is marked required', (bool) strpos( $amort, 'data-calcr-required="1"' ), true );
-check( 'the panel waits rather than showing a worked example', (bool) strpos( $amort, 'calcr--awaiting' ), true );
-check( 'the panel says what to do', (bool) strpos( $amort, 'Fill in the fields above' ), true );
+check( 'the panel opens in its example state', (bool) strpos( $amort, 'calcr--awaiting' ), true );
+check( 'the panel says the figures are an example', (bool) strpos( $amort, 'Example figures' ), true );
+
+/*
+ * The panel opens showing the answer to the numbers the fields carry as
+ * placeholders, rather than a dash. Three things have to hold for that to be
+ * honest rather than decorative: the number has to be there, it has to be
+ * marked as an example, and it has to be the answer to the placeholders and
+ * not to something else. The last one is what stops the example quietly
+ * drifting away from the inputs it claims to describe.
+ */
+$amort_config = Calculatorr_Registry::instance()->get( 'amortization-calculator' );
+$amort_result = isset( $amort_config['default_result'] ) ? $amort_config['default_result'] : array();
+
+check(
+	'the example number is painted on the server',
+	( ! empty( $amort_result['value'] ) && false !== strpos( $amort, (string) $amort_result['value'] ) ),
+	true
+);
+
+check(
+	'the script can restore the example after a reset',
+	(bool) strpos( $amort, 'data-calcr-example=' ),
+	true
+);
+
+/* Copying or sharing an example would send somebody else's numbers out under
+   the visitor's name, so both stay off until there is a real answer. */
+check( 'copying is off while the example shows', (bool) preg_match( '/data-calcr-copy\s+disabled/', $amort ), true );
+check( 'sharing is off while the example shows', (bool) preg_match( '/data-calcr-share-toggle[^>]*disabled/', $amort ), true );
+
+/*
+ * Every calculator needs one, because a panel that falls back to a dash on
+ * even a handful of pages is the inconsistency this replaced.
+ */
+$without_example = array();
+
+foreach ( Calculatorr_Registry::instance()->all() as $one ) {
+	if ( empty( $one['default_result']['value'] ) ) {
+		$without_example[] = $one['slug'];
+	}
+}
+
+check( 'every calculator ships an example result', $without_example, array() );
 
 /* Copying or sharing a result that does not exist yet is a dead end, and the
    state has to be right in the markup rather than applied by script, so it is

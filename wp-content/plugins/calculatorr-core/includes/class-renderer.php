@@ -423,12 +423,31 @@ class Calculatorr_Renderer {
 		 * never briefly wrong while JavaScript loads.
 		 */
 		$empty_start = (bool) Calculatorr_Settings::instance()->get( 'empty_start' );
-		$prompt      = 'Fill in the fields above and your answer appears here.';
-		$shown       = $empty_start ? array( 'label' => isset( $result['label'] ) ? $result['label'] : 'Result' ) : $result;
+		$prompt      = 'Example figures. Type your own and this updates.';
+
+		/*
+		 * With empty start on, the fields carry their example numbers as
+		 * placeholders and the panel carries the answer to those same numbers.
+		 * An empty panel beside filled-looking fields reads as a broken tool,
+		 * and a bare dash teaches the visitor nothing about what they are about
+		 * to get. This is not invented filler: every config ships a worked
+		 * result computed from exactly the numbers the placeholders show, so
+		 * what is on screen is correct arithmetic, shown muted and captioned as
+		 * an example until the visitor replaces it.
+		 *
+		 * Copying and sharing stay switched off while it is showing, because an
+		 * example is not the visitor's result to send anyone.
+		 */
+		$shown = $result;
 
 		ob_start();
 		?>
-		<div class="calcr<?php echo $empty_start ? ' calcr--awaiting' : ''; ?>" data-calcr-slug="<?php echo esc_attr( $slug ); ?>"<?php echo $empty_start ? ' data-calcr-empty-start="1" data-calcr-prompt="' . esc_attr( $prompt ) . '"' : ''; ?>>
+		<div class="calcr<?php echo $empty_start ? ' calcr--awaiting' : ''; ?>" data-calcr-slug="<?php echo esc_attr( $slug ); ?>"<?php
+			echo $empty_start
+				? ' data-calcr-empty-start="1" data-calcr-prompt="' . esc_attr( $prompt ) . '"'
+					. ' data-calcr-example="' . esc_attr( wp_json_encode( $result ) ) . '"'
+				: '';
+			?>>
 			<!--
 			 The card is one surface: the inputs and the answer sit side by side
 			 inside it and the actions run along its foot, rather than the actions

@@ -452,20 +452,58 @@
 	}
 
 	/**
-	 * The panel before anything has been entered: the label it will carry, a
-	 * dash where the number goes, and one line saying what to do. Copying or
-	 * sharing is switched off until there is something to copy or share.
+	 * The worked example the panel shows before anything has been entered, read
+	 * off the element the server put it on. It is the answer to the numbers the
+	 * fields carry as placeholders, so the two always agree.
+	 */
+	function exampleResult( root ) {
+		var raw = root.getAttribute( 'data-calcr-example' );
+
+		if ( ! raw ) {
+			return null;
+		}
+
+		try {
+			return JSON.parse( raw );
+		} catch ( error ) {
+			/* Malformed for any reason, and the dash below is the fallback. */
+			return null;
+		}
+	}
+
+	/**
+	 * The panel before anything has been entered, and the panel it returns to
+	 * after a reset: the worked example, muted and captioned as one. Copying and
+	 * sharing stay switched off, because an example is not the visitor's result
+	 * to send anyone.
+	 *
+	 * The server already painted this, so the first call here is a no-op in
+	 * practice. It still has to exist, because a reset has to be able to put it
+	 * back after real figures have overwritten it.
 	 */
 	function awaitInput( root ) {
 		var label = root.querySelector( '[data-calcr-primary-label]' );
+		var example = exampleResult( root );
+		var note = root.getAttribute( 'data-calcr-prompt' ) || '';
 
-		paint( root, {
-			label: label ? label.textContent : 'Result',
-			value: '—',
-			rows: [],
-			bar: [],
-			note: root.getAttribute( 'data-calcr-prompt' ) || ''
-		} );
+		if ( example ) {
+			paint( root, {
+				label: example.label,
+				value: example.value,
+				sub: example.sub,
+				rows: example.rows || [],
+				bar: example.bar || [],
+				note: note
+			} );
+		} else {
+			paint( root, {
+				label: label ? label.textContent : 'Result',
+				value: '—',
+				rows: [],
+				bar: [],
+				note: note
+			} );
+		}
 
 		root.__calcrResult = null;
 		root.classList.add( 'calcr--awaiting' );

@@ -98,7 +98,7 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
   const rows = [];
   for (const w of widths) {
     await send('Emulation.setDeviceMetricsOverride',
-      { width: w, height: 900, deviceScaleFactor: 1, mobile: w < 768 });
+      { width: w, height: Number(process.env.VH || 900), deviceScaleFactor: 1, mobile: w < 768 });
     await send('Page.navigate', { url: 'file://' + file });
     await new Promise(r => setTimeout(r, 900));
     const r = await send('Runtime.evaluate', {

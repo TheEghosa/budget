@@ -11,7 +11,7 @@
 	font-family: var(--calcr-font-body);
 	color: var(--calcr-ink);
 	padding-inline: var(--calcr-gutter);
-	padding-block: 36px 72px;
+	padding-block: 28px 72px;
 }
 
 /* ---------- The calculator itself ---------- */
@@ -1040,8 +1040,8 @@ select.calcr-field__select {
 .calcr-page__head {
 	display: flex;
 	flex-direction: column;
-	gap: 28px;
-	padding-bottom: 44px;
+	gap: 20px;
+	padding-bottom: 36px;
 }
 
 .calcr-page__lockup {
@@ -1441,17 +1441,47 @@ select.calcr-field__select {
 /* ------------------------------------------------------- waiting for input -- */
 
 /*
- * The state a calculator opens in when the fields start blank. The panel keeps
- * its full height so nothing jumps when the first answer arrives, and the dash
- * is quietened so it reads as a placeholder rather than as a result of zero.
+ * The state a calculator opens in when the fields start blank.
+ *
+ * The panel shows the worked answer to the numbers the fields carry as
+ * placeholders, so it demonstrates the tool instead of showing a dash, and it
+ * is quietened one step and labelled so it cannot be mistaken for the
+ * visitor's own result. Nothing moves when the real answer arrives, because
+ * the two states hold the same rows in the same places.
+ *
+ * Quietened by colour, not by opacity. The old rule faded the muted colour to
+ * 0.55, which computes to 3.00:1 on the dark result panel and 2.41:1 on the
+ * light one, and this is text a visitor is meant to read. At full strength the
+ * same token gives 6.66 and 6.32 while still sitting a clear step below the
+ * 14.32 of a real answer.
  */
 .calcr--awaiting .calcr__primary-value {
 	color: var(--calcr-muted);
-	opacity: 0.55;
+}
+
+.calcr--awaiting .calcr__row-value,
+.calcr--awaiting .calcr__primary-sub {
+	color: var(--c-result-muted);
+}
+
+/* Says what it is without needing a line of markup that would then have to be
+   removed again the moment real figures arrive. */
+.calcr--awaiting .calcr__primary-label::after {
+	content: "Example";
+	margin-left: 8px;
+	padding: 2px 8px;
+	border-radius: 999px;
+	background: var(--calcr-sunken);
+	color: var(--calcr-muted);
+	font-size: 11px;
+	font-weight: 700;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+	vertical-align: middle;
 }
 
 .calcr__note--prompt {
-	color: var(--calcr-muted);
+	color: var(--c-result-muted);
 }
 
 .calcr__btn[disabled] {
@@ -1729,4 +1759,81 @@ select.calcr-field__select {
 
 @media (prefers-reduced-motion: reduce) {
 	.calcr-hub__card:hover { transform: none; }
+}
+
+/*
+ * Short screens.
+ *
+ * A calculator is only finished when the visitor can see the fields, the
+ * answer and the buttons at once, and on a 900px-tall laptop the title band
+ * alone was pushing the buttons past the fold. Rather than shrink the design
+ * for everybody, the space comes back only where it is actually scarce: the
+ * constraint here is viewport height, so that is what is measured. A tall
+ * monitor keeps the artboard's spacing untouched.
+ *
+ * The width floor keeps this away from phones, which are short by definition
+ * and already have their own layout.
+ *
+ * This buys roughly 115px, which is enough for the five-field calculators.
+ * The six-field ones still need a short scroll, because six 84px rows cannot
+ * be made to fit without shrinking the fields themselves, and a field that is
+ * hard to type a five-figure sum into is a worse trade than a scroll.
+ */
+@media (min-width: 900px) and (max-height: 900px) {
+	.calcr-page,
+	.calcr-hub {
+		padding-block: 16px 56px;
+	}
+
+	.calcr-page__head {
+		gap: 12px;
+		padding-bottom: 20px;
+	}
+
+	.calcr-page__title {
+		font-size: clamp(28px, 3vw, 38px);
+	}
+
+	.calcr-page__intro {
+		font-size: 17px;
+	}
+
+	/* The tile is sized by a custom property set on the element itself, which
+	   a stylesheet cannot reach, so the resolved dimensions are set instead.
+	   Same result, no !important. */
+	.calcr-page__tile {
+		width: 56px;
+		height: 56px;
+		border-radius: 16px;
+	}
+
+	.calcr-page__tile svg {
+		width: 28px;
+		height: 28px;
+	}
+
+	.calcr-page__lockup {
+		gap: 18px;
+	}
+
+	.calcr__form {
+		padding: 26px 32px;
+		gap: 16px;
+	}
+
+	.calcr__result {
+		padding: 26px 32px;
+	}
+
+	.calcr__actions {
+		padding: 16px 32px;
+	}
+
+	.calcr__disclaimer {
+		margin: 0 32px 22px;
+	}
+
+	.calcr-field {
+		gap: 6px;
+	}
 }

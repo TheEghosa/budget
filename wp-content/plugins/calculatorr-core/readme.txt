@@ -4,7 +4,7 @@ Tags: calculator, tools, seo, elementor
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 1.7.0
+Stable tag: 1.7.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -65,6 +65,14 @@ In the visitor's browser. Nothing is sent to the server, so salaries, weights
 and health measurements never leave the device.
 
 == Changelog ==
+
+= 1.7.1 =
+The logo mark sits beside the wordmark rather than above it, in the header and
+the footer both. The answer panel now opens showing the worked answer to the
+numbers the fields carry as placeholders, muted and labelled as an example,
+instead of an empty dash beside filled-looking fields. On a laptop-height
+screen the title band tightens so the buttons come up into the first screen,
+while a tall monitor keeps the spacing the design specifies.
 
 = 1.7.0 =
 One design across the whole site. The category pages are rebuilt to the same

@@ -114,11 +114,25 @@ body:has( .calcr-hub ) .page-content {
 	line-height: 0;
 }
 
-.site-header .custom-logo-link,
-.site-footer .custom-logo-link {
-	display: inline-flex;
+/*
+ * The mark sits beside the wordmark, not above it.
+ *
+ * Hello Elementor lays the logo link out as a block:
+ *
+ *   .site-header .header-inner .custom-logo-link { display: block }
+ *
+ * which is (0,3,0), so a two-class selector loses to it and the image drops
+ * onto its own line under the mark. Four classes settle it on specificity
+ * rather than on load order, which is the same reason the input fields and the
+ * card titles are written the way they are: once a cache plugin starts
+ * combining stylesheets, order is not ours to promise.
+ */
+.site-header .header-inner .site-branding .custom-logo-link,
+.site-footer .footer-inner .site-branding .custom-logo-link {
+	display: flex;
 	align-items: center;
 	gap: 12px;
+	text-decoration: none;
 }
 
 /* The mark. It keeps its size while the wordmark beside it scales, because a
