@@ -209,12 +209,52 @@ class Calculatorr_Schema {
 		);
 	}
 
+	/**
+	 * Drops the page-level node another SEO plugin already publishes, and
+	 * replaces the references that pointed at nodes this graph no longer
+	 * carries, because an @id that resolves to nothing is worse than an
+	 * Organization written out in full.
+	 */
+	private function without_shared_nodes( $graph ) {
+		$publisher = array(
+			'@type' => 'Organization',
+			'name'  => get_bloginfo( 'name' ),
+			'url'   => home_url( '/' ),
+		);
+
+		$kept = array();
+
+		foreach ( $graph as $node ) {
+			if ( isset( $node['@type'] ) && 'WebPage' === $node['@type'] ) {
+				continue;
+			}
+
+			unset( $node['isPartOf'] );
+
+			if ( isset( $node['publisher'] ) ) {
+				$node['publisher'] = $publisher;
+			}
+
+			$kept[] = $node;
+		}
+
+		return $kept;
+	}
+
 	public function output() {
 		if ( ! Calculatorr_Settings::instance()->get( 'schema_enabled' ) ) {
 			return;
 		}
 
-		$graph = array( $this->organization(), $this->website() );
+		/*
+		 * A dedicated SEO plugin publishes Organization, WebSite and a WebPage
+		 * node of its own. Emitting a second set of those is not an error, but
+		 * it asks a crawler to reconcile two descriptions of the same thing,
+		 * so when one is installed this graph narrows to the part it uniquely
+		 * knows about: the tool, its breadcrumb and its questions.
+		 */
+		$shared = ! Calculatorr_SEO::instance()->other_plugin_active();
+		$graph  = $shared ? array( $this->organization(), $this->website() ) : array();
 
 		$config = Calculatorr_Pages::current();
 
@@ -225,12 +265,20 @@ class Calculatorr_Schema {
 
 			if ( $category ) {
 				$graph = array_merge( $graph, $this->category_nodes( $category ) );
-			} elseif ( ! is_front_page() ) {
+			} elseif ( ! $shared || ! is_front_page() ) {
 				/* Organization and WebSite belong on the home page and on our
 				   own pages. Emitting them across somebody else's blog posts
 				   would just duplicate whatever their theme already outputs. */
 				return;
 			}
+		}
+
+		if ( ! $shared ) {
+			$graph = $this->without_shared_nodes( $graph );
+		}
+
+		if ( ! $graph ) {
+			return;
 		}
 
 		$payload = array(

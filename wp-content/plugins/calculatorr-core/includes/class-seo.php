@@ -18,6 +18,7 @@ class Calculatorr_SEO {
 	private static $instance = null;
 
 	/** @var bool Whether another plugin already owns the meta tags. */
+	private $other_plugin = false;
 	private $deferring = false;
 
 	public static function instance() {
@@ -28,7 +29,8 @@ class Calculatorr_SEO {
 	}
 
 	private function __construct() {
-		$this->deferring = $this->another_seo_plugin_is_active()
+		$this->other_plugin = $this->another_seo_plugin_is_active();
+		$this->deferring    = $this->other_plugin
 			|| ! Calculatorr_Settings::instance()->get( 'seo_enabled' );
 
 		if ( $this->deferring ) {
@@ -47,6 +49,18 @@ class Calculatorr_SEO {
 
 	public function is_deferring() {
 		return $this->deferring;
+	}
+
+	/**
+	 * Whether a dedicated SEO plugin is publishing the head.
+	 *
+	 * This is deliberately not the same question as is_deferring(): the plugin
+	 * also stands down when its own SEO output has simply been switched off,
+	 * and in that case nothing else is emitting Organization or WebSite, so
+	 * the schema still should.
+	 */
+	public function other_plugin_active() {
+		return $this->other_plugin;
 	}
 
 	private function another_seo_plugin_is_active() {

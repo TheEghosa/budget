@@ -36,6 +36,7 @@ node tests/test-formulas.js    | tail -1
 node tests/test-robustness.js  | tail -1
 php  tests/test-render.php     | tail -2
 php  tests/test-settings.php   | tail -1
+php  tests/test-seo-handover.php | tail -1
 
 echo "==> Packaging $SLUG $VERSION"
 mkdir -p "$OUT_DIR"
