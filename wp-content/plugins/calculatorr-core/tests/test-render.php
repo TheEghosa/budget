@@ -233,6 +233,54 @@ foreach ( array( '.calcr-field', '.calcr__share-panel', '.calcr__sticky' ) as $s
 	}
 }
 
+/*
+ * The generated home and hub pages.
+ *
+ * These are built by tools/build-home.py rather than rendered by the plugin, so
+ * nothing above this point looks at them, and a regression there would ship
+ * silently. The three checks below are each a bug that actually happened.
+ */
+foreach ( array( 'home.html', 'all-calculators.html' ) as $page ) {
+	$path = dirname( __DIR__ ) . '/content/' . $page;
+
+	if ( ! file_exists( $path ) ) {
+		$errors[] = 'content: ' . $page . ' has not been generated';
+		continue;
+	}
+
+	$markup = file_get_contents( $path );
+
+	/*
+	 * Card titles came out teal once, because `.ch a` sets the link colour at
+	 * specificity (0,1,1) and the card's own `color:inherit` sits at (0,1,0)
+	 * and loses. The fix has to out-specify the link rule, so the check is that
+	 * the winning selector is still there rather than that some rule mentions
+	 * the colour.
+	 */
+	if ( false === strpos( $markup, '.ch a.ch-cat,.ch a.ch-tool{color:var(--ch-ink)}' ) ) {
+		$errors[] = 'content: ' . $page . ' no longer forces card titles back to the text colour, so they will inherit the teal link colour';
+	}
+
+	/*
+	 * The floating chips carry a small line over a solid brand or accent fill.
+	 * Fading it, which the artboard does at 0.75, drops it to 3.5:1 on the
+	 * light-mode amber, and nothing below 0.95 clears 4.5:1, so the fade is
+	 * never the right answer here.
+	 */
+	if ( preg_match( '/\.ch-float\s+small\{[^}]*opacity/', $markup ) ) {
+		$errors[] = 'content: ' . $page . ' fades the chip caption, which fails the contrast floor on the light-mode amber';
+	}
+
+	/*
+	 * The chips are anchored to a stage that is wider than the card. Negative
+	 * offsets put them outside the hero column instead, which crowded the
+	 * viewport edge at 1440.
+	 */
+	if ( preg_match( '/\.ch-float--(bmi|tip|pct)\{[^}]*:-\d/', $markup ) ) {
+		$errors[] = 'content: ' . $page . ' hangs a floating chip on a negative offset, which puts it outside the hero column';
+	}
+}
+
 restore_error_handler();
 
 $depth = $GLOBALS['calcr_depth'];

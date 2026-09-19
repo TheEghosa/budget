@@ -32,6 +32,28 @@ body:not([class*="elementor-page-"]) .site-main,
 	padding-inline: clamp( 16px, 4vw, 64px );
 }
 
+/*
+ * The full-bleed pages are the exception to the rule above.
+ *
+ * The home and hub pages paint their own edge-to-edge bands, so rather than
+ * letting them escape the container with the usual width:100vw trick, the
+ * container is released for them. That matters because 100vw counts the
+ * scrollbar and a percentage margin does not, so the two disagree by the
+ * scrollbar's width, and on a page whose wrapper then grows to fit the
+ * overflow the error compounds and shifts the whole layout sideways. Nothing
+ * here uses viewport units, so there is nothing for a scrollbar to throw off.
+ *
+ * If this stylesheet fails to load the pages simply render inside the normal
+ * container: narrower than intended, but never shifted or clipped.
+ */
+body:has( .ch ) .site-main,
+body:has( .ch ) .page-content {
+	max-width: none;
+	width: 100%;
+	margin-inline: 0;
+	padding-inline: 0;
+}
+
 /* --------------------------------------------------------------- header -- */
 
 .site-header.dynamic-header {
