@@ -50,6 +50,7 @@ rm -f "$ZIP"
 	-x "$SLUG/tests/*" \
 	-x "$SLUG/tools/*" \
 	-x "$SLUG/content/*" \
+	-x "$SLUG/design/*" \
 	-x "$SLUG/.git*" \
 	-x "$SLUG/node_modules/*" \
 	-x "$SLUG/*.zip" \

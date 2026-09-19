@@ -4,7 +4,7 @@ Tags: calculator, tools, seo, elementor
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 1.5.0
+Stable tag: 1.6.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -65,6 +65,13 @@ In the visitor's browser. Nothing is sent to the server, so salaries, weights
 and health measurements never leave the device.
 
 == Changelog ==
+
+= 1.6.0 =
+* The answer follows you up the page on a phone: a sticky bar carrying the live figure and a Breakdown button that scrolls to the full result.
+* It only appears when it earns its place. It watches the figure rather than the panel, stays up while a field has focus, rides the visual viewport so an on-screen keyboard cannot bury it, and never shows at 768px and wider where the result already sits beside the inputs.
+* Exactly one live region is active at a time, so a screen reader does not read every keystroke twice.
+* The result panel gained the sentence the design puts under the number, saying what the figure is an answer to.
+* The ten design artboards are vendored into the plugin as rendered markup, so the reference cannot drift away from the build.
 
 = 1.5.0 =
 * The palette is now generated from the design system's tokens.json rather than hand-written, with two corrections applied in the generator so regenerating cannot undo them: amber gets a light-mode value, and text-subtle clears the hover surface it was failing on.

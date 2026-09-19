@@ -143,6 +143,13 @@
 			} );
 		}
 
+		var sub = root.querySelector( '[data-calcr-primary-sub]' );
+
+		if ( sub ) {
+			sub.textContent = result.sub || '';
+			sub.hidden = ! result.sub;
+		}
+
 		if ( note ) {
 			note.textContent = result.note || '';
 			note.hidden = ! result.note;
@@ -249,21 +256,138 @@
 	 * screen, because showing it while the real panel is visible would cover
 	 * content to repeat something already in view.
 	 */
+	/**
+	 * The sticky answer bar on a phone.
+	 *
+	 * On a 390 by 844 screen the inputs push the number below the fold, so it
+	 * follows the visitor up the page while they type. Everything here exists
+	 * to stop it appearing when it is not useful, because a bar that is always
+	 * there is just a smaller screen.
+	 */
 	function bindSticky( root ) {
 		var bar = root.querySelector( '[data-calcr-sticky]' );
 		var panel = root.querySelector( '[data-calcr-result]' );
+		var number = root.querySelector( '[data-calcr-primary-value]' );
 
-		if ( ! bar || ! panel || ! ( 'IntersectionObserver' in window ) ) {
+		if ( ! bar || ! panel || ! number ) {
 			return;
 		}
 
-		var observer = new IntersectionObserver( function ( entries ) {
-			entries.forEach( function ( entry ) {
-				bar.hidden = entry.isIntersecting;
-			} );
-		}, { threshold: 0 } );
+		var wide = window.matchMedia ? window.matchMedia( '(min-width: 768px)' ) : null;
+		var numberVisible = false;
+		var typing = false;
 
-		observer.observe( panel );
+		/* The bar owns the live region while it is showing and the panel gives
+		   its up, because two regions announcing the same number means a
+		   screen reader reads every keystroke twice. */
+		function announceFrom( element ) {
+			bar.setAttribute( 'aria-live', element === bar ? 'polite' : 'off' );
+			panel.setAttribute( 'aria-live', element === panel ? 'polite' : 'off' );
+		}
+
+		function shouldShow() {
+			if ( wide && wide.matches ) {
+				return false;
+			}
+
+			/* Live feedback while typing is the bar's main job, so a focused
+			   field keeps it up even if the number happens to be on screen. */
+			return typing || ! numberVisible;
+		}
+
+		function sync() {
+			var show = shouldShow();
+
+			if ( show === ! bar.hidden ) {
+				announceFrom( show ? bar : panel );
+				return;
+			}
+
+			if ( show ) {
+				bar.hidden = false;
+				/* Read back before adding the class so the browser has a frame
+				   to paint the hidden state from, otherwise the fade is
+				   skipped and the bar simply appears. */
+				void bar.offsetHeight;
+				bar.classList.add( 'is-visible' );
+			} else {
+				bar.classList.remove( 'is-visible' );
+				window.setTimeout( function () {
+					if ( ! shouldShow() ) {
+						bar.hidden = true;
+					}
+				}, 150 );
+			}
+
+			announceFrom( show ? bar : panel );
+		}
+
+		if ( 'IntersectionObserver' in window ) {
+			/* The number rather than the whole panel: on a tall result card the
+			   rows can be in view while the figure itself is still above the
+			   fold, and the figure is what the bar is standing in for. */
+			var observer = new IntersectionObserver( function ( entries ) {
+				entries.forEach( function ( entry ) {
+					numberVisible = entry.isIntersecting;
+				} );
+				sync();
+			}, { threshold: 1 } );
+
+			observer.observe( number );
+		}
+
+		root.addEventListener( 'focusin', function ( event ) {
+			if ( event.target.closest( '.calcr__form' ) ) {
+				typing = true;
+				sync();
+			}
+		} );
+
+		root.addEventListener( 'focusout', function () {
+			/* Deferred, because moving between two fields fires focusout
+			   before the next focusin and the bar would flicker. */
+			window.setTimeout( function () {
+				typing = !! ( document.activeElement && document.activeElement.closest
+					&& document.activeElement.closest( '.calcr__form' ) );
+				sync();
+			}, 0 );
+		} );
+
+		/* An on-screen keyboard shrinks the visual viewport without moving the
+		   layout viewport, so a bar fixed to the bottom of the page ends up
+		   behind the keyboard on iOS. Riding the visual viewport keeps it in
+		   sight, which is the whole point of it while somebody is typing. */
+		if ( window.visualViewport ) {
+			var ride = function () {
+				var vv = window.visualViewport;
+				var gap = ( window.innerHeight - vv.height - vv.offsetTop );
+				bar.style.transform = gap > 1 ? 'translateY(-' + Math.round( gap ) + 'px)' : '';
+			};
+
+			window.visualViewport.addEventListener( 'resize', ride );
+			window.visualViewport.addEventListener( 'scroll', ride );
+			ride();
+		}
+
+		if ( wide ) {
+			var onWide = function () { sync(); };
+
+			if ( wide.addEventListener ) {
+				wide.addEventListener( 'change', onWide );
+			} else if ( wide.addListener ) {
+				wide.addListener( onWide );
+			}
+		}
+
+		var breakdown = root.querySelector( '[data-calcr-breakdown]' );
+
+		if ( breakdown ) {
+			breakdown.addEventListener( 'click', function () {
+				panel.scrollIntoView( { behavior: 'smooth', block: 'center' } );
+			} );
+		}
+
+		sync();
 	}
 
 	/**

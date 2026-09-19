@@ -402,10 +402,17 @@ class Calculatorr_Renderer {
 				</div>
 			</form>
 
-			<output class="calcr__result" data-calcr-result>
+			<output class="calcr__result" data-calcr-result aria-live="polite">
 				<div class="calcr__primary">
 					<span class="calcr__primary-label" data-calcr-primary-label><?php echo esc_html( isset( $shown['label'] ) ? $shown['label'] : 'Result' ); ?></span>
 					<span class="calcr__primary-value" data-calcr-primary-value><?php echo esc_html( isset( $shown['value'] ) ? $shown['value'] : '—' ); ?></span>
+					<?php
+					/* The line under the number that says what it is an answer
+					   to: "for 180 months on a $48,000 loan". Hidden until a
+					   formula supplies one, because most do not. */
+					$sub = isset( $shown['sub'] ) ? $shown['sub'] : '';
+					?>
+					<span class="calcr__primary-sub" data-calcr-primary-sub<?php echo '' === $sub ? ' hidden' : ''; ?>><?php echo esc_html( $sub ); ?></span>
 				</div>
 
 				<div class="calcr__bar" data-calcr-bar hidden></div>
@@ -429,13 +436,24 @@ class Calculatorr_Renderer {
 				<p class="calcr__disclaimer"><?php echo esc_html( $config['disclaimer'] ); ?></p>
 			<?php endif; ?>
 
-			<?php /* Shown on phones once the result panel scrolls out of view, so
-			         the answer never leaves the screen while the inputs are being
-			         changed. Hidden from assistive tech because it duplicates the
-			         result panel, which is already announced. */ ?>
-			<div class="calcr__sticky" data-calcr-sticky hidden aria-hidden="true">
-				<span class="calcr__sticky-label" data-calcr-sticky-label><?php echo esc_html( isset( $shown['label'] ) ? $shown['label'] : 'Result' ); ?></span>
-				<span class="calcr__sticky-value" data-calcr-sticky-value><?php echo esc_html( isset( $shown['value'] ) ? $shown['value'] : '' ); ?></span>
+			<?php
+			/*
+			 * On a phone the inputs push the answer below the fold, so it
+			 * follows the visitor up the page. It carries the live region
+			 * while it is showing and the result panel gives its up, because
+			 * two live regions announcing the same number is how a screen
+			 * reader ends up reading every keystroke twice.
+			 */
+			?>
+			<div class="calcr__sticky" data-calcr-sticky hidden>
+				<div class="calcr__sticky-text">
+					<span class="calcr__sticky-label" data-calcr-sticky-label><?php echo esc_html( isset( $shown['label'] ) ? $shown['label'] : 'Result' ); ?></span>
+					<span class="calcr__sticky-value" data-calcr-sticky-value><?php echo esc_html( isset( $shown['value'] ) ? $shown['value'] : '—' ); ?></span>
+				</div>
+				<button type="button" class="calcr__sticky-btn" data-calcr-breakdown>
+					Breakdown
+					<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 5v14"></path><polyline points="6 13 12 19 18 13"></polyline></svg>
+				</button>
 			</div>
 		</div>
 		<?php

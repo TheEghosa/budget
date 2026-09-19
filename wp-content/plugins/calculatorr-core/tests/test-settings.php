@@ -798,6 +798,45 @@ $repeated = array_keys( array_filter( array_count_values( $hub_links[1] ), funct
 
 check( 'a category hub never lists the same calculator twice', $repeated, array() );
 
+/* --- the sticky answer on a phone ----------------------------------------- */
+
+/*
+ * Most of this only proves itself in a browser, and it is driven there too,
+ * but the markup and the rules it depends on can be pinned here so a refactor
+ * cannot quietly remove the parts the behaviour hangs off.
+ */
+$sticky_src = file_get_contents( CALCULATORR_PATH . 'assets/js/calculator.js' );
+$sticky_css = file_get_contents( CALCULATORR_PATH . 'assets/css/calculator.css' );
+
+check( 'the bar ships in the markup', false !== strpos( $amort, 'data-calcr-sticky' ), true );
+check( 'with a way back to the full result', false !== strpos( $amort, 'data-calcr-breakdown' ), true );
+check( 'and the answer it stands in for', false !== strpos( $amort, 'data-calcr-sticky-value' ), true );
+
+/* Two live regions announcing the same number means a screen reader reads
+   every keystroke twice, so exactly one of them is live at a time. */
+check( 'the panel declares a live region', false !== strpos( $amort, 'aria-live="polite"' ), true );
+check( 'and the bar can take it over', false !== strpos( $sticky_src, "announceFrom" ), true );
+
+/* The number, not the panel: on a tall result card the rows can be in view
+   while the figure is still above the fold. */
+check( 'the observer watches the figure itself', false !== strpos( $sticky_src, "querySelector( '[data-calcr-primary-value]' )" ), true );
+check( 'a focused field keeps the bar up', false !== strpos( $sticky_src, 'typing' ), true );
+check( 'the bar rides the visual viewport', false !== strpos( $sticky_src, 'visualViewport' ), true );
+
+/* At 768 and up the result sits beside the inputs, so a bar would be covering
+   the page for nothing. */
+check( 'it never shows on a wide screen', false !== strpos( $sticky_src, "'(min-width: 768px)'" ), true );
+check( 'and the stylesheet agrees', (bool) preg_match( '/@media \( max-width: 767px \)/', $sticky_css ), true );
+
+/* A bar that slides up under a thumb already heading for a field steals the
+   tap, so it fades without moving. */
+check( 'it fades rather than slides', (bool) preg_match( '/\.calcr__sticky \{[^}]*transition: opacity 150ms/s', $sticky_css ), true );
+check( 'the page leaves room beneath it', (bool) preg_match( '/padding-bottom: 92px/', $sticky_css ), true );
+
+/* The bar wears the result panel's colours, and those must not be a token that
+   inverts, for the reason the footer did. */
+check( 'the bar uses the result surface', (bool) preg_match( '/\.calcr__sticky \{[^}]*background: var\(--c-result-bg\)/s', $sticky_css ), true );
+
 /* --- results -------------------------------------------------------------- */
 printf( "%d checks\n\n", $checks );
 foreach ( $failures as $failure ) { echo "  FAIL $failure\n"; }

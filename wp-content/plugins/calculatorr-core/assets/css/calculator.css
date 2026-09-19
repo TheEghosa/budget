@@ -640,7 +640,12 @@
 	display: none;
 }
 
-@media (max-width: 860px) {
+/*
+ * The sticky answer, on phones only. The breakpoint is 768 rather than the 860
+ * it used, because at 768 and up the result sits beside the inputs and is
+ * never below the fold, so a bar there would be covering the page for nothing.
+ */
+@media ( max-width: 767px ) {
 	.calcr__sticky {
 		position: fixed;
 		left: 0;
@@ -648,36 +653,96 @@
 		bottom: 0;
 		z-index: 40;
 		display: flex;
-		flex-direction: column;
-		gap: 1px;
-		padding: 10px 16px calc(10px + env(safe-area-inset-bottom));
-		background: var(--calcr-ink);
-		color: #FFFFFF;
-		box-shadow: 0 -2px 12px rgba(20, 24, 29, 0.18);
+		align-items: center;
+		gap: 14px;
+		padding: 12px 20px calc( 20px + env( safe-area-inset-bottom ) );
+		/* The result panel's own colours rather than a slab of ink, so the bar
+		   reads as the answer following you up the page rather than as a
+		   separate piece of furniture. */
+		background: var(--c-result-bg);
+		border-top: 1px solid var(--c-result-border);
+		box-shadow: 0 -12px 32px rgba( 0, 0, 0, 0.28 );
+		/* A fade with no movement: a bar that slides up under a thumb already
+		   heading for a field is a bar that steals the tap. */
+		opacity: 0;
+		transition: opacity 150ms ease;
+	}
+
+	.calcr__sticky.is-visible {
+		opacity: 1;
 	}
 
 	.calcr__sticky[hidden] {
 		display: none;
 	}
 
+	.calcr__sticky-text {
+		display: flex;
+		flex-direction: column;
+		gap: 2px;
+		min-width: 0;
+		flex: 1 1 auto;
+	}
+
 	.calcr__sticky-label {
-		font-size: 12px;
-		opacity: 0.72;
+		font-size: 13px;
+		font-weight: 600;
+		color: var(--c-brand-soft-text);
 	}
 
 	.calcr__sticky-value {
 		font-family: var(--calcr-font-display);
-		font-size: 22px;
+		font-size: 26px;
 		font-weight: 700;
 		font-variant-numeric: tabular-nums;
-		line-height: 1.15;
+		line-height: 1.1;
+		color: var(--c-text-primary);
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+
+	.calcr__sticky-btn {
+		flex: 0 0 auto;
+		display: inline-flex;
+		align-items: center;
+		gap: 7px;
+		min-height: 44px;
+		padding: 0 16px;
+		background: transparent;
+		color: var(--c-text-primary);
+		border: 1px solid var(--c-result-border);
+		border-radius: var(--radius-button);
+		font-family: var(--calcr-font-display);
+		font-size: 15px;
+		font-weight: 600;
+		cursor: pointer;
+	}
+
+	.calcr__sticky-btn svg {
+		flex-shrink: 0;
 	}
 
 	/* The bar floats over the page, so the last section needs room beneath it
 	   or the footer links end up permanently unreachable. */
 	.calcr-page {
-		padding-bottom: 76px;
+		padding-bottom: 92px;
 	}
+}
+
+/* The answer's own sentence, under the number: "for 180 months on a $48,000
+   loan". It explains what the figure is an answer to, which the label alone
+   cannot. */
+.calcr__primary-sub {
+	display: block;
+	margin-top: 6px;
+	font-size: 15px;
+	line-height: 1.5;
+	color: var(--c-result-muted);
+}
+
+.calcr__primary-sub[hidden] {
+	display: none;
 }
 
 /* ---------- Focus, for keyboard users ---------- */

@@ -3,7 +3,7 @@
  * Plugin Name:       Calculatorr Core
  * Plugin URI:        https://calculatorr.org
  * Description:       Powers every calculator on calculatorr.org. Each calculator is one config file, so adding the hundred and first is a config file rather than a new template.
- * Version:           1.5.0
+ * Version:           1.6.0
  * Requires at least: 6.0
  * Requires PHP:      7.4
  * Author:            calculatorr.org
@@ -15,7 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'CALCULATORR_VERSION', '1.5.0' );
+define( 'CALCULATORR_VERSION', '1.6.0' );
 define( 'CALCULATORR_FILE', __FILE__ );
 define( 'CALCULATORR_PATH', plugin_dir_path( __FILE__ ) );
 define( 'CALCULATORR_URL', plugin_dir_url( __FILE__ ) );
