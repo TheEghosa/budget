@@ -334,6 +334,34 @@ check( 'the panel says what to do', (bool) strpos( $amort, 'Fill in the fields a
 check( 'copy starts disabled', (bool) preg_match( '/data-calcr-copy\s+disabled/', $amort ), true );
 check( 'share starts disabled', (bool) preg_match( '/data-calcr-share-toggle[^>]*\sdisabled/', $amort ), true );
 
+/*
+ * Reset starts inert too. A freshly loaded form has nothing to reset to, and
+ * once the fields open blank a live-looking button that does nothing when
+ * pressed reads as broken rather than as finished. The runtime enables it the
+ * moment anything differs from what was served.
+ */
+check( 'reset starts disabled', (bool) preg_match( '/data-calcr-reset\s+disabled/', $amort ), true );
+
+/* The shareable image is square first: that is the shape Instagram, LinkedIn
+   and a phone screenshot all accept without recropping. */
+check(
+	'square is the default share shape',
+	(bool) preg_match( '/class="calcr__share-format is-active" data-calcr-format="square"/', $amort ),
+	true
+);
+check(
+	'wide is offered second',
+	(bool) preg_match( '/data-calcr-format="landscape" aria-pressed="false"/', $amort ),
+	true
+);
+
+/* Reset has to put repeater rows back as well. It used to clear the ordinary
+   fields and leave every added row sitting there with its figures in it,
+   which on a GPA or a timesheet is most of what needed clearing. */
+$runtime = file_get_contents( CALCULATORR_PATH . 'assets/js/calculator.js' );
+check( 'reset restores repeater rows', (bool) strpos( $runtime, 'data-calcr-rep-initial' ), true );
+check( 'reset state follows the form', (bool) strpos( $runtime, 'function isPristine' ), true );
+
 /* A default of zero is the config author saying this one can be left alone,
    so it must not hold the whole result back. */
 $waste = $renderer->shortcode( array( 'slug' => 'cubic-yard-calculator' ) );

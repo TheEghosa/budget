@@ -4,7 +4,7 @@ Tags: calculator, tools, seo, elementor
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 1.2.0
+Stable tag: 1.2.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -65,6 +65,11 @@ In the visitor's browser. Nothing is sent to the server, so salaries, weights
 and health measurements never leave the device.
 
 == Changelog ==
+
+= 1.2.1 =
+* Reset now starts disabled and switches on the moment anything changes, because with blank fields there was nothing to reset on a fresh page and a live-looking button that did nothing read as broken.
+* Reset also restores repeater rows, which it had never touched: added rows and their figures were left sitting there on the GPA and time card calculators.
+* The shareable image is square by default, with wide still offered.
 
 = 1.2.0 =
 * One palette across the whole site. The homepage carried its own light colours while the chrome followed the theme, so in dark mode the headings went white on white and the footer band turned into a white slab.

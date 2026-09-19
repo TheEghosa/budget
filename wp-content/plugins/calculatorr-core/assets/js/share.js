@@ -117,7 +117,7 @@
 	};
 
 	function drawCard( result, heading, format ) {
-		var spec = FORMATS[ format ] || FORMATS.landscape;
+		var spec = FORMATS[ format ] || FORMATS.square;
 		var W = spec.w;
 		var H = spec.h;
 		var pad = 64;

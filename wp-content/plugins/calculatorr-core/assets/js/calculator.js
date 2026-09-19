@@ -367,8 +367,73 @@
 		}
 	}
 
+	/**
+	 * Whether the form still holds exactly what it was rendered with.
+	 *
+	 * Reset has nothing to do in that state, which matters more than it sounds:
+	 * since the fields now open blank, a freshly loaded page has nothing to
+	 * clear, and a button that looks live and does nothing reads as broken
+	 * rather than as finished.
+	 */
+	function isPristine( root ) {
+		var defaults = root.__calcrDefaults;
+
+		if ( ! defaults ) {
+			return false;
+		}
+
+		var pristine = true;
+
+		root.querySelectorAll( '[data-calcr-input]' ).forEach( function ( el ) {
+			var key = el.getAttribute( 'data-calcr-input' );
+
+			if ( defaults.hasOwnProperty( key ) && String( el.value ) !== String( defaults[ key ] ) ) {
+				pristine = false;
+			}
+		} );
+
+		/* A row added or removed is a change even when every box in it is
+		   still empty. */
+		root.querySelectorAll( '[data-calcr-repeater]' ).forEach( function ( rep ) {
+			var name = rep.getAttribute( 'data-calcr-repeater' );
+			var rows = rep.querySelectorAll( '[data-calcr-rep-row]' ).length;
+			var was = root.__calcrRows && root.__calcrRows[ name ];
+
+			if ( was !== undefined && was !== rows ) {
+				pristine = false;
+			}
+		} );
+
+		root.querySelectorAll( '[data-calcr-rep-cell]' ).forEach( function ( cell ) {
+			var seeded = cell.getAttribute( 'data-calcr-rep-seeded' );
+			var value = String( cell.value ).trim();
+
+			if ( null === seeded ) {
+				if ( '' !== value ) {
+					pristine = false;
+				}
+				return;
+			}
+
+			if ( '' !== seeded && value !== seeded ) {
+				pristine = false;
+			}
+		} );
+
+		return pristine;
+	}
+
+	function updateResetState( root ) {
+		var reset = root.querySelector( '[data-calcr-reset]' );
+
+		if ( reset ) {
+			reset.disabled = isPristine( root );
+		}
+	}
+
 	function recalculate( root ) {
 		applyVisibility( root );
+		updateResetState( root );
 
 		var slug = root.getAttribute( 'data-calcr-slug' );
 		var formula = FORMULAS[ slug ];
@@ -569,6 +634,35 @@
 			defaults[ el.getAttribute( 'data-calcr-input' ) ] = el.value;
 		} );
 
+		/* Stashed on the element because the reset button's enabled state is
+		   decided during recalculation, which happens outside this scope. */
+		root.__calcrDefaults = defaults;
+		root.__calcrRows = {};
+
+		/* Cells that arrived with something in them, a dropdown included, are
+		   part of the starting state rather than something the visitor typed.
+		   They are marked first so the snapshot taken next carries the marks,
+		   otherwise a restored row looks like fresh input and leaves the reset
+		   button enabled straight after a reset. */
+		root.querySelectorAll( '[data-calcr-rep-cell]' ).forEach( function ( cell ) {
+			if ( '' !== String( cell.value ).trim() ) {
+				cell.setAttribute( 'data-calcr-rep-seeded', String( cell.value ) );
+			}
+		} );
+
+		root.querySelectorAll( '[data-calcr-repeater]' ).forEach( function ( rep ) {
+			root.__calcrRows[ rep.getAttribute( 'data-calcr-repeater' ) ] = rep.querySelectorAll( '[data-calcr-rep-row]' ).length;
+
+			/* The row markup as it was served, so reset can put back the
+			   original number of rows rather than only blanking the ones that
+			   happen to still be there. */
+			var list = rep.querySelector( '[data-calcr-rep-list]' );
+
+			if ( list ) {
+				list.setAttribute( 'data-calcr-rep-initial', list.innerHTML );
+			}
+		} );
+
 		root.addEventListener( 'input', function ( event ) {
 			if ( event.target.matches( '[data-calcr-input], [data-calcr-rep-cell]' ) ) {
 				recalculate( root );
@@ -602,6 +696,18 @@
 				root.querySelectorAll( '[data-calcr-input]' ).forEach( function ( el ) {
 					if ( defaults.hasOwnProperty( el.getAttribute( 'data-calcr-input' ) ) ) {
 						el.value = defaults[ el.getAttribute( 'data-calcr-input' ) ];
+					}
+				} );
+
+				/* Repeaters were missed entirely: reset cleared the ordinary
+				   fields and left every added row sitting there with its
+				   figures in it, which on a GPA or a timesheet is most of what
+				   the visitor wanted cleared. */
+				root.querySelectorAll( '[data-calcr-rep-list]' ).forEach( function ( list ) {
+					var original = list.getAttribute( 'data-calcr-rep-initial' );
+
+					if ( null !== original ) {
+						list.innerHTML = original;
 					}
 				} );
 

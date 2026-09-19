@@ -316,7 +316,7 @@ class Calculatorr_Renderer {
 				}
 				?>
 				<div class="calcr__actions">
-					<button type="button" class="calcr__btn calcr__btn--ghost" data-calcr-reset>
+					<button type="button" class="calcr__btn calcr__btn--ghost" data-calcr-reset disabled>
 						<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><path d="M3 12a9 9 0 1 0 3-6.7"></path><polyline points="3 4 3 10 9 10"></polyline></svg>
 						Reset
 					</button>
@@ -337,8 +337,8 @@ class Calculatorr_Renderer {
 							<p class="calcr__share-title">Share this result</p>
 
 							<div class="calcr__share-formats" role="group" aria-label="Image shape">
-								<button type="button" class="calcr__share-format is-active" data-calcr-format="landscape" aria-pressed="true">Wide</button>
-								<button type="button" class="calcr__share-format" data-calcr-format="square" aria-pressed="false">Square</button>
+								<button type="button" class="calcr__share-format is-active" data-calcr-format="square" aria-pressed="true">Square</button>
+								<button type="button" class="calcr__share-format" data-calcr-format="landscape" aria-pressed="false">Wide</button>
 							</div>
 
 							<div class="calcr__share-preview" data-calcr-preview></div>
